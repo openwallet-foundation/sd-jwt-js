@@ -1,14 +1,19 @@
 import { SDJWTException, uint8ArrayToBase64Url } from '@sd-jwt/utils';
 import { Jwt } from './jwt';
 import { KBJwt } from './kbjwt';
-import { SDJwt, pack } from './sdjwt';
+import {
+  type SDJJWTJson,
+  type SDJWTJsonFlattened,
+  SDJwt,
+  pack,
+  type SDJWTType,
+} from './sdjwt';
 import {
   type DisclosureFrame,
   type Hasher,
   type KBOptions,
   KB_JWT_TYP,
   type PresentationFrame,
-  type SDJWTCompact,
   type SDJWTConfig,
   type JwtPayload,
 } from '@sd-jwt/types';
@@ -18,6 +23,10 @@ export * from './sdjwt';
 export * from './kbjwt';
 export * from './jwt';
 export * from './decoy';
+
+export type SerializationJson = 'json' | 'json-flattended';
+
+export type Serialization = 'compact' | SerializationJson;
 
 export type SdJwtPayload = Record<string, unknown>;
 
@@ -77,10 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   public async issue<Payload extends ExtendedPayload>(
     payload: Payload,
     disclosureFrame?: DisclosureFrame<Payload>,
-    options?: {
+    options: {
       header?: object; // This is for customizing the header of the jwt
-    },
-  ): Promise<SDJWTCompact> {
+      serialization?: Serialization; // This is for specifying the serialization of the jwt, default is compact
+    } = { serialization: 'compact' },
+  ): Promise<SDJWTType> {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -125,7 +135,9 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       jwt,
       disclosures,
     });
-
+    if (options?.serialization !== 'compact') {
+      return sdJwt.encodeSDJwtJson(options.serialization);
+    }
     return sdJwt.encodeSDJwt();
   }
 
@@ -141,12 +153,13 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   }
 
   public async present<T extends Record<string, unknown>>(
-    encodedSDJwt: string,
+    encodedSDJwt: SDJWTType,
     presentationFrame?: PresentationFrame<T>,
     options?: {
       kb?: KBOptions;
     },
-  ): Promise<SDJWTCompact> {
+  ): Promise<SDJWTType> {
+    //TODO: update
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -178,7 +191,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   // If requiredClaimKeys is provided, it will check if the required claim keys are presentation in the SD JWT
   // If requireKeyBindings is true, it will check if the key binding JWT is presentation and verify it
   public async verify(
-    encodedSDJwt: string,
+    encodedSDJwt: SDJWTType,
     requiredClaimKeys?: string[],
     requireKeyBindings?: boolean,
   ) {
@@ -240,23 +253,52 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return { payload, header, kb };
   }
 
+  /**
+   * Calculate the SD hash
+   * @param presentSdJwtWithoutKb
+   * @param sdjwt
+   * @param hasher
+   * @returns
+   */
   private async calculateSDHash(
-    presentSdJwtWithoutKb: string,
+    presentSdJwtWithoutKb: SDJWTType,
     sdjwt: SDJwt,
     hasher: Hasher,
   ) {
+    let data: string;
     if (!sdjwt.jwt || !sdjwt.jwt.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
     const { _sd_alg } = getSDAlgAndPayload(sdjwt.jwt.payload);
-    const sdHash = await hasher(presentSdJwtWithoutKb, _sd_alg);
+    if (
+      typeof presentSdJwtWithoutKb !== 'string' &&
+      (presentSdJwtWithoutKb as SDJJWTJson).signatures
+    ) {
+      const sdJwtJson = presentSdJwtWithoutKb as SDJJWTJson;
+      data = `${sdJwtJson.signatures[0].protected}.${sdJwtJson.payload}.${sdJwtJson.signatures[0].signature}~`;
+      for (const disclosure of sdJwtJson.signatures[0].header.disclosures) {
+        data += `${disclosure}~`;
+      }
+    } else if (
+      typeof presentSdJwtWithoutKb !== 'string' &&
+      (presentSdJwtWithoutKb as SDJWTJsonFlattened).signature
+    ) {
+      const sdJwtJsonFlattened = presentSdJwtWithoutKb as SDJWTJsonFlattened;
+      data = `${sdJwtJsonFlattened.protected}.${sdJwtJsonFlattened.payload}.${sdJwtJsonFlattened.signature}~`;
+      for (const disclosure of sdJwtJsonFlattened.header?.disclosures ?? []) {
+        data += `${disclosure}~`;
+      }
+    } else {
+      data = presentSdJwtWithoutKb as string;
+    }
+    const sdHash = await hasher(data, _sd_alg);
     const sdHashStr = uint8ArrayToBase64Url(sdHash);
     return sdHashStr;
   }
 
   // This function is for validating the SD JWT
   // Just checking signature and return its the claims
-  public async validate(encodedSDJwt: string) {
+  public async validate(encodedSDJwt: SDJWTType) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -276,18 +318,21 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     this.userConfig = { ...this.userConfig, ...newConfig };
   }
 
-  public encode(sdJwt: SDJwt): SDJWTCompact {
-    return sdJwt.encodeSDJwt();
+  public encode(sdJwt: SDJwt, type: SDJWTType = 'compact') {
+    if (type === 'json') {
+      return sdJwt.encodeSDJwt();
+    }
+    return sdJwt.encodeSDJwtJson();
   }
 
-  public decode(endcodedSDJwt: SDJWTCompact) {
+  public decode(endcodedSDJwt: SDJWTType) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
     return SDJwt.fromEncode(endcodedSDJwt, this.userConfig.hasher);
   }
 
-  public async keys(endcodedSDJwt: SDJWTCompact) {
+  public async keys(endcodedSDJwt: SDJWTType) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -295,7 +340,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return sdjwt.keys(this.userConfig.hasher);
   }
 
-  public async presentableKeys(endcodedSDJwt: SDJWTCompact) {
+  public async presentableKeys(endcodedSDJwt: SDJWTType) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -303,7 +348,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return sdjwt.presentableKeys(this.userConfig.hasher);
   }
 
-  public async getClaims(endcodedSDJwt: SDJWTCompact) {
+  public async getClaims(endcodedSDJwt: SDJWTType) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }

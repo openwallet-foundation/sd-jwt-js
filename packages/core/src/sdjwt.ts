@@ -1,5 +1,10 @@
 import { createDecoy } from './decoy';
-import { SDJWTException, Disclosure } from '@sd-jwt/utils';
+import {
+  SDJWTException,
+  Disclosure,
+  base64urlEncode,
+  base64urlDecode,
+} from '@sd-jwt/utils';
 import { Jwt } from './jwt';
 import { KBJwt } from './kbjwt';
 import {
@@ -18,6 +23,47 @@ import {
 } from '@sd-jwt/types';
 import { createHashMapping, getSDAlgAndPayload, unpack } from '@sd-jwt/decode';
 import { transformPresentationFrame } from '@sd-jwt/present';
+import type { Serialization, SerializationJson } from '.';
+
+type Signature = {
+  // The "protected" member MUST be present and contain the value BASE64URL(UTF8(JWS Protected Header)) when the JWS Protected Header value is non-empty; otherwise, it MUST be absent.  These Header Parameter values are integrity protected.
+  protected: string;
+  // The "header" member MUST be present and contain the value JWS Unprotected Header when the JWS Unprotected Header value is non-empty; otherwise, it MUST be absent.  This value is represented as an unencoded JSON object, rather than as a string.  These Header Parameter values are not integrity protected.
+  header: {
+    // only included in the first signature of the signature array
+    disclosures: string[];
+    kid?: string;
+    // only included in the first signature of the signature array
+    kb_jwt?: string;
+  };
+  // The "signature" member MUST be present and contain the value BASE64URL(JWS Signature).
+  signature: string;
+};
+
+/**
+ * General Json serialization of a SD-JWT based on https://www.rfc-editor.org/rfc/rfc7515.html#section-7.2.1 for JWT and extended
+ */
+export type SDJJWTJson = {
+  // the "payload" member MUST be present and contain the value BASE64URL(JWS Payload).
+  payload: string;
+  // The "signatures" member value MUST be an array of JSON objects. Each object represents a signature or MAC over the JWS Payload and the JWS Protected Header.
+  signatures: Array<Signature>;
+};
+
+export type SDJWTJsonFlattened = {
+  header?: {
+    // An array of strings where each element is an individual Disclosure as described in https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-09.html#creating_disclosures
+    disclosures?: Array<string>;
+    // Present only in an SD-JWT+KB, the Key Binding JWT as described in https://www.ietf.org/archive/id/draft-ietf-oauth-selective-disclosure-jwt-09.html#kb-jwt
+    kb_jwt?: string;
+  };
+  // the "payload" member MUST be present and contain the value BASE64URL(JWS Payload).
+  payload: string;
+  protected: string;
+  signature: string;
+};
+
+export type SDJWTType = SDJJWTJson | SDJWTJsonFlattened | SDJWTCompact;
 
 export type SDJwtData<
   Header extends Record<string, unknown>,
@@ -46,51 +92,125 @@ export class SDJwt<
     this.kbJwt = data?.kbJwt;
   }
 
+  /**
+   * Decode a SDJwt from a compact string or a JSON object
+   * @param sdjwt
+   * @param hasher
+   * @returns
+   */
   public static async decodeSDJwt<
     Header extends Record<string, unknown> = Record<string, unknown>,
     Payload extends Record<string, unknown> = Record<string, unknown>,
     KBHeader extends kbHeader = kbHeader,
     KBPayload extends kbPayload = kbPayload,
   >(
-    sdjwt: SDJWTCompact,
+    sdjwt: SDJWTType,
     hasher: Hasher,
   ): Promise<{
     jwt: Jwt<Header, Payload>;
     disclosures: Array<Disclosure>;
     kbJwt?: KBJwt<KBHeader, KBPayload>;
   }> {
-    const [encodedJwt, ...encodedDisclosures] = sdjwt.split(SD_SEPARATOR);
-    const jwt = Jwt.fromEncode<Header, Payload>(encodedJwt);
+    if (typeof sdjwt === 'string') {
+      const [encodedJwt, ...encodedDisclosures] = sdjwt.split(SD_SEPARATOR);
+      const jwt = Jwt.fromEncode<Header, Payload>(encodedJwt);
 
-    if (!jwt.payload) {
-      throw new Error('Payload is undefined on the JWT. Invalid state reached');
-    }
+      if (!jwt.payload) {
+        throw new Error(
+          'Payload is undefined on the JWT. Invalid state reached',
+        );
+      }
 
-    if (encodedDisclosures.length === 0) {
+      if (encodedDisclosures.length === 0) {
+        return {
+          jwt,
+          disclosures: [],
+        };
+      }
+
+      const encodedKeyBindingJwt = encodedDisclosures.pop();
+      const kbJwt = encodedKeyBindingJwt
+        ? KBJwt.fromKBEncode<KBHeader, KBPayload>(encodedKeyBindingJwt)
+        : undefined;
+
+      const { _sd_alg } = getSDAlgAndPayload(jwt.payload);
+
+      const disclosures = await Promise.all(
+        (encodedDisclosures as Array<string>).map((ed) =>
+          Disclosure.fromEncode(ed, { alg: _sd_alg, hasher }),
+        ),
+      );
+
       return {
         jwt,
-        disclosures: [],
+        disclosures,
+        kbJwt,
       };
     }
+    if (typeof (sdjwt as SDJJWTJson).signatures !== 'undefined') {
+      const sdJJWTJson = sdjwt as SDJJWTJson;
+      const payload = JSON.parse(base64urlDecode(sdJJWTJson.payload));
+      //TODO: unclear if this is the correct way to parse the header
+      const header = JSON.parse(
+        base64urlDecode(sdJJWTJson.signatures[0].protected),
+      );
+      const kbJwt = sdJJWTJson.signatures[0].header.kb_jwt
+        ? KBJwt.fromKBEncode<KBHeader, KBPayload>(
+            sdJJWTJson.signatures[0].header.kb_jwt,
+          )
+        : undefined;
+      //TODO: with the current implementation, only one signature is returned since it has to be a jwt
+      const jwt = new Jwt<Header, Payload>({
+        header,
+        payload,
+        signature: sdJJWTJson.signatures[0].signature,
+      });
+      const { _sd_alg } = getSDAlgAndPayload(payload);
+      return {
+        jwt,
+        disclosures: await SDJwt.decodeDisclosures(
+          sdJJWTJson.signatures[0].header.disclosures,
+          _sd_alg,
+          hasher,
+        ),
+        kbJwt,
+      };
+    }
+    const sdjwtJson = sdjwt as SDJWTJsonFlattened;
+    const header = JSON.parse(base64urlDecode(sdjwtJson.protected));
+    const payload = JSON.parse(base64urlDecode(sdjwtJson.payload));
+    const jwt = new Jwt<Header, Payload>({
+      header,
+      payload,
+      signature: sdjwtJson.signature,
+    });
 
-    const encodedKeyBindingJwt = encodedDisclosures.pop();
-    const kbJwt = encodedKeyBindingJwt
-      ? KBJwt.fromKBEncode<KBHeader, KBPayload>(encodedKeyBindingJwt)
+    const { _sd_alg } = getSDAlgAndPayload(jwt.payload as Payload);
+    const kbJwt = sdjwtJson.header?.kb_jwt
+      ? KBJwt.fromKBEncode<KBHeader, KBPayload>(sdjwtJson.header.kb_jwt)
       : undefined;
 
-    const { _sd_alg } = getSDAlgAndPayload(jwt.payload);
+    return {
+      jwt,
+      disclosures: await SDJwt.decodeDisclosures(
+        header.disclosures || [],
+        _sd_alg,
+        hasher,
+      ),
+      kbJwt,
+    };
+  }
 
-    const disclosures = await Promise.all(
+  private static decodeDisclosures(
+    encodedDisclosures: string[],
+    _sd_alg: string,
+    hasher: Hasher,
+  ): Promise<Disclosure[]> {
+    return Promise.all(
       (encodedDisclosures as Array<string>).map((ed) =>
         Disclosure.fromEncode(ed, { alg: _sd_alg, hasher }),
       ),
     );
-
-    return {
-      jwt,
-      disclosures,
-      kbJwt,
-    };
   }
 
   public static async fromEncode<
@@ -98,10 +218,7 @@ export class SDJwt<
     Payload extends Record<string, unknown> = Record<string, unknown>,
     KBHeader extends kbHeader = kbHeader,
     KBPayload extends kbPayload = kbPayload,
-  >(
-    encodedSdJwt: SDJWTCompact,
-    hasher: Hasher,
-  ): Promise<SDJwt<Header, Payload>> {
+  >(encodedSdJwt: SDJWTType, hasher: Hasher): Promise<SDJwt<Header, Payload>> {
     const { jwt, disclosures, kbJwt } = await SDJwt.decodeSDJwt<
       Header,
       Payload,
@@ -119,7 +236,8 @@ export class SDJwt<
   public async present<T extends Record<string, unknown>>(
     presentFrame: PresentationFrame<T> | undefined,
     hasher: Hasher,
-  ): Promise<SDJWTCompact> {
+    type: Serialization = 'compact',
+  ): Promise<SDJWTType> {
     if (!this.jwt?.payload || !this.disclosures) {
       throw new SDJWTException('Invalid sd-jwt: jwt or disclosures is missing');
     }
@@ -143,10 +261,18 @@ export class SDJwt<
       disclosures,
       kbJwt: this.kbJwt,
     });
-    return presentSDJwt.encodeSDJwt();
+    if (type === 'compact') {
+      return presentSDJwt.encodeSDJwt();
+    }
+    return presentSDJwt.encodeSDJwtJson(type);
   }
 
+  /**
+   * Encodes the SDJwt to a compact string
+   * @returns
+   */
   public encodeSDJwt(): SDJWTCompact {
+    //TODO: when we have multiple signatures, we are not able to encode it to a compact string and should throw an error
     const data: string[] = [];
 
     if (!this.jwt) {
@@ -165,6 +291,47 @@ export class SDJwt<
 
     data.push(this.kbJwt ? this.kbJwt.encodeJwt() : '');
     return data.join(SD_SEPARATOR);
+  }
+
+  /**
+   * Encodes the SDJwt to a JSON object according to sd-jwt spec, either general or flattened
+   * @returns
+   */
+  public encodeSDJwtJson(
+    type: SerializationJson = 'json',
+  ): SDJWTJsonFlattened | SDJJWTJson {
+    // check if disclosures should be empty or not included if not present
+    const disclosures = this.disclosures?.map((d) => d.encode()) ?? [];
+    if (type === 'json-flattended') {
+      return {
+        header: {
+          disclosures,
+        },
+        payload: base64urlEncode(JSON.stringify(this.jwt?.payload)),
+        protected: base64urlEncode(JSON.stringify(this.jwt?.header)),
+        signature: this.jwt?.signature as string,
+      };
+    }
+    const signatures: Array<Signature> = [];
+
+    signatures.push({
+      // unproctected header
+      header: {
+        disclosures,
+        //TODO: validate if this is the correct kid
+        kid: this.jwt?.header?.kid as string,
+        kb_jwt: (this.kbJwt?.encodeJwt() as string) || undefined,
+      },
+      // protected header
+      protected: base64urlEncode(JSON.stringify(this.jwt?.header)),
+      // signature of the proctected header and payload
+      signature: this.jwt?.signature as string,
+    });
+    //TODO: add support for multiple signatures, right now only one is supported
+    return {
+      payload: base64urlEncode(JSON.stringify(this.jwt?.payload as unknown)),
+      signatures,
+    };
   }
 
   public async keys(hasher: Hasher): Promise<string[]> {

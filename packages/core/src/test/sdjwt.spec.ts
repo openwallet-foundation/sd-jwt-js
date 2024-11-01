@@ -2,7 +2,7 @@ import { Disclosure } from '@sd-jwt/utils';
 import { Jwt } from '../jwt';
 import { SDJwt, listKeys, pack } from '../sdjwt';
 import Crypto from 'node:crypto';
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import type { DisclosureFrame, Signer } from '@sd-jwt/types';
 import { generateSalt, digest as hasher } from '@sd-jwt/crypto-nodejs';
 import { unpack, createHashMapping } from '@sd-jwt/decode';
@@ -10,15 +10,29 @@ import { unpack, createHashMapping } from '@sd-jwt/decode';
 const hash = { alg: 'SHA256', hasher };
 
 describe('SD JWT', () => {
+  let privateKey: Crypto.KeyObject;
+
+  beforeAll(async () => {
+    const key = {
+      crv: 'Ed25519',
+      d: 'ae3x8nwFurD3HSsUFs8dVeeOV9PGduQ_C3kvWd876uo',
+      x: '6XoweLGtj3SHJBHyw1CF-q-2lLgXHGoybW_7iADkg8Y',
+      kty: 'OKP',
+    };
+    privateKey = await Crypto.createPrivateKey({
+      key,
+      format: 'jwk',
+    });
+  });
+
   test('create and encode', async () => {
-    const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
     };
 
     const jwt = new Jwt({
-      header: { alg: 'EdDSA' },
+      header: { alg: 'EdDSA', kid: 'key1' },
       payload: { foo: 'bar' },
     });
 
@@ -29,12 +43,44 @@ describe('SD JWT', () => {
     });
     expect(sdJwt).toBeDefined();
 
+    // test compact encoding
     const encoded = sdJwt.encodeSDJwt();
-    expect(encoded).toBeDefined();
+
+    expect(encoded).toBe(
+      'eyJhbGciOiJFZERTQSIsImtpZCI6ImtleTEifQ.eyJmb28iOiJiYXIifQ.kHjXb8fplSbRTv51xm5NJm4TQHr6TtqWj8anpPd9hMPCf8RMO_J2j5wp8TWJbVt2PXYQdiIQmcVEnB-h9TOKBQ~',
+    );
+
+    // test json serialization
+    const encodedJson = sdJwt.encodeSDJwtJson('json');
+    expect(encodedJson).toEqual({
+      payload: 'eyJmb28iOiJiYXIifQ',
+      signatures: [
+        {
+          header: {
+            disclosures: [],
+            kid: 'key1',
+          },
+          protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6ImtleTEifQ',
+          signature:
+            'kHjXb8fplSbRTv51xm5NJm4TQHr6TtqWj8anpPd9hMPCf8RMO_J2j5wp8TWJbVt2PXYQdiIQmcVEnB-h9TOKBQ',
+        },
+      ],
+    });
+
+    // test json serialization flattened
+    const encodedJsonFlattened = sdJwt.encodeSDJwtJson('json-flattended');
+    expect(encodedJsonFlattened).toEqual({
+      header: {
+        disclosures: [],
+      },
+      payload: 'eyJmb28iOiJiYXIifQ',
+      protected: 'eyJhbGciOiJFZERTQSIsImtpZCI6ImtleTEifQ',
+      signature:
+        'kHjXb8fplSbRTv51xm5NJm4TQHr6TtqWj8anpPd9hMPCf8RMO_J2j5wp8TWJbVt2PXYQdiIQmcVEnB-h9TOKBQ',
+    });
   });
 
   test('decode', async () => {
-    const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
@@ -52,15 +98,34 @@ describe('SD JWT', () => {
     });
 
     const encoded = sdJwt.encodeSDJwt();
-
     const newSdJwt = await SDJwt.fromEncode(encoded, hasher);
     expect(newSdJwt).toBeDefined();
     const newJwt = newSdJwt.jwt;
     expect(newJwt?.header).toEqual(jwt.header);
     expect(newJwt?.payload).toEqual(jwt.payload);
     expect(newJwt?.signature).toEqual(jwt.signature);
+
+    const encodedJson = sdJwt.encodeSDJwtJson('json');
+    const newSdJwtJson = await SDJwt.fromEncode(encodedJson, hasher);
+    expect(newSdJwtJson).toBeDefined();
+    const newJwt1 = newSdJwt.jwt;
+    expect(newJwt1?.header).toEqual(jwt.header);
+    expect(newJwt1?.payload).toEqual(jwt.payload);
+    expect(newJwt1?.signature).toEqual(jwt.signature);
+
+    const encodedJsonFlattened = sdJwt.encodeSDJwtJson('json-flattended');
+    const newSdJwtJsonFlattended = await SDJwt.fromEncode(
+      encodedJsonFlattened,
+      hasher,
+    );
+    expect(newSdJwtJsonFlattended).toBeDefined();
+    const newJwt2 = newSdJwtJsonFlattended.jwt;
+    expect(newJwt2?.header).toEqual(jwt.header);
+    expect(newJwt2?.payload).toEqual(jwt.payload);
+    expect(newJwt2?.signature).toEqual(jwt.signature);
   });
 
+  //not clear why we need this test
   test('decode compatibilty', async () => {
     const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
