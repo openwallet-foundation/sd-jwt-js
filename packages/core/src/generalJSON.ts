@@ -1,6 +1,6 @@
-import { SDJWTException } from '@sd-jwt/utils';
+import { base64urlEncode, SDJWTException } from '@sd-jwt/utils';
 import { splitSdJwt } from '@sd-jwt/decode';
-import { SD_SEPARATOR } from '@sd-jwt/types';
+import { SD_SEPARATOR, Signer } from '@sd-jwt/types';
 
 export type GeneralJSONData = {
   payload: string;
@@ -122,5 +122,19 @@ export class GeneralJSON {
     const kb_jwt = this.kb_jwt ?? '';
     const jwt = `${protectedHeader}.${this.payload}.${signature}`;
     return [jwt, disclosures, kb_jwt].join(SD_SEPARATOR);
+  }
+
+  public async addSignature(
+    protectedHeader: Record<string, unknown>,
+    signer: Signer,
+    kid?: string,
+  ) {
+    const header = base64urlEncode(JSON.stringify(protectedHeader));
+    const signature = await signer(`${header}.${this.payload}`);
+    this.signatures.push({
+      protected: header,
+      signature,
+      kid,
+    });
   }
 }
