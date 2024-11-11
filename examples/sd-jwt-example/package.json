@@ -12,7 +12,9 @@
     "decoy": "ts-node decoy.ts",
     "custom_header": "ts-node custom_header.ts",
     "kb": "ts-node kb.ts",
-    "decode": "ts-node decode.ts"
+    "decode": "ts-node decode.ts",
+    "flattenJSON": "ts-node flattenJSON.ts",
+    "generalJSON": "ts-node generalJSON.ts"
   },
   "keywords": [],
   "author": "",
