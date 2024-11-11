@@ -1,5 +1,6 @@
 import { SDJWTException } from '@sd-jwt/utils';
 import { splitSdJwt } from '@sd-jwt/decode';
+import { SD_SEPARATOR } from '@sd-jwt/types';
 
 export type GeneralJSONData = {
   payload: string;
@@ -9,6 +10,19 @@ export type GeneralJSONData = {
     protected: string;
     signature: string;
     kid?: string;
+  }>;
+};
+
+export type GeneralJSONSerialized = {
+  payload: string;
+  signatures: Array<{
+    headers: {
+      disclosures?: Array<string>;
+      kid?: string;
+      kb_jwt?: string;
+    };
+    protected: string;
+    signature: string;
   }>;
 };
 
@@ -50,6 +64,26 @@ export class GeneralJSON {
     });
   }
 
+  public static fromSerialized(json: GeneralJSONSerialized) {
+    if (!json.signatures[0]) {
+      throw new SDJWTException('Invalid JSON');
+    }
+    const disclosures = json.signatures[0].headers?.disclosures ?? [];
+    const kb_jwt = json.signatures[0].headers?.kb_jwt;
+    return new GeneralJSON({
+      payload: json.payload,
+      disclosures,
+      kb_jwt,
+      signatures: json.signatures.map((s) => {
+        return {
+          protected: s.protected,
+          signature: s.signature,
+          kid: s.headers?.kid,
+        };
+      }),
+    });
+  }
+
   public toJson() {
     return {
       payload: this.payload,
@@ -76,5 +110,17 @@ export class GeneralJSON {
         };
       }),
     };
+  }
+
+  public toEncoded(index: number) {
+    if (index < 0 || index >= this.signatures.length) {
+      throw new SDJWTException('Index out of bounds');
+    }
+
+    const { protected: protectedHeader, signature } = this.signatures[index];
+    const disclosures = this.disclosures.join(SD_SEPARATOR);
+    const kb_jwt = this.kb_jwt ?? '';
+    const jwt = `${protectedHeader}.${this.payload}.${signature}`;
+    return [jwt, disclosures, kb_jwt].join(SD_SEPARATOR);
   }
 }
