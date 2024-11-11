@@ -68,8 +68,8 @@ export class GeneralJSON {
     if (!json.signatures[0]) {
       throw new SDJWTException('Invalid JSON');
     }
-    const disclosures = json.signatures[0].headers?.disclosures ?? [];
-    const kb_jwt = json.signatures[0].headers?.kb_jwt;
+    const disclosures = json.signatures[0].header?.disclosures ?? [];
+    const kb_jwt = json.signatures[0].header?.kb_jwt;
     return new GeneralJSON({
       payload: json.payload,
       disclosures,
@@ -78,7 +78,7 @@ export class GeneralJSON {
         return {
           protected: s.protected,
           signature: s.signature,
-          kid: s.headers?.kid,
+          kid: s.header?.kid,
         };
       }),
     });
