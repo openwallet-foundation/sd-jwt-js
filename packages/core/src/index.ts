@@ -13,6 +13,8 @@ import {
   type JwtPayload,
 } from '@sd-jwt/types';
 import { getSDAlgAndPayload } from '@sd-jwt/decode';
+import { FlattenJSON } from './flattenJSON';
+import { GeneralJSON } from './generalJSON';
 
 export * from './sdjwt';
 export * from './kbjwt';
@@ -309,5 +311,13 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     }
     const sdjwt = await SDJwt.fromEncode(endcodedSDJwt, this.userConfig.hasher);
     return sdjwt.getClaims(this.userConfig.hasher);
+  }
+
+  public toFlattenJSON(endcodedSDJwt: SDJWTCompact) {
+    return FlattenJSON.fromEncode(endcodedSDJwt);
+  }
+
+  public toGeneralJSON(endcodedSDJwt: SDJWTCompact) {
+    return GeneralJSON.fromEncode(endcodedSDJwt);
   }
 }
