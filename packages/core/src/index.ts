@@ -20,6 +20,8 @@ export * from './sdjwt';
 export * from './kbjwt';
 export * from './jwt';
 export * from './decoy';
+export * from './flattenJSON';
+export * from './generalJSON';
 
 export type SdJwtPayload = Record<string, unknown>;
 
