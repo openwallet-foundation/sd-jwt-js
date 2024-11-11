@@ -11,6 +11,16 @@ export type FlattenJSONData = {
   kb_jwt?: string;
 };
 
+export type FlattenJSONSerialized = {
+  payload: string;
+  signature: string;
+  protected: string;
+  header: {
+    disclosures: Array<string>;
+    kb_jwt?: string;
+  };
+};
+
 export class FlattenJSON {
   public disclosures: Array<string>;
   public kb_jwt?: string;
@@ -46,7 +56,19 @@ export class FlattenJSON {
     });
   }
 
-  public toJson() {
+  public static fromSerialized(json: FlattenJSONSerialized) {
+    return new FlattenJSON({
+      jwtData: {
+        protected: json.protected,
+        payload: json.payload,
+        signature: json.signature,
+      },
+      disclosures: json.header.disclosures,
+      kb_jwt: json.header.kb_jwt,
+    });
+  }
+
+  public toJson(): FlattenJSONSerialized {
     return {
       payload: this.payload,
       signature: this.signature,
