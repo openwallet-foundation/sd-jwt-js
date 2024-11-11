@@ -92,7 +92,7 @@ export class GeneralJSON {
           // If present, disclosures and kb_jwt, MUST be included in the first unprotected header and
           // MUST NOT be present in any following unprotected headers.
           return {
-            headers: {
+            header: {
               kid: s.kid,
             },
             protected: s.protected,
@@ -100,7 +100,7 @@ export class GeneralJSON {
           };
         }
         return {
-          headers: {
+          header: {
             disclosures: this.disclosures,
             kid: s.kid,
             kb_jwt: this.kb_jwt,
