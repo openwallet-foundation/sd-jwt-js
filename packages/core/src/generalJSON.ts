@@ -1,6 +1,6 @@
 import { base64urlEncode, SDJWTException } from '@sd-jwt/utils';
 import { splitSdJwt } from '@sd-jwt/decode';
-import { SD_SEPARATOR, Signer } from '@sd-jwt/types';
+import { SD_SEPARATOR, type Signer } from '@sd-jwt/types';
 
 export type GeneralJSONData = {
   payload: string;
