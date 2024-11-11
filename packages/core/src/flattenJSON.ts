@@ -1,5 +1,6 @@
 import { SDJWTException } from '@sd-jwt/utils';
 import { splitSdJwt } from '@sd-jwt/decode';
+import { SD_SEPARATOR } from '@sd-jwt/types';
 
 export type FlattenJSONData = {
   jwtData: {
@@ -78,5 +79,12 @@ export class FlattenJSON {
         kb_jwt: this.kb_jwt,
       },
     };
+  }
+
+  public toEncoded() {
+    const jwt = `${this.protected}.${this.payload}.${this.signature}`;
+    const disclosures = this.disclosures.join(SD_SEPARATOR);
+    const kb_jwt = this.kb_jwt ?? '';
+    return [jwt, disclosures, kb_jwt].join(SD_SEPARATOR);
   }
 }
