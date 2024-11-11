@@ -16,7 +16,7 @@ export type GeneralJSONData = {
 export type GeneralJSONSerialized = {
   payload: string;
   signatures: Array<{
-    headers: {
+    header: {
       disclosures?: Array<string>;
       kid?: string;
       kb_jwt?: string;
