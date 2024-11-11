@@ -42,7 +42,7 @@ export class FlattenJSON {
     const { jwt, disclosures, kbJwt } = splitSdJwt(encodedSdJwt);
 
     const { 0: protectedHeader, 1: payload, 2: signature } = jwt.split('.');
-    if (protectedHeader || payload || signature) {
+    if (!protectedHeader || !payload || !signature) {
       throw new SDJWTException('Invalid JWT');
     }
 
