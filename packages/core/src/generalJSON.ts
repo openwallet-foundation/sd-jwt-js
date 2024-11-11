@@ -3,27 +3,29 @@ import { splitSdJwt } from '@sd-jwt/decode';
 
 export type GeneralJSONData = {
   payload: string;
+  disclosures: Array<string>;
+  kb_jwt?: string;
   signatures: Array<{
     protected: string;
     signature: string;
-    disclosures?: Array<string>;
     kid?: string;
-    kb_jwt?: string;
   }>;
 };
 
 export class GeneralJSON {
   public payload: string;
+  public disclosures: Array<string>;
+  public kb_jwt?: string;
   public signatures: Array<{
     protected: string;
     signature: string;
-    disclosures?: Array<string>;
     kid?: string;
-    kb_jwt?: string;
   }>;
 
   constructor(data: GeneralJSONData) {
     this.payload = data.payload;
+    this.disclosures = data.disclosures;
+    this.kb_jwt = data.kb_jwt;
     this.signatures = data.signatures;
   }
 
@@ -37,12 +39,12 @@ export class GeneralJSON {
 
     return new GeneralJSON({
       payload,
+      disclosures,
+      kb_jwt: kbJwt,
       signatures: [
         {
           protected: protectedHeader,
           signature,
-          disclosures,
-          kb_jwt: kbJwt,
         },
       ],
     });
@@ -65,9 +67,9 @@ export class GeneralJSON {
         }
         return {
           headers: {
-            disclosures: s.disclosures,
+            disclosures: this.disclosures,
             kid: s.kid,
-            kb_jwt: s.kb_jwt,
+            kb_jwt: this.kb_jwt,
           },
           protected: s.protected,
           signature: s.signature,
