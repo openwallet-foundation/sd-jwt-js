@@ -13,8 +13,9 @@ Hopae, a founding member of OpenWallet Foundation, is building wallet module in 
 
 Currently compliant with:
 
-- **[draft-ietf-oauth-selective-disclosure-jwt-08](https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt/)**
-- **[draft-ietf-oauth-sd-jwt-vc-03](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)**
+- **[draft-ietf-oauth-selective-disclosure-jwt-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt/)**
+- **[draft-ietf-oauth-sd-jwt-vc-05](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)**
+- **[draft-ietf-oauth-status-list-05](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)**
 
 ## **Background**
 
@@ -53,6 +54,7 @@ By adhering to these design principles, "Selective Disclosure for JWT" aims to s
 - **[@sd-jwt/hash](./packages/hash/README.md)**: SHA-256 support for SD JWT
 - **[@sd-jwt/crypto-nodejs](./packages/node-crypto/README.md)**: Nodejs Crypto support for SD JWT
 - **[@sd-jwt/crypto-browser](./packages/browser-crypto/README.md)**: Browser Crypto support for SD JWT
+- **[@sd-jwt/jwt-status-list](./packages/jwt-status-list/README.md)**: Token Status List
 
 ## Online Debugging Tool
 
