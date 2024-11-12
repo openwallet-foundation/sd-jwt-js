@@ -1,5 +1,5 @@
 import { ES256, digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-export { digest, generateSalt };
+export { digest, generateSalt, ES256 };
 
 export const createSignerVerifier = async () => {
   const { privateKey, publicKey } = await ES256.generateKeyPair();

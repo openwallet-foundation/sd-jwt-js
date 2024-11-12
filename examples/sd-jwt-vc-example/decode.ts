@@ -1,5 +1,5 @@
 import { SDJwtVcInstance } from '@sd-jwt/sd-jwt-vc';
-import { createSignerVerifier, digest, generateSalt } from './utils';
+import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
 (async () => {
   const { signer, verifier } = await createSignerVerifier();
@@ -7,12 +7,12 @@ import { createSignerVerifier, digest, generateSalt } from './utils';
   // Create SDJwt instance for use
   const sdjwt = new SDJwtVcInstance({
     signer,
-    signAlg: 'EdDSA',
+    signAlg: ES256.alg,
     verifier,
     hasher: digest,
     saltGenerator: generateSalt,
     kbSigner: signer,
-    kbSignAlg: 'EdDSA',
+    kbSignAlg: ES256.alg,
     kbVerifier: verifier,
   });
 

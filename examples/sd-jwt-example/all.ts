@@ -1,6 +1,6 @@
 import { SDJwtInstance } from '@sd-jwt/core';
 import type { DisclosureFrame } from '@sd-jwt/types';
-import { createSignerVerifier, digest, generateSalt } from './utils';
+import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
 
 (async () => {
   const { signer, verifier } = await createSignerVerifier();
@@ -9,7 +9,7 @@ import { createSignerVerifier, digest, generateSalt } from './utils';
   const sdjwt = new SDJwtInstance({
     signer,
     verifier,
-    signAlg: 'EdDSA',
+    signAlg: ES256.alg,
     hasher: digest,
     hashAlg: 'SHA-256',
     saltGenerator: generateSalt,
@@ -103,6 +103,6 @@ import { createSignerVerifier, digest, generateSalt } from './utils';
 
   // Verify the presentation using the public key and the required claims
   // return a boolean result
-  const verified = await sdjwt.verify(credential, requiredClaims);
+  const verified = await sdjwt.verify(presentation, requiredClaims);
   console.log('verified:', verified);
 })();
