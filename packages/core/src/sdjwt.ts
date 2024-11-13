@@ -120,6 +120,19 @@ export class SDJwt<
     presentFrame: PresentationFrame<T> | undefined,
     hasher: Hasher,
   ): Promise<SDJWTCompact> {
+    const disclosures = await this.getPresentDisclosures(presentFrame, hasher);
+    const presentSDJwt = new SDJwt({
+      jwt: this.jwt,
+      disclosures,
+      kbJwt: this.kbJwt,
+    });
+    return presentSDJwt.encodeSDJwt();
+  }
+
+  public async getPresentDisclosures<T extends Record<string, unknown>>(
+    presentFrame: PresentationFrame<T> | undefined,
+    hasher: Hasher,
+  ): Promise<Disclosure<unknown>[]> {
     if (!this.jwt?.payload || !this.disclosures) {
       throw new SDJWTException('Invalid sd-jwt: jwt or disclosures is missing');
     }
@@ -138,12 +151,7 @@ export class SDJwt<
     const disclosures = keys
       .map((k) => hashmap[disclosureKeymap[k]])
       .filter((d) => d !== undefined);
-    const presentSDJwt = new SDJwt({
-      jwt: this.jwt,
-      disclosures,
-      kbJwt: this.kbJwt,
-    });
-    return presentSDJwt.encodeSDJwt();
+    return disclosures;
   }
 
   public encodeSDJwt(): SDJWTCompact {
