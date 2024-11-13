@@ -16,7 +16,7 @@ import {
   type SDJWTCompact,
   type SDJWTConfig,
   type JwtPayload,
-  Signer,
+  type Signer,
 } from '@sd-jwt/types';
 import { getSDAlgAndPayload } from '@sd-jwt/decode';
 import { FlattenJSON } from './flattenJSON';
