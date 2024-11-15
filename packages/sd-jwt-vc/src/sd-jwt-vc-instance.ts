@@ -22,7 +22,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   /**
    * The type of the SD-JWT-VC set in the header.typ field.
    */
-  protected type = 'vc+sd-jwt';
+  protected type = 'dc+sd-jwt';
 
   protected userConfig: SDJWTVCConfig = {};
 

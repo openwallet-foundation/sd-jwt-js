@@ -235,7 +235,7 @@ async function JSONtest(filename: string) {
 
   expect(validated).toBeDefined();
   expect(validated).toStrictEqual({
-    header: { alg: 'EdDSA', typ: 'vc+sd-jwt' },
+    header: { alg: 'EdDSA', typ: 'dc+sd-jwt' },
     payload,
   });
 
@@ -259,7 +259,7 @@ async function JSONtest(filename: string) {
 
   expect(verified).toBeDefined();
   expect(verified).toStrictEqual({
-    header: { alg: 'EdDSA', typ: 'vc+sd-jwt' },
+    header: { alg: 'EdDSA', typ: 'dc+sd-jwt' },
     kb: undefined,
     payload,
   });
