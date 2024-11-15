@@ -39,7 +39,7 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
     },
     disclosureFrame,
     {
-      header: { typ: 'vc+sd-jwt', custom: 'data' }, // You can add custom header data to the SD JWT
+      header: { typ: 'dc+sd-jwt', custom: 'data' }, // You can add custom header data to the SD JWT
     },
   );
   console.log('encodedSdjwt:', credential);
