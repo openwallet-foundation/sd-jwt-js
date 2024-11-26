@@ -19,7 +19,7 @@ jobs:
             fi
             
             # Extract GitHub usernames from CODEOWNERS file (assumes usernames, not emails or teams)
-            USERS=$(grep '@' $CODEOWNERS_PATH | sed -E 's/.*@([^ ]+).*/\1/' | tr '\n' ' ')
+            USERS=$(grep '@' $CODEOWNERS_PATH | sed -E 's/.*@([^ ]+).*/\1/' | sed 's/://g' | tr '\n' ' ')
             
             # Check if the actor is in the list of users
             if [[ ! " $USERS " =~ " ${{ github.actor }} " ]]; then
