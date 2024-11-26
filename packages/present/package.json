@@ -19,11 +19,7 @@
     "test:browser": "vitest run ./src/test/*.spec.ts --environment jsdom",
     "test:cov": "vitest run --coverage"
   },
-  "keywords": [
-    "sd-jwt",
-    "sdjwt",
-    "sd-jwt-vc"
-  ],
+  "keywords": ["sd-jwt", "sdjwt", "sd-jwt-vc"],
   "engines": {
     "node": ">=18"
   },
@@ -49,17 +45,12 @@
     "access": "public"
   },
   "tsup": {
-    "entry": [
-      "./src/index.ts"
-    ],
+    "entry": ["./src/index.ts"],
     "sourceMap": true,
     "splitting": false,
     "clean": true,
     "dts": true,
-    "format": [
-      "cjs",
-      "esm"
-    ]
+    "format": ["cjs", "esm"]
   },
   "gitHead": "ded40e4551bde7ae93083181bf26bd1b38bbfcfb"
 }
