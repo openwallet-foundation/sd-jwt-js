@@ -41,7 +41,7 @@ const restHandlers = [
     };
     return HttpResponse.json(res);
   }),
-  http.get('http://exmaple.com/.well-known/vct/example', () => {
+  http.get('http://exmaple.com/example', () => {
     const res: TypeMetadataFormat = {
       vct: 'http://example.com/example',
       name: 'ExampleCredentialType',
