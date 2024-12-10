@@ -1,5 +1,5 @@
 /**
- * https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-04.html#name-type-metadata-format
+ * https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-type-metadata-format
  */
 export type TypeMetadataFormat = {
   vct: string; // REQUIRED. A URI that uniquely identifies the type. This URI MUST be dereferenceable to a JSON document that describes the type.

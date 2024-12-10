@@ -103,7 +103,7 @@ const sdjwt = new SDJwtVcInstance({
 });
 ```
 
-The library will load load the type metadata format based on the `vct` value according to the [SD-JWT-VC specification](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-04.html#name-type-metadata) and validate this schema.
+The library will load load the type metadata format based on the `vct` value according to the [SD-JWT-VC specification](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-sd-jwt-vc-type-metadata) and validate this schema.
 
 Since at this point the display is not yet implemented, the library will only validate the schema and return the type metadata format. In the future the values of the type metadata can be fetched via a function call.
 

@@ -40,7 +40,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   protected validateReservedFields(
     disclosureFrame: DisclosureFrame<SdJwtVcPayload>,
   ): void {
-    //validate disclosureFrame according to https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-03.html#section-3.2.2.2
+    //validate disclosureFrame according to https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#section-3.2.2.2
     if (
       disclosureFrame?._sd &&
       Array.isArray(disclosureFrame._sd) &&
@@ -131,23 +131,6 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Default function to fetch the VCT from the uri. We assume that the vct is a URL that is used to fetch the VCT.
-   * @param uri
-   * @returns
-   */
-  private async vctFetcher(
-    uri: string,
-    integrity?: string,
-  ): Promise<TypeMetadataFormat> {
-    // modify the uri based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-04.html#section-6.3.1
-    const elements = uri.split('/');
-    //insert a new element on the thrid position, but not replace it
-    elements.splice(3, 0, '.well-known/vct');
-    const url = elements.join('/');
-    return this.fetch<TypeMetadataFormat>(url, integrity);
-  }
-
-  /**
    * Validates the integrity of the response if the integrity is passed. If the integrity does not match, an error is thrown.
    * @param integrity
    * @param response
@@ -227,14 +210,15 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     result: VerificationResult,
   ): Promise<TypeMetadataFormat | undefined> {
     const fetcher: VcTFetcher =
-      this.userConfig.vctFetcher ?? this.vctFetcher.bind(this);
+      this.userConfig.vctFetcher ??
+      ((uri, integrity) => this.fetch(uri, integrity));
     const typeMetadataFormat = await fetcher(
       result.payload.vct,
       result.payload['vct#Integrity'],
     );
 
     if (typeMetadataFormat.extends) {
-      // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-04.html#name-extending-type-metadata
+      // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
       //TODO: needs to be implemented. Unclear at this point which values will overwrite the values from the extended type metadata format
     }
 
