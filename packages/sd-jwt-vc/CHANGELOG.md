@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.8.0...v0.9.0) (2024-12-10)
+
+
+### Features
+
+* align type metadata fetching with sd-jwt-vc draft 08 ([#260](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/260)) ([2358c75](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/2358c759887ee29b4c35a3ee0e93ebd8e8c26545))
+
+
+
+
+
 # [0.8.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.7.2...v0.8.0) (2024-11-26)
 
 

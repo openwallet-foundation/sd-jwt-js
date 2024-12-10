@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/sd-jwt-vc",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -20,7 +20,11 @@
     "test:e2e": "vitest run ./test/*e2e.spec.ts --environment node",
     "test:cov": "vitest run --coverage"
   },
-  "keywords": ["sd-jwt", "sdjwt", "sd-jwt-vc"],
+  "keywords": [
+    "sd-jwt",
+    "sdjwt",
+    "sd-jwt-vc"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -51,12 +55,17 @@
     "access": "public"
   },
   "tsup": {
-    "entry": ["./src/index.ts"],
+    "entry": [
+      "./src/index.ts"
+    ],
     "sourceMap": true,
     "splitting": false,
     "clean": true,
     "dts": true,
-    "format": ["cjs", "esm"]
+    "format": [
+      "cjs",
+      "esm"
+    ]
   },
   "gitHead": "ded40e4551bde7ae93083181bf26bd1b38bbfcfb"
 }
