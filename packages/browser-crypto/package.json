@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/crypto-browser",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -18,7 +18,11 @@
     "test:browser": "vitest run ./src/test/*.spec.ts",
     "test:cov": "vitest run --coverage"
   },
-  "keywords": ["sd-jwt", "sdjwt", "sd-jwt-vc"],
+  "keywords": [
+    "sd-jwt",
+    "sdjwt",
+    "sd-jwt-vc"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/openwallet-foundation-labs/sd-jwt-js"
@@ -33,12 +37,17 @@
     "access": "public"
   },
   "tsup": {
-    "entry": ["./src/index.ts"],
+    "entry": [
+      "./src/index.ts"
+    ],
     "sourceMap": true,
     "splitting": false,
     "clean": true,
     "dts": true,
-    "format": ["cjs", "esm"]
+    "format": [
+      "cjs",
+      "esm"
+    ]
   },
   "gitHead": "ded40e4551bde7ae93083181bf26bd1b38bbfcfb"
 }
