@@ -179,14 +179,6 @@ jobs:
           echo "@sd-jwt:registry=https://registry.npmjs.org/" > .npmrc
           echo "registry=https://registry.npmjs.org/" >> .npmrc
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
-          npm whoami
 
       - name: 'Publish latest version'        
         run: pnpm publish:latest
-
-      - name: 'Format generated files and commit changes'
-        run: | 
-          pnpm format
-          git add .
-          git commit -m "chore: format generated files"
-          git push origin HEAD:main --tags
