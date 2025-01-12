@@ -15,7 +15,7 @@ export const generateSalt = (length: number): string => {
 
 export async function digest(
   data: string | ArrayBuffer,
-  algorithm = 'SHA-256',
+  algorithm = 'sha-256',
 ): Promise<Uint8Array> {
   const ec = new TextEncoder();
   const digest = await window.crypto.subtle.digest(
@@ -25,7 +25,7 @@ export async function digest(
   return new Uint8Array(digest);
 }
 
-export const getHasher = (algorithm = 'SHA-256') => {
+export const getHasher = (algorithm = 'sha-256') => {
   return (data: string) => digest(data, algorithm);
 };
 
@@ -72,7 +72,7 @@ export const ES256 = {
       const signature = await window.crypto.subtle.sign(
         {
           name: 'ECDSA',
-          hash: { name: 'SHA-256' }, // Required for ES256
+          hash: { name: 'sha-256' }, // Required for ES256
         },
         privateKey,
         encoder.encode(data),
@@ -107,7 +107,7 @@ export const ES256 = {
       const isValid = await window.crypto.subtle.verify(
         {
           name: 'ECDSA',
-          hash: { name: 'SHA-256' }, // Required for ES256
+          hash: { name: 'sha-256' }, // Required for ES256
         },
         publicKey,
         signature,

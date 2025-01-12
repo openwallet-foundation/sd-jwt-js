@@ -106,7 +106,7 @@ describe('SHA-256 tests', () => {
 
   test('Hasher', async () => {
     const s1 = bytesToHex(await digest('test'));
-    const s2 = bytesToHex(hasher('test', 'SHA-256'));
+    const s2 = bytesToHex(hasher('test', 'sha-256'));
     const s3 = bytesToHex(hasher('test', 'SHA256'));
     const s4 = bytesToHex(hasher('test', 'sha256'));
     const s5 = bytesToHex(hasher('test', 'sha-256'));

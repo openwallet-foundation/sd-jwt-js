@@ -67,7 +67,7 @@ describe('App', () => {
       signAlg: 'EdDSA',
       verifier,
       hasher: digest,
-      hashAlg: 'SHA-256',
+      hashAlg: 'sha-256',
       saltGenerator: generateSalt,
     });
 
@@ -94,7 +94,7 @@ describe('Revocation', () => {
     signAlg: 'EdDSA',
     verifier,
     hasher: digest,
-    hashAlg: 'SHA-256',
+    hashAlg: 'sha-256',
     saltGenerator: generateSalt,
     statusListFetcher(uri: string) {
       // we emulate fetching the status list from the uri. Validation of the JWT is not done here in the test but should be done in the implementation.

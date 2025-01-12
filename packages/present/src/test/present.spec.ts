@@ -160,7 +160,7 @@ describe('Present tests', () => {
         'RrOc4ZfBVyD6iNlMbtmdokZOti322mOXfvIOBKvpuc4',
         'aXqInKwHoE1l8OM1VNUQDqTPeNUG1cMJVwVbxZJpP14',
       ],
-      _sd_alg: 'SHA-256',
+      _sd_alg: 'sha-256',
     };
 
     const presentationFrame = {
@@ -225,7 +225,7 @@ describe('Present tests', () => {
         'RrOc4ZfBVyD6iNlMbtmdokZOti322mOXfvIOBKvpuc4',
         'aXqInKwHoE1l8OM1VNUQDqTPeNUG1cMJVwVbxZJpP14',
       ],
-      _sd_alg: 'SHA-256',
+      _sd_alg: 'sha-256',
     };
 
     const presentationFrame = {};
@@ -265,7 +265,7 @@ describe('Present tests', () => {
         'RrOc4ZfBVyD6iNlMbtmdokZOti322mOXfvIOBKvpuc4',
         'aXqInKwHoE1l8OM1VNUQDqTPeNUG1cMJVwVbxZJpP14',
       ],
-      _sd_alg: 'SHA-256',
+      _sd_alg: 'sha-256',
     };
 
     const presentationFrame = {
