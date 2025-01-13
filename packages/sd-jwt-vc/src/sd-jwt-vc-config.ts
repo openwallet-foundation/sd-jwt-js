@@ -16,4 +16,6 @@ export type SDJWTVCConfig = SDJWTConfig & {
   vctFetcher?: VcTFetcher;
   // if set to true, it will load the metadata format based on the vct value. If not provided, it will default to false.
   loadTypeMetadataFormat?: boolean;
+  // timeout value in milliseconds when to abort the fetch request. If not provided, it will default to 10000.
+  timeout?: number;
 };
