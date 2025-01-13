@@ -17,6 +17,7 @@ import {
   type SDJWTConfig,
   type JwtPayload,
   type Signer,
+  IANA_HASH_ALGORITHMS,
   type HashAlgorithm,
 } from '@sd-jwt/types';
 import { getSDAlgAndPayload } from '@sd-jwt/decode';
@@ -31,26 +32,6 @@ export * from './flattenJSON';
 export * from './generalJSON';
 
 export type SdJwtPayload = Record<string, unknown>;
-
-const IANA_HASH_ALGORITHMS: HashAlgorithm[] = [
-  'sha-256',
-  'sha-256-128',
-  'sha-256-120',
-  'sha-256-96',
-  'sha-256-64',
-  'sha-256-32',
-  'sha-384',
-  'sha-512',
-  'sha3-224',
-  'sha3-256',
-  'sha3-384',
-  'sha3-512',
-  'blake2s-256',
-  'blake2b-256',
-  'blake2b-512',
-  'k12-256',
-  'k12-512',
-];
 
 export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   //header type
