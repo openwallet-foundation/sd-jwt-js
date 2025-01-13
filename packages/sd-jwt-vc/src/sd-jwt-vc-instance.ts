@@ -184,11 +184,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           `Error fetching ${url}: ${response.status} ${response.statusText} - ${errorText}`,
         );
       }
-
       await this.validateIntegrity(response.clone(), url, integrity);
       return response.json() as Promise<T>;
     } catch (error) {
-      if (error.name === 'AbortError') {
+      if (error instanceof DOMException && error.name === 'AbortError') {
         throw new Error(`Request to ${url} timed out`);
       }
       throw error;
