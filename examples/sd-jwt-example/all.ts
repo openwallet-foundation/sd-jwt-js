@@ -11,7 +11,7 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
     verifier,
     signAlg: ES256.alg,
     hasher: digest,
-    hashAlg: 'SHA-256',
+    hashAlg: 'sha-256',
     saltGenerator: generateSalt,
   });
 

@@ -11,7 +11,7 @@ export const generateSalt = (length: number): string => {
 
 export const digest = (
   data: string | ArrayBuffer,
-  algorithm = 'SHA-256',
+  algorithm = 'sha-256',
 ): Uint8Array => {
   const nodeAlg = toNodeCryptoAlg(algorithm);
   const hash = createHash(nodeAlg);
@@ -64,7 +64,7 @@ export const ES256 = {
       const signature = await subtle.sign(
         {
           name: 'ECDSA',
-          hash: { name: 'SHA-256' }, // Required for ES256
+          hash: { name: 'sha-256' }, // Required for ES256
         },
         privateKey,
         encoder.encode(data),
@@ -98,7 +98,7 @@ export const ES256 = {
       const isValid = await subtle.verify(
         {
           name: 'ECDSA',
-          hash: { name: 'SHA-256' }, // Required for ES256
+          hash: { name: 'sha-256' }, // Required for ES256
         },
         publicKey,
         signature,

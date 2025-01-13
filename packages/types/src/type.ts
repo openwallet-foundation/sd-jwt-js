@@ -9,10 +9,30 @@ export type Base64urlString = string;
 
 export type DisclosureData<T> = [string, string, T] | [string, T];
 
+// based on https://www.iana.org/assignments/named-information/named-information.xhtml
+export type HashAlgorithm =
+  | 'sha-256'
+  | 'sha-256-128'
+  | 'sha-256-120'
+  | 'sha-256-96'
+  | 'sha-256-64'
+  | 'sha-256-32'
+  | 'sha-384'
+  | 'sha-512'
+  | 'sha3-224'
+  | 'sha3-256'
+  | 'sha3-384'
+  | 'sha3-512'
+  | 'blake2s-256'
+  | 'blake2b-256'
+  | 'blake2b-512'
+  | 'k12-256'
+  | 'k12-512';
+
 export type SDJWTConfig = {
   omitTyp?: boolean;
   hasher?: Hasher;
-  hashAlg?: string;
+  hashAlg?: HashAlgorithm;
   saltGenerator?: SaltGenerator;
   signer?: Signer;
   signAlg?: string;

@@ -10,7 +10,7 @@ const sdjwt = new SDJwtInstance({
   verifier,
   signAlg: 'EdDSA',
   hasher: digest,
-  hashAlg: 'SHA-256',
+  hashAlg: 'sha-256',
   saltGenerator: generateSalt,
 });
 ```
@@ -33,7 +33,7 @@ type SDJWTConfig = {
   omitTyp?: boolean;
   // hash function: (data: string) => Promise<string> or string;
   hasher?: Hasher;
-  // hash algorithm string (e.g. 'SHA-256')
+  // hash algorithm string (e.g. 'sha-256')
   hashAlg?: string;
   // salt generate function: (length: number) => Promise<string> or string;
   saltGenerator?: SaltGenerator;

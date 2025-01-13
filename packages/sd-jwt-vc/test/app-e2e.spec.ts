@@ -40,7 +40,7 @@ describe('App', () => {
       signAlg: 'EdDSA',
       verifier,
       hasher: digest,
-      hashAlg: 'SHA-256',
+      hashAlg: 'sha-256',
       saltGenerator: generateSalt,
     });
 
@@ -222,7 +222,7 @@ async function JSONtest(filename: string) {
     signAlg: 'EdDSA',
     verifier,
     hasher: digest,
-    hashAlg: 'SHA-256',
+    hashAlg: 'sha-256',
     saltGenerator: generateSalt,
   });
 

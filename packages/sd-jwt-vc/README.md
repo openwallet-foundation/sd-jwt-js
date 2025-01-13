@@ -97,7 +97,7 @@ const sdjwt = new SDJwtVcInstance({
   signAlg: 'EdDSA',
   verifier,
   hasher: digest,
-  hashAlg: 'SHA-256',
+  hashAlg: 'sha-256',
   saltGenerator: generateSalt,
   loadTypeMetadataFormat: true,
 });
