@@ -1,6 +1,6 @@
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import type { DisclosureFrame, Signer, Verifier } from '@sd-jwt/types';
-import { describe, test, beforeAll, afterAll } from 'vitest';
+import { describe, test, beforeAll, afterAll, expect } from 'vitest';
 import { SDJwtVcInstance } from '..';
 import type { SdJwtVcPayload } from '../sd-jwt-vc-payload';
 import Crypto from 'node:crypto';
@@ -41,7 +41,7 @@ const restHandlers = [
     };
     return HttpResponse.json(res);
   }),
-  http.get('http://exmaple.com/example', () => {
+  http.get('http://example.com/example', () => {
     const res: TypeMetadataFormat = {
       vct: 'http://example.com/example',
       name: 'ExampleCredentialType',
@@ -53,6 +53,13 @@ const restHandlers = [
     };
     return HttpResponse.json(res);
   }),
+  http.get('http://example.com/timeout', () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(HttpResponse.json({}));
+      }, 10000);
+    });
+  }),
 ];
 
 //this value could be generated on demand to make it easier when changing the values
@@ -62,7 +69,7 @@ const vctIntegrity =
 const server = setupServer(...restHandlers);
 
 const iss = 'ExampleIssuer';
-const vct = 'http://exmaple.com/example';
+const vct = 'http://example.com/example';
 const iat = new Date().getTime() / 1000;
 
 const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
@@ -84,6 +91,26 @@ const createSignerVerifier = () => {
 };
 
 describe('App', () => {
+  const { signer, verifier } = createSignerVerifier();
+
+  const sdjwt = new SDJwtVcInstance({
+    signer,
+    signAlg: 'EdDSA',
+    verifier,
+    hasher: digest,
+    hashAlg: 'sha-256',
+    saltGenerator: generateSalt,
+    loadTypeMetadataFormat: true,
+    timeout: 1000,
+  });
+
+  const claims = {
+    firstname: 'John',
+  };
+  const disclosureFrame = {
+    _sd: ['firstname'],
+  };
+
   beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 
   afterAll(() => server.close());
@@ -91,24 +118,6 @@ describe('App', () => {
   afterEach(() => server.resetHandlers());
 
   test('VCT Validation', async () => {
-    const { signer, verifier } = createSignerVerifier();
-    const sdjwt = new SDJwtVcInstance({
-      signer,
-      signAlg: 'EdDSA',
-      verifier,
-      hasher: digest,
-      hashAlg: 'sha-256',
-      saltGenerator: generateSalt,
-      loadTypeMetadataFormat: true,
-    });
-
-    const claims = {
-      firstname: 'John',
-    };
-    const disclosureFrame = {
-      _sd: ['firstname'],
-    };
-
     const expectedPayload: SdJwtVcPayload = {
       iat,
       iss,
@@ -122,6 +131,24 @@ describe('App', () => {
     );
 
     await sdjwt.verify(encodedSdjwt);
+  });
+
+  test('VCT Validation with timeout', async () => {
+    const vct = 'http://example.com/timeout';
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct,
+      ...claims,
+    };
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
+      `Request to ${vct} timed out`,
+    );
   });
 
   //TODO: we need tests with an embedded schema, extended and maybe also to test the errors when schema information is not available or the integrity is not valid

@@ -167,17 +167,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * @returns
    */
   private async fetch<T>(url: string, integrity?: string): Promise<T> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      this.userConfig.timeout ?? 10000,
-    );
-
     try {
       const response = await fetch(url, {
-        signal: controller.signal,
+        signal: AbortSignal.timeout(this.userConfig.timeout ?? 10000),
       });
-
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
@@ -187,12 +180,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       await this.validateIntegrity(response.clone(), url, integrity);
       return response.json() as Promise<T>;
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
+      if (error instanceof DOMException && error.name === 'TimeoutError') {
         throw new Error(`Request to ${url} timed out`);
       }
       throw error;
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
