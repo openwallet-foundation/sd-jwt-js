@@ -32,7 +32,6 @@ export const IANA_HASH_ALGORITHMS = [
 
 export type HashAlgorithm = (typeof IANA_HASH_ALGORITHMS)[number];
 
-
 export type SDJWTConfig = {
   omitTyp?: boolean;
   hasher?: Hasher;
