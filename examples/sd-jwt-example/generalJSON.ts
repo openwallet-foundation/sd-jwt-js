@@ -37,7 +37,7 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
   console.log('encodedSdjwt:', encodedSdjwt);
 
   const generalJSON = GeneralJSON.fromEncode(encodedSdjwt);
-  console.log('flattenJSON(credential): ', generalJSON.toJson());
+  console.log('generalJSON(credential): ', generalJSON.toJson());
 
   const presentedSdJwt = await sdjwt.present<typeof claims>(
     encodedSdjwt,
