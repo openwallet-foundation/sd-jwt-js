@@ -180,7 +180,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       await this.validateIntegrity(response.clone(), url, integrity);
       return response.json() as Promise<T>;
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'TimeoutError') {
+      if ((error as Error).name === 'TimeoutError') {
         throw new Error(`Request to ${url} timed out`);
       }
       throw error;
