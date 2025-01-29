@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.9.1...v0.9.2) (2025-01-29)
+
+
+### Bug Fixes
+
+* Frame fails when a type with an optional or nullable field is used ([#272](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/272)) ([ed907e3](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/ed907e33c79f140268a03098af1e8c5cc1003ce9))
+
+
+
+
+
 ## [0.9.1](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.9.0...v0.9.1) (2024-12-13)
 
 **Note:** Version bump only for package @sd-jwt/types
