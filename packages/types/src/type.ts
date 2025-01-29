@@ -172,7 +172,7 @@ type Frame<Payload> = Payload extends Array<infer U>
   : Payload extends Record<string, unknown>
     ? NonNever<
         {
-          [K in keyof Payload]?: Payload[K] extends object
+          [K in keyof Payload]?: NonNullable<Payload[K]> extends object
             ? Frame<Payload[K]>
             : never;
         } & SD<Payload> &
@@ -235,7 +235,7 @@ type PFrame<Payload> = Payload extends Array<infer U>
     ? Record<number, PFrame<U> | boolean> | boolean
     : Record<number, boolean> | boolean
   : {
-      [K in keyof Payload]?: Payload[K] extends object
+      [K in keyof Payload]?: NonNullable<Payload[K]> extends object
         ? PFrame<Payload[K]> | boolean
         : boolean;
     };
