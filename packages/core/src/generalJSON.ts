@@ -116,12 +116,20 @@ export class GeneralJSON {
     if (index < 0 || index >= this.signatures.length) {
       throw new SDJWTException('Index out of bounds');
     }
+    const data: string[] = [];
 
     const { protected: protectedHeader, signature } = this.signatures[index];
-    const disclosures = this.disclosures.join(SD_SEPARATOR);
-    const kb_jwt = this.kb_jwt ?? '';
     const jwt = `${protectedHeader}.${this.payload}.${signature}`;
-    return [jwt, disclosures, kb_jwt].join(SD_SEPARATOR);
+    data.push(jwt);
+
+    if (this.disclosures && this.disclosures.length > 0) {
+      const disclosures = this.disclosures.join(SD_SEPARATOR);
+      data.push(disclosures);
+    }
+
+    const kb = this.kb_jwt ?? '';
+    data.push(kb);
+    return data.join(SD_SEPARATOR);
   }
 
   public async addSignature(

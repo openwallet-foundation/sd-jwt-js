@@ -82,9 +82,18 @@ export class FlattenJSON {
   }
 
   public toEncoded() {
+    const data: string[] = [];
+
     const jwt = `${this.protected}.${this.payload}.${this.signature}`;
-    const disclosures = this.disclosures.join(SD_SEPARATOR);
+    data.push(jwt);
+
+    if (this.disclosures && this.disclosures.length > 0) {
+      const disclosures = this.disclosures.join(SD_SEPARATOR);
+      data.push(disclosures);
+    }
+
     const kb_jwt = this.kb_jwt ?? '';
-    return [jwt, disclosures, kb_jwt].join(SD_SEPARATOR);
+    data.push(kb_jwt);
+    return data.join(SD_SEPARATOR);
   }
 }

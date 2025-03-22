@@ -18,7 +18,6 @@ import {
   type JwtPayload,
   type Signer,
   IANA_HASH_ALGORITHMS,
-  type HashAlgorithm,
 } from '@sd-jwt/types';
 import { getSDAlgAndPayload } from '@sd-jwt/decode';
 import { FlattenJSON } from './flattenJSON';
