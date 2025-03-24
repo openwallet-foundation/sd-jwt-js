@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.9.2...v0.10.0) (2025-03-24)
+
+
+### Features
+
+* fix encoding bug for flattenJSON and generalJSON ([#277](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/277)) ([cc455a6](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/cc455a6f3d431fa59cca1d21dad49daac135d3bc))
+
+
+
+
+
 ## [0.9.2](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.9.1...v0.9.2) (2025-01-29)
 
 
