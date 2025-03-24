@@ -1,4 +1,8 @@
-import { GeneralJSON, SDJwtInstance } from '@sd-jwt/core';
+import {
+  GeneralJSON,
+  SDJwtGeneralJSONInstance,
+  SDJwtInstance,
+} from '@sd-jwt/core';
 import type { DisclosureFrame } from '@sd-jwt/types';
 import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
 
@@ -15,6 +19,10 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
     kbSigner: signer,
     kbSignAlg: ES256.alg,
     kbVerifier: verifier,
+  });
+  const generalJSONSdJwt = new SDJwtGeneralJSONInstance({
+    hasher: digest,
+    verifier,
   });
   const claims = {
     firstname: 'John',
@@ -68,4 +76,7 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
 
   const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
   console.log(verified);
+
+  const generalVerified = await generalJSONSdJwt.verify(generalJSON);
+  console.log(generalVerified);
 })();
