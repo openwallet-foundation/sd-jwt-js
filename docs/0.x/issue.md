@@ -1,12 +1,12 @@
 ## Overview
 
 ```ts
-const encodedSdjwt = await sdjwt.issue(claims, disclosureFrame, options);
+const encodedSdjwt = await sdjwt.issue(payload, disclosureFrame, options);
 ```
 
 ## Parameters
 
-- claims: the payload of SD JWT [Object]
+- payload: the payload of SD JWT [Object]
 - disclosureFrame: to define which properties should be selectively diclosable (optional, if not provided, there is no disclosure)
 - options: (optional)
 
