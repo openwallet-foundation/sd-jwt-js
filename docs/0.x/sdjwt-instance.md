@@ -55,12 +55,12 @@ type SDJWTConfig = {
 
 ## Methods
 
-- issue(claims, privateKey[, disclosureFrame, options])
-- present(encodedSDJwt[, presentationKeys])
-- validate(encodedSDJwt, publicKey)
-- verify(encodedSDJwt, publicKey[, requiredClaimKeys, options])
-- config(config)
-- encode(sdjwt)
+- issue(payload[, disclosureFrame, options])
+- present(encodedSDJwt[, presentationFrame, options])
+- validate(encodedSDJwt)
+- verify(encodedSDJwt[, requiredClaimKeys, requireKeyBindings])
+- config(newConfig)
+- encode(sdJwt)
 - decode(encodedSDJwt)
 - keys(encodedSDJwt)
 - presentableKeys(encodedSDJwt)

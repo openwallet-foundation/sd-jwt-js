@@ -1,11 +1,18 @@
 ```ts
-const presentedSDJwt = await sdjwt.present(encodedSdjwt, presentationFrame);
+const presentedSDJwt = await sdjwt.present(encodedSdjwt, presentationFrame, options);
 ```
 
 ## Parameters
 
 - encodedSdjwt: encoded SD JWT [string]
 - presentationFrame: Represent the properties that should be selectively disclosed [object]
+- options: (optional)
+
+```ts
+options?: {
+  kb?: KBOptions; // options for Key Binding
+},
+```
 
 ### PresentationFrame
 
