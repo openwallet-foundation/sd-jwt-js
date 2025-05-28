@@ -1,7 +1,7 @@
-import { X509Certificate } from 'crypto';
+import { X509Certificate } from 'node:crypto';
 import { Sequence, CharacterString, Integer } from 'asn1js';
 import { GeneralJSON } from '@sd-jwt/core';
-import { GeneralJWS } from './type';
+import type { GeneralJWS } from './type';
 import { SDJWTException } from '@sd-jwt/utils';
 
 export const parseCerts = (chainPem: string): X509Certificate[] => {

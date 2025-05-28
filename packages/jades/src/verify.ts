@@ -1,5 +1,5 @@
-import { createVerify, X509Certificate } from 'crypto';
-import { GeneralJWS } from './type';
+import { createVerify, X509Certificate } from 'node:crypto';
+import type { GeneralJWS } from './type';
 import { SDJwtGeneralJSONInstance } from '@sd-jwt/core';
 import { digest } from '@sd-jwt/crypto-nodejs';
 import { getGeneralJSONFromJWSToken } from './utils';
@@ -88,7 +88,7 @@ export class JWTVerifier {
       const signatureBytes = Buffer.from(sig, 'base64url');
       const signatureUint8Array = new Uint8Array(signatureBytes);
 
-      const cryptoAlgorithm = this.getVerifyAlgorithm(algorithm);
+      const cryptoAlgorithm = JWTVerifier.getVerifyAlgorithm(algorithm);
 
       const verifier = createVerify(cryptoAlgorithm);
       verifier.update(data);

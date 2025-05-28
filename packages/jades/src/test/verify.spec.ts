@@ -1,15 +1,20 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
-import { X509Certificate, createPrivateKey, KeyObject } from 'crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  type X509Certificate,
+  createPrivateKey,
+  type KeyObject,
+} from 'node:crypto';
 import { Sign } from '../sign';
 import { parseCerts } from '../utils';
 import { JWTVerifier } from '../verify';
+import type { GeneralJWS } from '../type';
 
 describe('Verify', () => {
   let testCert: X509Certificate[];
   let privateKey: KeyObject;
-  let signedCredentialJson: any;
+  let signedCredentialJson: GeneralJWS;
 
   const payload = {
     vct: 'https://credentials.example.com/drivers_license',

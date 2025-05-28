@@ -1,4 +1,4 @@
-import { ALGORITHMS, CommitmentOIDs } from './constant';
+import type { ALGORITHMS, CommitmentOIDs } from './constant';
 
 export type ProtectedHeader = {
   alg: Alg;
@@ -34,7 +34,7 @@ export type GeneralJWS = {
       /**
        * TODO: add JAdES unprotected header
        */
-      etsiU?: any;
+      etsiU?: EtsiU;
     };
   }>;
 };

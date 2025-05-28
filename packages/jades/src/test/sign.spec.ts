@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
-import { X509Certificate, createPrivateKey, KeyObject } from 'crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  type X509Certificate,
+  createPrivateKey,
+  type KeyObject,
+} from 'node:crypto';
 import { Sign } from '../sign';
-import { DisclosureFrame } from '@sd-jwt/types';
-import { ProtectedHeader } from '../type';
+import type { DisclosureFrame } from '@sd-jwt/types';
+import type { ProtectedHeader } from '../type';
 import { base64urlDecode } from '@sd-jwt/utils';
 import { parseCerts } from '../utils';
 import { GeneralJSON, SDJwtGeneralJSONInstance } from '@sd-jwt/core';

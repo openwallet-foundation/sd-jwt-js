@@ -1,19 +1,24 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
-import { X509Certificate, createPrivateKey, KeyObject } from 'crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  type X509Certificate,
+  createPrivateKey,
+  type KeyObject,
+} from 'node:crypto';
 import { Sign } from '../sign';
 import { Present } from '../present';
 import { parseCerts } from '../utils';
 import { GeneralJSON, SDJwtGeneralJSONInstance } from '@sd-jwt/core';
 import { digest } from '@sd-jwt/crypto-nodejs';
 import { JWTVerifier } from '../verify';
+import type { GeneralJWS } from '../type';
 
 describe('Present', () => {
   let testCert: X509Certificate[];
   let privateKey: KeyObject;
-  let signedCredentialJson: any;
-  let signedCredentialJsonWithoutSD: any;
+  let signedCredentialJson: GeneralJWS;
+  let signedCredentialJsonWithoutSD: GeneralJWS;
 
   // Create a credential to use in tests
   beforeAll(async () => {

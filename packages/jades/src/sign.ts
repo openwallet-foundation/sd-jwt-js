@@ -1,10 +1,15 @@
-import { DisclosureFrame } from '@sd-jwt/types';
-import { KeyObject, X509Certificate, createHash, createSign } from 'crypto';
+import type { DisclosureFrame } from '@sd-jwt/types';
+import {
+  type KeyObject,
+  type X509Certificate,
+  createHash,
+  createSign,
+} from 'node:crypto';
 import { base64urlEncode } from '@sd-jwt/utils';
 import { ALGORITHMS } from './constant';
 import { GeneralJSON, SDJwtGeneralJSONInstance } from '@sd-jwt/core';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import {
+import type {
   Alg,
   CommitmentOption,
   GeneralJWS,
@@ -41,7 +46,7 @@ export class Sign<T extends Record<string, unknown>> {
 
     if (
       !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as any) === 'none'
+      (this.protectedHeader.alg as Alg | 'none') === 'none'
     ) {
       throw new Error('alg must be set and not "none"');
     }
@@ -81,7 +86,7 @@ export class Sign<T extends Record<string, unknown>> {
   private async createSignature(key: KeyObject, kid: string) {
     if (
       !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as any) === 'none'
+      (this.protectedHeader.alg as Alg | 'none') === 'none'
     ) {
       throw new Error('alg must be set and not "none"');
     }
@@ -167,7 +172,7 @@ export class Sign<T extends Record<string, unknown>> {
   async sign(key: KeyObject, kid: string) {
     if (
       !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as any) === 'none'
+      (this.protectedHeader.alg as Alg | 'none') === 'none'
     ) {
       throw new Error('alg must be set and not "none"');
     }
@@ -182,7 +187,7 @@ export class Sign<T extends Record<string, unknown>> {
   }
 
   setProtectedHeader(header: ProtectedHeader) {
-    if (!header.alg || (header.alg as any) === 'none') {
+    if (!header.alg || (header.alg as Alg | 'none') === 'none') {
       throw new Error('alg must be set and not "none"');
     }
     this.protectedHeader = header;
@@ -314,7 +319,7 @@ export class Sign<T extends Record<string, unknown>> {
 
 class JWTSigner {
   static sign(alg: Alg, signingInput: string, privateKey: KeyObject) {
-    const signature = this.createSignature(alg, signingInput, privateKey);
+    const signature = JWTSigner.createSignature(alg, signingInput, privateKey);
     return signature;
   }
 
@@ -331,17 +336,17 @@ class JWTSigner {
       case 'PS384':
       case 'PS512': {
         const option = ALGORITHMS[alg];
-        return this.createRSASignature(signingInput, privateKey, option);
+        return JWTSigner.createRSASignature(signingInput, privateKey, option);
       }
       case 'ES256':
       case 'ES384':
       case 'ES512': {
         const option = ALGORITHMS[alg];
-        return this.createECDSASignature(signingInput, privateKey, option);
+        return JWTSigner.createECDSASignature(signingInput, privateKey, option);
       }
       case 'EdDSA': {
         const option = ALGORITHMS[alg];
-        return this.createEdDSASignature(signingInput, privateKey, option);
+        return JWTSigner.createEdDSASignature(signingInput, privateKey, option);
       }
       default:
     }
@@ -370,7 +375,7 @@ class JWTSigner {
     const signer = createSign(options.hash);
     signer.update(signingInput);
 
-    let signature = signer.sign({
+    const signature = signer.sign({
       key: privateKey,
       dsaEncoding: 'ieee-p1363',
     });

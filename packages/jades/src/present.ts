@@ -1,7 +1,7 @@
 import { SDJwtGeneralJSONInstance } from '@sd-jwt/core';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import { PresentationFrame } from '@sd-jwt/types';
-import { GeneralJWS } from './type';
+import type { PresentationFrame } from '@sd-jwt/types';
+import type { GeneralJWS } from './type';
 import { getGeneralJSONFromJWSToken } from './utils';
 
 export class Present {

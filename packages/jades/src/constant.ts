@@ -1,4 +1,4 @@
-import { constants } from 'crypto';
+import { constants } from 'node:crypto';
 
 export const ALGORITHMS = {
   // RSA

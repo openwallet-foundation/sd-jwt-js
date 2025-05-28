@@ -1,8 +1,8 @@
-import { X509Certificate } from 'crypto';
+import { X509Certificate } from 'node:crypto';
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { createKidFromCert } from '../utils';
 
 describe('createKidFromCert', () => {
