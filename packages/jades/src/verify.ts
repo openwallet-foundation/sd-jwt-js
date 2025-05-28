@@ -4,11 +4,8 @@ import { SDJwtGeneralJSONInstance } from '@sd-jwt/core';
 import { digest } from '@sd-jwt/crypto-nodejs';
 import { getGeneralJSONFromJWSToken } from './utils';
 
-export class JWTVerifier {
-  static async verify(
-    credential: GeneralJWS | string,
-    requiredClaimKeys?: string[],
-  ) {
+export const JWTVerifier = {
+  async verify(credential: GeneralJWS | string, requiredClaimKeys?: string[]) {
     const instance = new SDJwtGeneralJSONInstance({
       hasher: digest,
       verifier: JWTVerifier.verifier,
@@ -21,9 +18,9 @@ export class JWTVerifier {
       requiredClaimKeys,
     );
     return verifiedData;
-  }
+  },
 
-  static verifier(data: string, signatureB64: string): boolean {
+  verifier(data: string, signatureB64: string): boolean {
     try {
       const [headerB64, payloadB64] = data.split('.');
 
@@ -46,9 +43,9 @@ export class JWTVerifier {
       console.error('JWT token verification error:', error);
       return false;
     }
-  }
+  },
 
-  private static getVerifyAlgorithm(jwtAlg: string): string {
+  getVerifyAlgorithm(jwtAlg: string): string {
     const algorithmMap: Record<string, string> = {
       RS256: 'SHA256',
       RS384: 'SHA384',
@@ -67,9 +64,9 @@ export class JWTVerifier {
     }
 
     return algorithm;
-  }
+  },
 
-  static verifySig(
+  verifySig(
     data: string,
     sig: string,
     x5c: string[],
@@ -98,5 +95,5 @@ export class JWTVerifier {
       console.error('JWT verification error:', error);
       return false;
     }
-  }
-}
+  },
+};

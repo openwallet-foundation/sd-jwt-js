@@ -4,8 +4,8 @@ import type { PresentationFrame } from '@sd-jwt/types';
 import type { GeneralJWS } from './type';
 import { getGeneralJSONFromJWSToken } from './utils';
 
-export class Present {
-  public static async present<T extends Record<string, unknown>>(
+export const Present = {
+  async present<T extends Record<string, unknown>>(
     credential: GeneralJWS | string,
     presentationFrame?: PresentationFrame<T>,
     options?: Record<string, unknown>,
@@ -39,5 +39,5 @@ export class Present {
     );
 
     return presentedCredential.toJson();
-  }
-}
+  },
+};

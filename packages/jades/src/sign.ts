@@ -317,17 +317,13 @@ export class Sign<T extends Record<string, unknown>> {
   }
 }
 
-class JWTSigner {
-  static sign(alg: Alg, signingInput: string, privateKey: KeyObject) {
+const JWTSigner = {
+  sign(alg: Alg, signingInput: string, privateKey: KeyObject) {
     const signature = JWTSigner.createSignature(alg, signingInput, privateKey);
     return signature;
-  }
+  },
 
-  static createSignature(
-    alg: Alg,
-    signingInput: string,
-    privateKey: KeyObject,
-  ) {
+  createSignature(alg: Alg, signingInput: string, privateKey: KeyObject) {
     switch (alg) {
       case 'RS256':
       case 'RS384':
@@ -351,9 +347,9 @@ class JWTSigner {
       default:
     }
     throw new Error(`Unsupported algorithm: ${alg}`);
-  }
+  },
 
-  static createRSASignature(
+  createRSASignature(
     signingInput: string,
     privateKey: KeyObject,
     options: { hash: string; padding: number },
@@ -365,9 +361,9 @@ class JWTSigner {
       padding: options.padding,
     });
     return signature.toString('base64url');
-  }
+  },
 
-  static createECDSASignature(
+  createECDSASignature(
     signingInput: string,
     privateKey: KeyObject,
     options: { hash: string; namedCurve: string },
@@ -381,9 +377,9 @@ class JWTSigner {
     });
 
     return signature.toString('base64url');
-  }
+  },
 
-  static createEdDSASignature(
+  createEdDSASignature(
     signingInput: string,
     privateKey: KeyObject,
     options: { curves: string[] },
@@ -394,5 +390,5 @@ class JWTSigner {
       key: privateKey,
     });
     return signature.toString('base64url');
-  }
-}
+  },
+};
