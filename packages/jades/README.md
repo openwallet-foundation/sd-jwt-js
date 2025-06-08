@@ -1,4 +1,4 @@
-# SD JWT VCDM Typescript
+# SD JWT VC + JAdES Typescript
 
 > ⚠️ **Platform Support**: This package currently supports Node.js environments only.
 
@@ -7,14 +7,6 @@ Typescript implementation of SD JWT VCDM profile.
 A library that integrates SD-JWT with W3C Verifiable Credentials Data Model and implements JAdES digital signature standards.
 
 ## Features
-
-### SD-JWT VCDM Data Model Profile
-
-This library provides interoperability between SD-JWT (Selective Disclosure JWT) and W3C Verifiable Credentials Data Model:
-
-- Issue Verifiable Digital Credentials in SD-JWT VC format while maintaining W3C VCDM compliance
-- Support for Selective Disclosure capabilities
-- Seamless integration with standard VC verification processes
 
 ### JAdES Digital Signature Integration
 
@@ -28,7 +20,7 @@ Implements JAdES (JSON Advanced Electronic Signatures) standard for SD-JWT with 
 ## Installation
 
 ```bash
-pnpm add sd-jwt-vcdm
+pnpm add @sd-jwt/jades
 ```
 
 ## Usage
@@ -36,7 +28,7 @@ pnpm add sd-jwt-vcdm
 ### B-B
 
 ```typescript
-import { JAdES, parseCerts, createKidFromCert } from 'sd-jwt-jades';
+import { JAdES, parseCerts, createKidFromCert } from '@sd-jwt/jades';
 import * as fs from 'fs';
 import { createPrivateKey } from 'node:crypto';
 
@@ -53,7 +45,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'jades',
+      typ: 'dc+sd-jwt+jades',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -70,7 +62,7 @@ import { createPrivateKey } from 'node:crypto';
 ### B-T
 
 ```typescript
-import { JAdES, parseCerts, createKidFromCert } from 'sd-jwt-jades';
+import { JAdES, parseCerts, createKidFromCert } from '@sd-jwt/jades';
 import * as fs from 'fs';
 import { createPrivateKey } from 'node:crypto';
 
@@ -87,7 +79,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'jades',
+      typ: 'dc+sd-jwt+jades',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -117,7 +109,7 @@ import { createPrivateKey } from 'node:crypto';
 ### B-LT
 
 ```typescript
-import { JAdES, parseCerts, createKidFromCert } from 'sd-jwt-jades';
+import { JAdES, parseCerts, createKidFromCert } from '@sd-jwt/jades';
 import * as fs from 'fs';
 import { createPrivateKey } from 'node:crypto';
 
@@ -134,7 +126,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'jades',
+      typ: 'dc+sd-jwt+jades',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -176,7 +168,7 @@ import { createPrivateKey } from 'node:crypto';
 ### B-LTA
 
 ```typescript
-import { JAdES, parseCerts, createKidFromCert } from 'sd-jwt-jades';
+import { JAdES, parseCerts, createKidFromCert } from '@sd-jwt/jades';
 import * as fs from 'fs';
 import { createPrivateKey } from 'node:crypto';
 
@@ -193,7 +185,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'jades',
+      typ: 'dc+sd-jwt+jades',
     })
     .setX5c(certs)
     .setDisclosureFrame({
