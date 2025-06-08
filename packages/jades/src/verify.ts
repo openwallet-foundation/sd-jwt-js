@@ -40,7 +40,6 @@ export const JWTVerifier = {
 
       return isValid;
     } catch (error) {
-      console.error('JWT token verification error:', error);
       return false;
     }
   },

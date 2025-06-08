@@ -26,9 +26,6 @@ export const Present = {
       !generalJsonCredential.disclosures ||
       generalJsonCredential.disclosures.length === 0
     ) {
-      console.log(
-        'Credential has no selective disclosure claims, returning as is',
-      );
       return generalJsonCredential.toJson();
     }
 
