@@ -2,6 +2,7 @@ import { digest } from '@sd-jwt/crypto-nodejs';
 import { bytesToHex } from '@noble/hashes/utils';
 import { hasher, sha256 } from '../index';
 import { describe, expect, test } from 'vitest';
+import { createHash } from 'node:crypto';
 
 describe('SHA-256 tests', () => {
   test('test#1', async () => {
@@ -122,5 +123,67 @@ describe('SHA-256 tests', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
     }
+  });
+
+  describe('Hash', () => {
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha256 - string',
+      () => {
+        const data = 'test';
+        const hashdata = hasher(data, 'sha-256');
+        const hashdata2 = createHash('sha256').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
+
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha256 - arraybuffer',
+      () => {
+        const data = new TextEncoder().encode('test');
+        const hashdata = hasher(data, 'sha-256');
+        const hashdata2 = createHash('sha256').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
+
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha-384 - string',
+      () => {
+        const data = 'test';
+        const hashdata = hasher(data, 'sha-384');
+        const hashdata2 = createHash('sha384').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
+
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha-384 - arraybuffer',
+      () => {
+        const data = new TextEncoder().encode('test');
+        const hashdata = hasher(data, 'sha-384');
+        const hashdata2 = createHash('sha384').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
+
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha-512 - string',
+      () => {
+        const data = 'test';
+        const hashdata = hasher(data, 'sha-512');
+        const hashdata2 = createHash('sha512').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
+
+    (process.env.npm_lifecycle_event === 'test:browser' ? test.skip : test)(
+      'sha-512 - arraybuffer',
+      () => {
+        const data = new TextEncoder().encode('test');
+        const hashdata = hasher(data, 'sha-512');
+        const hashdata2 = createHash('sha512').update(data).digest();
+        expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
+      },
+    );
   });
 });
