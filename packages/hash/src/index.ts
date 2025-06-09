@@ -1,1 +1,1 @@
-export * from './sha256';
+export * from './sha2';

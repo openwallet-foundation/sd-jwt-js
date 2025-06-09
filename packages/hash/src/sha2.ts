@@ -26,10 +26,7 @@ export const sha512 = (text: string | ArrayBuffer): Uint8Array => {
   return hashBytes;
 };
 
-export const hasher = (
-  data: string | ArrayBuffer,
-  algorithm: string = 'sha256',
-) => {
+export const hasher = (data: string | ArrayBuffer, algorithm = 'sha256') => {
   const msg =
     typeof data === 'string' ? toUTF8Array(data) : new Uint8Array(data);
 
@@ -49,9 +46,7 @@ export const hasher = (
 
 const toCryptoAlg = (hashAlg: string): string =>
   // To cover sha-256, sha256, SHA-256, SHA256
-  hashAlg
-    .replace('-', '')
-    .toLowerCase();
+  hashAlg.replace('-', '').toLowerCase();
 
 function toUTF8Array(str: string) {
   const utf8: Array<number> = [];
