@@ -1,17 +1,50 @@
-import { sha256 as nobleSha256 } from '@noble/hashes/sha256';
+import {
+  sha256 as nobleSha256,
+  sha384 as nobleSha384,
+  sha512 as nobleSha512,
+} from '@noble/hashes/sha2.js';
 import { SDJWTException } from '@sd-jwt/utils';
 
-export const sha256 = (text: string): Uint8Array => {
-  const uint8Array = toUTF8Array(text);
+export const sha256 = (text: string | ArrayBuffer): Uint8Array => {
+  const uint8Array =
+    typeof text === 'string' ? toUTF8Array(text) : new Uint8Array(text);
   const hashBytes = nobleSha256(uint8Array);
   return hashBytes;
 };
 
-export const hasher = (data: string, algorithm: string) => {
-  if (toCryptoAlg(algorithm) !== 'sha256') {
-    throw new SDJWTException('Not implemented');
+export const sha384 = (text: string | ArrayBuffer): Uint8Array => {
+  const uint8Array =
+    typeof text === 'string' ? toUTF8Array(text) : new Uint8Array(text);
+  const hashBytes = nobleSha384(uint8Array);
+  return hashBytes;
+};
+
+export const sha512 = (text: string | ArrayBuffer): Uint8Array => {
+  const uint8Array =
+    typeof text === 'string' ? toUTF8Array(text) : new Uint8Array(text);
+  const hashBytes = nobleSha512(uint8Array);
+  return hashBytes;
+};
+
+export const hasher = (
+  data: string | ArrayBuffer,
+  algorithm: string = 'sha256',
+) => {
+  const msg =
+    typeof data === 'string' ? toUTF8Array(data) : new Uint8Array(data);
+
+  const alg = toCryptoAlg(algorithm);
+
+  switch (alg) {
+    case 'sha256':
+      return sha256(msg);
+    case 'sha384':
+      return sha384(msg);
+    case 'sha512':
+      return sha512(msg);
+    default:
+      throw new SDJWTException(`Unsupported algorithm: ${algorithm}`);
   }
-  return sha256(data);
 };
 
 const toCryptoAlg = (hashAlg: string): string =>
