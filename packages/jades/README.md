@@ -45,7 +45,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'dc+sd-jwt+jades',
+      typ: 'dc+sd-jwt',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -79,7 +79,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'dc+sd-jwt+jades',
+      typ: 'dc+sd-jwt',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -126,7 +126,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'dc+sd-jwt+jades',
+      typ: 'dc+sd-jwt',
     })
     .setX5c(certs)
     .setDisclosureFrame({
@@ -185,7 +185,7 @@ import { createPrivateKey } from 'node:crypto';
   await jades
     .setProtectedHeader({
       alg: 'RS256',
-      typ: 'dc+sd-jwt+jades',
+      typ: 'dc+sd-jwt',
     })
     .setX5c(certs)
     .setDisclosureFrame({
