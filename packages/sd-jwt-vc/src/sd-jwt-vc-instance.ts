@@ -252,9 +252,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     const valid = validate(result.payload);
 
     if (!valid) {
-      throw new SDJWTException(
-        `Payload does not match the schema: ${JSON.stringify(validate.errors)}`,
-      );
+      throw new SDJWTException(`Payload does not match the schema`);
     }
 
     return typeMetadataFormat;
