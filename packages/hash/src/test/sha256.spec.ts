@@ -4,7 +4,7 @@ import { hasher, sha256 } from '../index';
 import { describe, expect, test } from 'vitest';
 import { createHash } from 'node:crypto';
 
-describe('SHA-256 tests', () => {
+describe('hashing tests', () => {
   test('test#1', async () => {
     const payload = 'test1';
     const s1 = bytesToHex(await digest(payload));
