@@ -131,6 +131,26 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
+   * Gets VCT Metadata of the raw SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC is invalid or does not contain a vct claim, an error is thrown.
+   * @param encodedSDJwt
+   * @returns
+   */
+  async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat> {
+    // Call the parent class's verify method
+    const result: VerificationResult = await super
+      .verify(encodedSDJwt)
+      .then((res) => {
+        return {
+          payload: res.payload as SdJwtVcPayload,
+          header: res.header,
+          kb: res.kb,
+        };
+      });
+
+    return this.fetchVct(result);
+  }
+
+  /**
    * Validates the integrity of the response if the integrity is passed. If the integrity does not match, an error is thrown.
    * @param integrity
    * @param response
@@ -213,13 +233,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   private async verifyVct(
     result: VerificationResult,
   ): Promise<TypeMetadataFormat | undefined> {
-    const fetcher: VcTFetcher =
-      this.userConfig.vctFetcher ??
-      ((uri, integrity) => this.fetch(uri, integrity));
-    const typeMetadataFormat = await fetcher(
-      result.payload.vct,
-      result.payload['vct#Integrity'],
-    );
+    const typeMetadataFormat = await this.fetchVct(result)
 
     if (typeMetadataFormat.extends) {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
@@ -258,6 +272,25 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     }
 
     return typeMetadataFormat;
+  }
+
+  /**
+   * Fetches VCT Metadata of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC is invalid or does not contain a vct claim, an error is thrown.
+   * @param result
+   * @returns
+   */
+  private async fetchVct(result): Promise<TypeMetadataFormat> {
+    if (!result.payload.vct) {
+      throw new SDJWTException('vct claim is required');
+    }
+
+    const fetcher: VcTFetcher =
+      this.userConfig.vctFetcher ??
+      ((uri, integrity) => this.fetch(uri, integrity));
+    return fetcher(
+      result.payload.vct,
+      result.payload['vct#Integrity'],
+    );
   }
 
   /**
