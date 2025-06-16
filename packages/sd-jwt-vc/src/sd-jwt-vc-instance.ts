@@ -1,4 +1,4 @@
-import { Jwt, SDJwtInstance } from '@sd-jwt/core';
+import { Jwt, SDJwt, SDJwtInstance } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
@@ -137,15 +137,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    */
   async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat> {
     // Call the parent class's verify method
-    const result: VerificationResult = await super
-      .verify(encodedSDJwt)
-      .then((res) => {
-        return {
-          payload: res.payload as SdJwtVcPayload,
-          header: res.header,
-          kb: res.kb,
-        };
-      });
+    const { payload } = await SDJwt.extractJwt<
+      Record<string, unknown>,
+      SdJwtVcPayload
+    >(encodedSDJwt);
+    const result: VerificationResult = { payload };
 
     return this.fetchVct(result);
   }
@@ -233,7 +229,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   private async verifyVct(
     result: VerificationResult,
   ): Promise<TypeMetadataFormat | undefined> {
-    const typeMetadataFormat = await this.fetchVct(result)
+    const typeMetadataFormat = await this.fetchVct(result);
 
     if (typeMetadataFormat.extends) {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
@@ -275,7 +271,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Fetches VCT Metadata of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC is invalid or does not contain a vct claim, an error is thrown.
+   * Fetches VCT Metadata of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
    * @param result
    * @returns
    */
@@ -287,10 +283,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     const fetcher: VcTFetcher =
       this.userConfig.vctFetcher ??
       ((uri, integrity) => this.fetch(uri, integrity));
-    return fetcher(
-      result.payload.vct,
-      result.payload['vct#Integrity'],
-    );
+    return fetcher(result.payload.vct, result.payload['vct#Integrity']);
   }
 
   /**

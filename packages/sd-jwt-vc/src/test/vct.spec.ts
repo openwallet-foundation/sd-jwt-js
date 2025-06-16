@@ -166,11 +166,12 @@ describe('App', () => {
 
     const typeMetadataFormat = await sdjwt.getVct(encodedSdjwt);
     expect(typeMetadataFormat).to.deep.eq({
-      "description": "An example credential type",
-      "name": "ExampleCredentialType",
-      "schema_uri": "http://example.com/schema/example",
-      "schema_uri#Integrity": "sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae",
-      "vct": "http://example.com/example",
+      description: 'An example credential type',
+      name: 'ExampleCredentialType',
+      schema_uri: 'http://example.com/schema/example',
+      'schema_uri#Integrity':
+        'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
+      vct: 'http://example.com/example',
     });
   });
 
