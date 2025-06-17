@@ -1,4 +1,4 @@
-import { Jwt, SDJwtInstance } from '@sd-jwt/core';
+import { Jwt, SDJwt, SDJwtInstance } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
@@ -131,6 +131,31 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
+   * Gets VCT Metadata of the raw SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC is invalid or does not contain a vct claim, an error is thrown.
+   * @param encodedSDJwt
+   * @returns
+   */
+  async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat> {
+    // Call the parent class's verify method
+    const { payload, header } = await SDJwt.extractJwt<
+      Record<string, unknown>,
+      SdJwtVcPayload
+    >(encodedSDJwt);
+
+    if (!payload) {
+      throw new SDJWTException('JWT payload is missing');
+    }
+
+    const result: VerificationResult = {
+      payload,
+      header,
+      kb: undefined,
+    };
+
+    return this.fetchVct(result);
+  }
+
+  /**
    * Validates the integrity of the response if the integrity is passed. If the integrity does not match, an error is thrown.
    * @param integrity
    * @param response
@@ -213,13 +238,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   private async verifyVct(
     result: VerificationResult,
   ): Promise<TypeMetadataFormat | undefined> {
-    const fetcher: VcTFetcher =
-      this.userConfig.vctFetcher ??
-      ((uri, integrity) => this.fetch(uri, integrity));
-    const typeMetadataFormat = await fetcher(
-      result.payload.vct,
-      result.payload['vct#Integrity'],
-    );
+    const typeMetadataFormat = await this.fetchVct(result);
 
     if (typeMetadataFormat.extends) {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
@@ -258,6 +277,24 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     }
 
     return typeMetadataFormat;
+  }
+
+  /**
+   * Fetches VCT Metadata of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
+   * @param result
+   * @returns
+   */
+  private async fetchVct(
+    result: VerificationResult,
+  ): Promise<TypeMetadataFormat> {
+    if (!result.payload.vct) {
+      throw new SDJWTException('vct claim is required');
+    }
+
+    const fetcher: VcTFetcher =
+      this.userConfig.vctFetcher ??
+      ((uri, integrity) => this.fetch(uri, integrity));
+    return fetcher(result.payload.vct, result.payload['vct#Integrity']);
   }
 
   /**

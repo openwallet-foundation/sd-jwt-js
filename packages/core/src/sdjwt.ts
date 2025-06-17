@@ -93,6 +93,16 @@ export class SDJwt<
     };
   }
 
+  public static async extractJwt<
+    Header extends Record<string, unknown> = Record<string, unknown>,
+    Payload extends Record<string, unknown> = Record<string, unknown>,
+  >(encodedSdJwt: SDJWTCompact): Promise<Jwt<Header, Payload>> {
+    const [encodedJwt, ..._encodedDisclosures] =
+      encodedSdJwt.split(SD_SEPARATOR);
+
+    return Jwt.fromEncode(encodedJwt);
+  }
+
   public static async fromEncode<
     Header extends Record<string, unknown> = Record<string, unknown>,
     Payload extends Record<string, unknown> = Record<string, unknown>,
