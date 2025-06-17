@@ -137,11 +137,20 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    */
   async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat> {
     // Call the parent class's verify method
-    const { payload } = await SDJwt.extractJwt<
+    const { payload, header } = await SDJwt.extractJwt<
       Record<string, unknown>,
       SdJwtVcPayload
     >(encodedSDJwt);
-    const result: VerificationResult = { payload };
+
+    if (!payload) {
+      throw new SDJWTException('JWT payload is missing');
+    }
+
+    const result: VerificationResult = {
+      payload,
+      header,
+      kb: undefined,
+    };
 
     return this.fetchVct(result);
   }
@@ -275,7 +284,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * @param result
    * @returns
    */
-  private async fetchVct(result): Promise<TypeMetadataFormat> {
+  private async fetchVct(
+    result: VerificationResult,
+  ): Promise<TypeMetadataFormat> {
     if (!result.payload.vct) {
       throw new SDJWTException('vct claim is required');
     }
