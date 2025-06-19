@@ -9,6 +9,10 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./types.js": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js"
     }
   },
   "scripts": {
@@ -56,7 +60,8 @@
   },
   "tsup": {
     "entry": [
-      "./src/index.ts"
+      "./src/index.ts",
+      "./src/types.ts"
     ],
     "sourceMap": true,
     "splitting": false,
