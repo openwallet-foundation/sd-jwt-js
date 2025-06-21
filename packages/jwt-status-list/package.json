@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/jwt-status-list",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Implementation based on https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

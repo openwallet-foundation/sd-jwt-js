@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.11.0...v0.12.0) (2025-06-21)
+
+
+### Bug Fixes
+
+* expose types ([#290](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/290)) ([1b656ac](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/1b656ac21796b715096feae439de6b48442244a9))
+
+
+### Features
+
+* add missing types ([#286](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/286)) ([506b876](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/506b8769ac8e0082ad30544338eace2d0df34294))
+
+
+
+
+
 # [0.11.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.10.0...v0.11.0) (2025-06-17)
 
 
