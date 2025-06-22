@@ -37,7 +37,7 @@ describe('JWTStatusList', () => {
     const payload: JwtPayload = {
       iss,
       sub: `${iss}/statuslist/1`,
-      iat: new Date().getTime() / 1000,
+      iat: Math.floor(Date.now() / 1000),
     };
 
     const values = createHeaderAndPayload(statusList, payload, header);
@@ -61,7 +61,7 @@ describe('JWTStatusList', () => {
     const payload: JwtPayload = {
       iss,
       sub: `${iss}/statuslist/1`,
-      iat: new Date().getTime() / 1000,
+      iat: Math.floor(Date.now() / 1000),
     };
 
     const values = createHeaderAndPayload(statusList, payload, header);
@@ -82,7 +82,7 @@ describe('JWTStatusList', () => {
     const iss = 'https://example.com';
     let payload: JwtPayload = {
       sub: `${iss}/statuslist/1`,
-      iat: new Date().getTime() / 1000,
+      iat: Math.floor(Date.now() / 1000),
     };
     expect(() => {
       createHeaderAndPayload(statusList, payload as JwtPayload, header);
@@ -90,7 +90,7 @@ describe('JWTStatusList', () => {
 
     payload = {
       iss,
-      iat: new Date().getTime() / 1000,
+      iat: Math.floor(Date.now() / 1000),
     };
     expect(() => createHeaderAndPayload(statusList, payload, header)).toThrow(
       'sub field is required',
@@ -109,7 +109,7 @@ describe('JWTStatusList', () => {
     const payload: JWTwithStatusListPayload = {
       iss: 'https://example.com',
       sub: 'https://example.com/status/1',
-      iat: new Date().getTime() / 1000,
+      iat: Math.floor(Date.now() / 1000),
       status: {
         status_list: {
           idx: 0,
