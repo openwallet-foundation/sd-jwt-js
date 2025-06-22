@@ -1,13 +1,156 @@
 /**
- * https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-type-metadata-format
+ * Logo metadata used in rendering a credential.
+ */
+export type Logo = {
+  /** REQUIRED. A URI pointing to the logo image. */
+  uri: string;
+  /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
+  'uri#integrity'?: string;
+  /** OPTIONAL. A string containing alternative text for the logo image. */
+  alt_text?: string;
+};
+
+/**
+ * The simple rendering method is intended for applications that do not support SVG.
+ */
+export type SimpleRendering = {
+  /** OPTIONAL. Logo metadata to display for the credential. */
+  logo?: Logo;
+  /** OPTIONAL. RGB color value for the credential background (e.g., "#FFFFFF"). */
+  background_color?: string;
+  /** OPTIONAL. RGB color value for the credential text (e.g., "#000000"). */
+  text_color?: string;
+};
+
+/** Enum of valid values for rendering orientation. */
+type Orientation = 'portrait' | 'landscape';
+
+/** Enum of valid values for rendering color schemes. */
+type ColorScheme = 'light' | 'dark';
+
+/** Enum of valid values for rendering contrast. */
+type Contrast = 'normal' | 'high';
+
+/**
+ * Properties that describe the display preferences for an SVG template rendering.
+ */
+export type SvgTemplateProperties = {
+  /** OPTIONAL. Orientation optimized for the template. */
+  orientation?: Orientation;
+  /** OPTIONAL. Color scheme optimized for the template. */
+  color_scheme?: ColorScheme;
+  /** OPTIONAL. Contrast level optimized for the template. */
+  contrast?: Contrast;
+};
+
+/**
+ * SVG rendering metadata containing URI and optional integrity and properties.
+ */
+export type SvgTemplateRendering = {
+  /** REQUIRED. A URI pointing to the SVG template. */
+  uri: string;
+  /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
+  'uri#integrity'?: string;
+  /** REQUIRED if more than one SVG template is present. */
+  properties?: SvgTemplateProperties;
+};
+
+/**
+ * Rendering metadata, either simple or SVG-based, for a credential.
+ */
+export type Rendering = {
+  /** OPTIONAL. Simple rendering metadata. */
+  simple?: SimpleRendering;
+  /** OPTIONAL. Array of SVG template rendering objects. */
+  svg_template?: SvgTemplateRendering[];
+};
+
+/**
+ * Display metadata associated with a credential type.
+ */
+export type Display = {
+  /** REQUIRED. Language tag according to RFC 5646 (e.g., "en", "de"). */
+  lang: string;
+  /** REQUIRED. Human-readable name for the credential type. */
+  name: string;
+  /** OPTIONAL. Description of the credential type for end users. */
+  description?: string;
+  /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
+  rendering?: Rendering;
+};
+
+/**
+ * Claim path within the credential's JSON structure.
+ * Example: ["address", "street_address"]
+ */
+export type ClaimPath = Array<string | null>;
+
+/**
+ * Display metadata for a specific claim.
+ */
+export type ClaimDisplay = {
+  /** REQUIRED. Language tag according to RFC 5646. */
+  lang: string;
+  /** REQUIRED. Human-readable label for the claim. */
+  label: string;
+  /** OPTIONAL. Description of the claim for end users. */
+  description?: string;
+};
+
+/**
+ * Indicates whether a claim is selectively disclosable.
+ */
+export type ClaimSelectiveDisclosure = 'always' | 'allowed' | 'never';
+
+/**
+ * Metadata for individual claims in the credential type.
+ */
+export type Claim = {
+  /**
+   * REQUIRED. Array of one or more paths to the claim in the credential subject.
+   * Each path is an array of strings (or null for array elements).
+   */
+  path: ClaimPath[];
+  /** OPTIONAL. Display metadata in multiple languages. */
+  display?: ClaimDisplay[];
+  /** OPTIONAL. Controls whether the claim must, may, or must not be selectively disclosed. */
+  sd?: ClaimSelectiveDisclosure;
+  /**
+   * OPTIONAL. Unique string identifier for referencing the claim in an SVG template.
+   * Must consist of alphanumeric characters or underscores and must not start with a digit.
+   */
+  svg_id?: string;
+};
+
+/**
+ * Type metadata for a specific Verifiable Credential (VC) type.
+ * Reference: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-type-metadata-format
  */
 export type TypeMetadataFormat = {
-  vct: string; // REQUIRED. A URI that uniquely identifies the type. This URI MUST be dereferenceable to a JSON document that describes the type.
-  name?: string; // OPTIONAL. A human-readable name for the type, intended for developers reading the JSON document.
-  description?: string; // OPTIONAL. A human-readable description for the type, intended for developers reading the JSON document.
-  extends?: string; // OPTIONAL. A URI of another type that this type extends, as described in Section 6.4.
-  'extends#Integrity'?: string; // OPTIONAL. Validating the ingegrity of the extends field
-  schema?: object; // OPTIONAL. An embedded JSON Schema document describing the structure of the Verifiable Credential as described in Section 6.5.1. schema MUST NOT be used if schema_uri is present.
-  schema_uri?: string; // OPTIONAL. A URL pointing to a JSON Schema document describing the structure of the Verifiable Credential as described in Section 6.5.1. schema_uri MUST NOT be used if schema is present.
-  'schema_uri#Integrity'?: string; // OPTIONAL. Validating the integrity of the schema_uri field.
+  /** REQUIRED. A URI uniquely identifying the credential type. */
+  vct: string;
+  /** OPTIONAL. Human-readable name for developers. */
+  name?: string;
+  /** OPTIONAL. Human-readable description for developers. */
+  description?: string;
+  /** OPTIONAL. URI of another type that this one extends. */
+  extends?: string;
+  /** OPTIONAL. Integrity metadata for the 'extends' field. */
+  'extends#Integrity'?: string;
+  /** OPTIONAL. Array of localized display metadata for the type. */
+  display?: Display[];
+  /** OPTIONAL. Array of claim metadata. */
+  claims?: Claim[];
+  /**
+   * OPTIONAL. Embedded JSON Schema describing the VC structure.
+   * Must not be present if schema_uri is provided.
+   */
+  schema?: object;
+  /**
+   * OPTIONAL. URI pointing to a JSON Schema for the VC structure.
+   * Must not be present if schema is provided.
+   */
+  schema_uri?: string;
+  /** OPTIONAL. Integrity metadata for the schema_uri field. */
+  'schema_uri#Integrity'?: string;
 };
