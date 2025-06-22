@@ -86,11 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return jwt;
   }
 
-  private async VerifyJwt(jwt: Jwt) {
+  private async VerifyJwt(jwt: Jwt, currentDate: number) {
     if (!this.userConfig.verifier) {
       throw new SDJWTException('Verifier not found');
     }
-    return jwt.verify(this.userConfig.verifier);
+    return jwt.verify(this.userConfig.verifier, currentDate);
   }
 
   public async issue<Payload extends ExtendedPayload>(
@@ -273,9 +273,14 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return sdHashStr;
   }
 
-  // This function is for validating the SD JWT
-  // Just checking signature and return its the claims
-  public async validate(encodedSDJwt: string) {
+  /**
+   * This function is for validating the SD JWT
+   * Checking signature, if provided the iat and exp when provided and return its the claims
+   * @param encodedSDJwt 
+   * @param currentDate 
+   * @returns 
+   */
+  public async validate(encodedSDJwt: string, currentDate: number = Math.floor(Date.now() / 1000)) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -286,7 +291,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt);
+    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, currentDate);
     const claims = await sdjwt.getClaims(hasher);
     return { payload: claims, header: verifiedPayloads.header };
   }

@@ -199,4 +199,76 @@ describe('JWT', () => {
       expect(e).toBeInstanceOf(SDJWTException);
     }
   });
+
+  test('verify with issuance date in the future', async () => {
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const testVerifier: Verifier = async (data: string, sig: string) => {
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        publicKey,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const jwt = new Jwt({
+      header: { alg: 'EdDSA' },
+      payload: { iat: Math.floor(Date.now () / 1000 ) + 100 },
+    });
+
+    try {
+      await jwt.verify(testVerifier);
+    } catch (e: unknown) {      
+      expect(e).toBeInstanceOf(SDJWTException);
+      expect((e as SDJWTException).message).toBe('Verify Error: JWT is not yet valid');
+    }
+  });
+
+  test('verify with not before in the future', async () => {
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const testVerifier: Verifier = async (data: string, sig: string) => {
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        publicKey,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const jwt = new Jwt({
+      header: { alg: 'EdDSA' },
+      payload: { nbf: Math.floor(Date.now () / 1000 ) + 100 },
+    });
+
+    try {
+      await jwt.verify(testVerifier);
+    } catch (e: unknown) {      
+      expect(e).toBeInstanceOf(SDJWTException);
+      expect((e as SDJWTException).message).toBe('Verify Error: JWT is not yet valid');
+    }
+  });
+
+  test('verify with expired', async () => {
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const testVerifier: Verifier = async (data: string, sig: string) => {
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        publicKey,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const jwt = new Jwt({
+      header: { alg: 'EdDSA' },
+      payload: { exp: Math.floor(Date.now () / 1000 ) },
+    });
+
+    try {
+      await jwt.verify(testVerifier, Math.floor(Date.now () / 1000 ) + 100);
+    } catch (e: unknown) {      
+      expect(e).toBeInstanceOf(SDJWTException);
+      expect((e as SDJWTException).message).toBe('Verify Error: JWT is expired');
+    }
+  });
 });
