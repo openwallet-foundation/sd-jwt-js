@@ -41,7 +41,7 @@ import { DisclosureFrame } from '@sd-jwt/sd-jwt-vc';
 const iss = 'University';
 
 // issuance time
-const iat = new Date().getTime() / 1000;
+const iat = Math.floor(Date.now() / 1000); // current time in seconds
 
 //unique identifier of the schema
 const vct = 'University-Degree';

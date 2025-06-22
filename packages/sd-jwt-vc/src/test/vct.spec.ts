@@ -70,7 +70,7 @@ const server = setupServer(...restHandlers);
 
 const iss = 'ExampleIssuer';
 const vct = 'http://example.com/example';
-const iat = new Date().getTime() / 1000;
+const iat = Math.floor(Date.now() / 1000); // current time in seconds
 
 const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
 

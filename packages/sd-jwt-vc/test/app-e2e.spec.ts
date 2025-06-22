@@ -30,7 +30,7 @@ const createSignerVerifier = () => {
 
 const iss = 'ExampleIssuer';
 const vct = 'ExampleCredentials';
-const iat = new Date().getTime() / 1000;
+const iat = Math.floor(Date.now() / 1000); // current time in seconds
 
 describe('App', () => {
   test('Example', async () => {

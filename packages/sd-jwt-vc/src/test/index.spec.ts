@@ -18,7 +18,7 @@ import { SignJWT } from 'jose';
 
 const iss = 'ExampleIssuer';
 const vct = 'ExampleCredentialType';
-const iat = new Date().getTime() / 1000;
+const iat = Math.floor(Date.now() / 1000);
 
 const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
 
@@ -45,7 +45,7 @@ const generateStatusList = async (): Promise<string> => {
   const payload: JwtPayload = {
     iss: 'https://example.com',
     sub: 'https://example.com/status/1',
-    iat: new Date().getTime() / 1000,
+    iat: Math.floor(Date.now() / 1000),
   };
   const header: StatusListJWTHeaderParameters = {
     alg: 'EdDSA',

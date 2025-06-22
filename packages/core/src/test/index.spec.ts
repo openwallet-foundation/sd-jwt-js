@@ -239,7 +239,7 @@ describe('index', () => {
     const credential = await sdjwt.issue(
       {
         foo: 'bar',
-        iat: Math.floor(new Date().getTime() / 1000),
+        iat: Math.floor(Date.now() / 1000),
         cnf: {
           jwk: await exportJWK(publicKey),
         },
