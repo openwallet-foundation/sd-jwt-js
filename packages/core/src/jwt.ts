@@ -113,23 +113,25 @@ export class Jwt<
     return compact;
   }
 
-
   /**
    * Verify the JWT using the provided verifier function.
    * It checks the signature and validates the iat, nbf, and exp claims if they are present.
-   * @param verifier 
-   * @param currentDate 
-   * @returns 
+   * @param verifier
+   * @param currentDate
+   * @returns
    */
-  public async verify(verifier: Verifier, currentDate = Math.floor(Date.now() / 1000)) {
-    if(this.payload?.iat && this.payload.iat as number > currentDate) {
+  public async verify(
+    verifier: Verifier,
+    currentDate = Math.floor(Date.now() / 1000),
+  ) {
+    if (this.payload?.iat && (this.payload.iat as number) > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
 
-    if(this.payload?.nbf && this.payload.nbf as number > currentDate) {
+    if (this.payload?.nbf && (this.payload.nbf as number) > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
-    if (this.payload?.exp && this.payload.exp as number < currentDate) {
+    if (this.payload?.exp && (this.payload.exp as number) < currentDate) {
       throw new SDJWTException('Verify Error: JWT is expired');
     }
 

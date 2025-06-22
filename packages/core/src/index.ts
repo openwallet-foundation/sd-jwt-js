@@ -276,11 +276,14 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   /**
    * This function is for validating the SD JWT
    * Checking signature, if provided the iat and exp when provided and return its the claims
-   * @param encodedSDJwt 
-   * @param currentDate 
-   * @returns 
+   * @param encodedSDJwt
+   * @param currentDate
+   * @returns
    */
-  public async validate(encodedSDJwt: string, currentDate: number = Math.floor(Date.now() / 1000)) {
+  public async validate(
+    encodedSDJwt: string,
+    currentDate: number = Math.floor(Date.now() / 1000),
+  ) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }

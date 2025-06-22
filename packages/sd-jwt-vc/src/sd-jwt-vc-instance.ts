@@ -304,7 +304,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * @param result
    * @param currentDate current time in seconds
    */
-  private async verifyStatus(result: VerificationResult, currentDate: number): Promise<void> {
+  private async verifyStatus(
+    result: VerificationResult,
+    currentDate: number,
+  ): Promise<void> {
     if (result.payload.status) {
       //checks if a status field is present in the payload based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html
       if (result.payload.status.status_list) {
@@ -325,10 +328,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         await slJWT.verify(this.userConfig.verifier as Verifier, currentDate);
 
         //check if the status list is expired
-        if (
-          slJWT.payload?.exp &&
-          (slJWT.payload.exp as number) < currentDate
-        ) {
+        if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
           throw new SDJWTException('Status list is expired');
         }
 

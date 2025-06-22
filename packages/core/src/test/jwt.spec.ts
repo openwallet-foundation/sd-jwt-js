@@ -213,14 +213,16 @@ describe('JWT', () => {
 
     const jwt = new Jwt({
       header: { alg: 'EdDSA' },
-      payload: { iat: Math.floor(Date.now () / 1000 ) + 100 },
+      payload: { iat: Math.floor(Date.now() / 1000) + 100 },
     });
 
     try {
       await jwt.verify(testVerifier);
-    } catch (e: unknown) {      
+    } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
-      expect((e as SDJWTException).message).toBe('Verify Error: JWT is not yet valid');
+      expect((e as SDJWTException).message).toBe(
+        'Verify Error: JWT is not yet valid',
+      );
     }
   });
 
@@ -237,14 +239,16 @@ describe('JWT', () => {
 
     const jwt = new Jwt({
       header: { alg: 'EdDSA' },
-      payload: { nbf: Math.floor(Date.now () / 1000 ) + 100 },
+      payload: { nbf: Math.floor(Date.now() / 1000) + 100 },
     });
 
     try {
       await jwt.verify(testVerifier);
-    } catch (e: unknown) {      
+    } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
-      expect((e as SDJWTException).message).toBe('Verify Error: JWT is not yet valid');
+      expect((e as SDJWTException).message).toBe(
+        'Verify Error: JWT is not yet valid',
+      );
     }
   });
 
@@ -261,14 +265,16 @@ describe('JWT', () => {
 
     const jwt = new Jwt({
       header: { alg: 'EdDSA' },
-      payload: { exp: Math.floor(Date.now () / 1000 ) },
+      payload: { exp: Math.floor(Date.now() / 1000) },
     });
 
     try {
-      await jwt.verify(testVerifier, Math.floor(Date.now () / 1000 ) + 100);
-    } catch (e: unknown) {      
+      await jwt.verify(testVerifier, Math.floor(Date.now() / 1000) + 100);
+    } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
-      expect((e as SDJWTException).message).toBe('Verify Error: JWT is expired');
+      expect((e as SDJWTException).message).toBe(
+        'Verify Error: JWT is expired',
+      );
     }
   });
 });
