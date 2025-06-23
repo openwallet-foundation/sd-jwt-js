@@ -117,21 +117,23 @@ export class Jwt<
    * Verify the JWT using the provided verifier function.
    * It checks the signature and validates the iat, nbf, and exp claims if they are present.
    * @param verifier
-   * @param currentDate
+   * @param currentDate current time in seconds since epoch
+   * @param skew allowed skew in seconds for the current time in milliseconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
    * @returns
    */
   public async verify(
     verifier: Verifier,
     currentDate = Math.floor(Date.now() / 1000),
+    skew: number = 0,
   ) {
-    if (this.payload?.iat && (this.payload.iat as number) > currentDate) {
+    if (this.payload?.iat && (this.payload.iat as number) - skew > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
 
-    if (this.payload?.nbf && (this.payload.nbf as number) > currentDate) {
+    if (this.payload?.nbf && (this.payload.nbf as number) - skew > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
-    if (this.payload?.exp && (this.payload.exp as number) < currentDate) {
+    if (this.payload?.exp && (this.payload.exp as number) + skew < currentDate) {
       throw new SDJWTException('Verify Error: JWT is expired');
     }
 

@@ -86,11 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return jwt;
   }
 
-  private async VerifyJwt(jwt: Jwt, currentDate: number) {
+  private async VerifyJwt(jwt: Jwt, currentDate: number, skew: number = 0) {
     if (!this.userConfig.verifier) {
       throw new SDJWTException('Verifier not found');
     }
-    return jwt.verify(this.userConfig.verifier, currentDate);
+    return jwt.verify(this.userConfig.verifier, currentDate, skew);
   }
 
   public async issue<Payload extends ExtendedPayload>(
