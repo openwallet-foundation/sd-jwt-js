@@ -1,4 +1,4 @@
-import { Jwt, SDJwt, SDJwtInstance, VerifierOptions } from '@sd-jwt/core';
+import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';

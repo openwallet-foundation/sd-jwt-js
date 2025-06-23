@@ -4,7 +4,7 @@ import {
   SDJWTException,
   uint8ArrayToBase64Url,
 } from '@sd-jwt/utils';
-import { Jwt, VerifierOptions } from './jwt';
+import { Jwt, type VerifierOptions } from './jwt';
 import { KBJwt } from './kbjwt';
 import { SDJwt, pack } from './sdjwt';
 import {
