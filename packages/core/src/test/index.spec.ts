@@ -49,7 +49,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -89,7 +89,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -124,7 +124,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -165,7 +165,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -239,7 +239,7 @@ describe('index', () => {
     const credential = await sdjwt.issue(
       {
         foo: 'bar',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         cnf: {
           jwk: await exportJWK(publicKey),
         },
@@ -274,7 +274,7 @@ describe('index', () => {
         {
           foo: 'bar',
           iss: 'Issuer',
-          iat: new Date().getTime(),
+          iat: Math.floor(Date.now() / 1000),
           vct: '',
         },
         {
@@ -297,7 +297,7 @@ describe('index', () => {
         {
           foo: 'bar',
           iss: 'Issuer',
-          iat: new Date().getTime(),
+          iat: Math.floor(Date.now() / 1000),
           vct: '',
         },
         {
@@ -321,7 +321,7 @@ describe('index', () => {
         {
           foo: 'bar',
           iss: 'Issuer',
-          iat: new Date().getTime(),
+          iat: Math.floor(Date.now() / 1000),
           vct: '',
         },
         {
@@ -351,7 +351,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -395,7 +395,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -437,7 +437,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -480,7 +480,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -518,7 +518,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -547,7 +547,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {
@@ -573,7 +573,7 @@ describe('index', () => {
       {
         foo: 'bar',
         iss: 'Issuer',
-        iat: new Date().getTime(),
+        iat: Math.floor(Date.now() / 1000),
         vct: '',
       },
       {

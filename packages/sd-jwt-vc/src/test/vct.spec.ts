@@ -70,7 +70,7 @@ const server = setupServer(...restHandlers);
 
 const iss = 'ExampleIssuer';
 const vct = 'http://example.com/example';
-const iat = new Date().getTime() / 1000;
+const iat = Math.floor(Date.now() / 1000); // current time in seconds
 
 const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
 
@@ -149,6 +149,30 @@ describe('App', () => {
     expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
       `Request to ${vct} timed out`,
     );
+  });
+
+  test('VCT Metadata retrieval', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct,
+      'vct#Integrity': vctIntegrity,
+      ...claims,
+    };
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    const typeMetadataFormat = await sdjwt.getVct(encodedSdjwt);
+    expect(typeMetadataFormat).to.deep.eq({
+      description: 'An example credential type',
+      name: 'ExampleCredentialType',
+      schema_uri: 'http://example.com/schema/example',
+      'schema_uri#Integrity':
+        'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
+      vct: 'http://example.com/example',
+    });
   });
 
   //TODO: we need tests with an embedded schema, extended and maybe also to test the errors when schema information is not available or the integrity is not valid
