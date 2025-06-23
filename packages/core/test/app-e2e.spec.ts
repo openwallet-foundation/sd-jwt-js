@@ -224,7 +224,7 @@ async function JSONtest(filename: string) {
     payload: test.claims,
   });
 
-  const presentedSDJwt = await sdjwt.present<typeof claims>(
+  const presentedSDJwt = await sdjwt.present<typeof test.claims>(
     encodedSdjwt,
     test.presentationFrames,
   );

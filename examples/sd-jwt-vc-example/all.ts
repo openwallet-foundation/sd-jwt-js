@@ -56,7 +56,7 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
   const credential = await sdjwt.issue(
     {
       iss: 'Issuer',
-      iat: new Date().getTime(),
+      iat: Math.floor(Date.now() / 1000),
       vct: 'ExampleCredentials',
       ...claims,
     },

@@ -106,11 +106,13 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
 
   /**
    * Verifies the SD-JWT-VC. It will validate the signature, the keybindings when required, the status, and the VCT.
+   * @param currentDate current time in seconds
    */
   async verify(
     encodedSDJwt: string,
     requiredClaimKeys?: string[],
     requireKeyBindings?: boolean,
+    currentDate: number = Math.floor(Date.now() / 1000),
   ) {
     // Call the parent class's verify method
     const result: VerificationResult = await super
@@ -123,7 +125,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         };
       });
 
-    await this.verifyStatus(result);
+    await this.verifyStatus(result, currentDate);
     if (this.userConfig.loadTypeMetadataFormat) {
       await this.verifyVct(result);
     }
@@ -300,8 +302,12 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   /**
    * Verifies the status of the SD-JWT-VC.
    * @param result
+   * @param currentDate current time in seconds
    */
-  private async verifyStatus(result: VerificationResult): Promise<void> {
+  private async verifyStatus(
+    result: VerificationResult,
+    currentDate: number,
+  ): Promise<void> {
     if (result.payload.status) {
       //checks if a status field is present in the payload based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html
       if (result.payload.status.status_list) {
@@ -319,13 +325,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
-        await slJWT.verify(this.userConfig.verifier as Verifier);
+        await slJWT.verify(this.userConfig.verifier as Verifier, currentDate);
 
         //check if the status list is expired
-        if (
-          slJWT.payload?.exp &&
-          (slJWT.payload.exp as number) < Date.now() / 1000
-        ) {
+        if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
           throw new SDJWTException('Status list is expired');
         }
 
