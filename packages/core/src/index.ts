@@ -4,7 +4,7 @@ import {
   SDJWTException,
   uint8ArrayToBase64Url,
 } from '@sd-jwt/utils';
-import { Jwt } from './jwt';
+import { Jwt, VerifierOptions } from './jwt';
 import { KBJwt } from './kbjwt';
 import { SDJwt, pack } from './sdjwt';
 import {
@@ -86,11 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return jwt;
   }
 
-  private async VerifyJwt(jwt: Jwt, currentDate: number, skew: number = 0) {
+  private async VerifyJwt(jwt: Jwt, options?: VerifierOptions) {
     if (!this.userConfig.verifier) {
       throw new SDJWTException('Verifier not found');
     }
-    return jwt.verify(this.userConfig.verifier, currentDate, skew);
+    return jwt.verify(this.userConfig.verifier, options);
   }
 
   public async issue<Payload extends ExtendedPayload>(
@@ -277,12 +277,12 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
    * This function is for validating the SD JWT
    * Checking signature, if provided the iat and exp when provided and return its the claims
    * @param encodedSDJwt
-   * @param currentDate
+   * @param options
    * @returns
    */
   public async validate(
     encodedSDJwt: string,
-    currentDate: number = Math.floor(Date.now() / 1000),
+    options?: VerifierOptions,
   ) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
@@ -294,7 +294,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, currentDate);
+    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, options);
     const claims = await sdjwt.getClaims(hasher);
     return { payload: claims, header: verifiedPayloads.header };
   }

@@ -1,4 +1,4 @@
-import { Jwt, SDJwt, SDJwtInstance } from '@sd-jwt/core';
+import { Jwt, SDJwt, SDJwtInstance, VerifierOptions } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
@@ -110,9 +110,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    */
   async verify(
     encodedSDJwt: string,
+    //TODO: we need to move these values in options, causing a breaking change
     requiredClaimKeys?: string[],
     requireKeyBindings?: boolean,
-    currentDate: number = Math.floor(Date.now() / 1000),
+    options?: VerifierOptions,
   ) {
     // Call the parent class's verify method
     const result: VerificationResult = await super
@@ -125,7 +126,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         };
       });
 
-    await this.verifyStatus(result, currentDate);
+    await this.verifyStatus(result, options);
     if (this.userConfig.loadTypeMetadataFormat) {
       await this.verifyVct(result);
     }
@@ -302,11 +303,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   /**
    * Verifies the status of the SD-JWT-VC.
    * @param result
-   * @param currentDate current time in seconds
+   * @param options
    */
   private async verifyStatus(
     result: VerificationResult,
-    currentDate: number,
+    options?: VerifierOptions
   ): Promise<void> {
     if (result.payload.status) {
       //checks if a status field is present in the payload based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html
@@ -325,8 +326,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
-        await slJWT.verify(this.userConfig.verifier as Verifier, currentDate);
+        await slJWT.verify(this.userConfig.verifier as Verifier, options);
 
+        const currentDate =
+          options?.currentDate ?? Math.floor(Date.now() / 1000);
         //check if the status list is expired
         if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
           throw new SDJWTException('Status list is expired');

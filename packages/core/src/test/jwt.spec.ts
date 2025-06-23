@@ -269,7 +269,7 @@ describe('JWT', () => {
     });
 
     try {
-      await jwt.verify(testVerifier, Math.floor(Date.now() / 1000) + 100);
+      await jwt.verify(testVerifier, { currentDate: Math.floor(Date.now() / 1000) + 100});
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
       expect((e as SDJWTException).message).toBe(
@@ -291,7 +291,7 @@ describe('JWT', () => {
 
     const jwt = new Jwt({
       header: { alg: 'EdDSA' },
-      payload: { exp: Math.floor(Date.now() / 1000) - 1000 },
+      payload: { exp: Math.floor(Date.now() / 1000) - 1 },
     });
 
     const testSigner: Signer = async (data: string) => {
@@ -300,6 +300,6 @@ describe('JWT', () => {
     };
 
     await jwt.sign(testSigner);
-    await jwt.verify(testVerifier, Math.floor(Date.now() / 1000), 2000);
+    await jwt.verify(testVerifier, {skewSeconds: 2 });
   });
 });
