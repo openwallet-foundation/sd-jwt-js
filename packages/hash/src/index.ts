@@ -1,1 +1,1 @@
-export * from './sha2';
+export * from './sha';
