@@ -126,14 +126,23 @@ export class Jwt<
     currentDate = Math.floor(Date.now() / 1000),
     skew: number = 0,
   ) {
-    if (this.payload?.iat && (this.payload.iat as number) - skew > currentDate) {
+    if (
+      this.payload?.iat &&
+      (this.payload.iat as number) - skew > currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
 
-    if (this.payload?.nbf && (this.payload.nbf as number) - skew > currentDate) {
+    if (
+      this.payload?.nbf &&
+      (this.payload.nbf as number) - skew > currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
-    if (this.payload?.exp && (this.payload.exp as number) + skew < currentDate) {
+    if (
+      this.payload?.exp &&
+      (this.payload.exp as number) + skew < currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is expired');
     }
 

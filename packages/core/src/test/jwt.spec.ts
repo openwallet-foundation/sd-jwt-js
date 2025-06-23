@@ -291,16 +291,15 @@ describe('JWT', () => {
 
     const jwt = new Jwt({
       header: { alg: 'EdDSA' },
-      payload: { exp: Math.floor(Date.now() / 1000) - 1000},
+      payload: { exp: Math.floor(Date.now() / 1000) - 1000 },
     });
 
-          
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
-    };    
+    };
 
     await jwt.sign(testSigner);
-    await jwt.verify(testVerifier, Math.floor(Date.now() / 1000), 2000);    
+    await jwt.verify(testVerifier, Math.floor(Date.now() / 1000), 2000);
   });
 });
