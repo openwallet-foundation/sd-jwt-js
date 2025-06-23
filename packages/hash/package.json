@@ -41,7 +41,7 @@
     "@sd-jwt/crypto-nodejs": "workspace:*"
   },
   "dependencies": {
-    "@noble/hashes": "1.0.0",
+    "@noble/hashes": "^1.8.0",
     "@sd-jwt/utils": "workspace:*"
   },
   "publishConfig": {
