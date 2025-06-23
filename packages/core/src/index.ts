@@ -280,10 +280,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
    * @param options
    * @returns
    */
-  public async validate(
-    encodedSDJwt: string,
-    options?: VerifierOptions,
-  ) {
+  public async validate(encodedSDJwt: string, options?: VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }

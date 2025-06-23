@@ -16,8 +16,8 @@ export type JwtData<
  * Options for the JWT verifier
  */
 export type VerifierOptions = {
-      currentDate?: number, // current time in seconds since epoch
-      skewSeconds?: number, // allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.     
+  currentDate?: number; // current time in seconds since epoch
+  skewSeconds?: number; // allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
 };
 
 // This class is used to create and verify JWT
@@ -125,13 +125,10 @@ export class Jwt<
    * Verify the JWT using the provided verifier function.
    * It checks the signature and validates the iat, nbf, and exp claims if they are present.
    * @param verifier
-   * @param options - Options for verification, such as current date and skew seconds  
+   * @param options - Options for verification, such as current date and skew seconds
    * @returns
    */
-  public async verify(
-    verifier: Verifier,
-    options?: VerifierOptions
-  ) {
+  public async verify(verifier: Verifier, options?: VerifierOptions) {
     const skew = options?.skewSeconds ? options.skewSeconds : 0;
     const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
     if (

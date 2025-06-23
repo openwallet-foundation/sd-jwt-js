@@ -269,7 +269,9 @@ describe('JWT', () => {
     });
 
     try {
-      await jwt.verify(testVerifier, { currentDate: Math.floor(Date.now() / 1000) + 100});
+      await jwt.verify(testVerifier, {
+        currentDate: Math.floor(Date.now() / 1000) + 100,
+      });
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
       expect((e as SDJWTException).message).toBe(
@@ -300,6 +302,6 @@ describe('JWT', () => {
     };
 
     await jwt.sign(testSigner);
-    await jwt.verify(testVerifier, {skewSeconds: 2 });
+    await jwt.verify(testVerifier, { skewSeconds: 2 });
   });
 });
