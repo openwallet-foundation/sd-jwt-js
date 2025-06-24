@@ -12,6 +12,21 @@ export type JwtData<
   encoded?: string;
 };
 
+/**
+ * Options for the JWT verifier
+ */
+export type VerifierOptions = {
+  /**
+   * current time in seconds since epoch
+   */
+  currentDate?: number;
+
+  /**
+   * allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
+   */
+  skewSeconds?: number;
+};
+
 // This class is used to create and verify JWT
 // Contains header, payload, and signature
 export class Jwt<
@@ -117,21 +132,29 @@ export class Jwt<
    * Verify the JWT using the provided verifier function.
    * It checks the signature and validates the iat, nbf, and exp claims if they are present.
    * @param verifier
-   * @param currentDate
+   * @param options - Options for verification, such as current date and skew seconds
    * @returns
    */
-  public async verify(
-    verifier: Verifier,
-    currentDate = Math.floor(Date.now() / 1000),
-  ) {
-    if (this.payload?.iat && (this.payload.iat as number) > currentDate) {
+  public async verify(verifier: Verifier, options?: VerifierOptions) {
+    const skew = options?.skewSeconds ? options.skewSeconds : 0;
+    const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
+    if (
+      this.payload?.iat &&
+      (this.payload.iat as number) - skew > currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
 
-    if (this.payload?.nbf && (this.payload.nbf as number) > currentDate) {
+    if (
+      this.payload?.nbf &&
+      (this.payload.nbf as number) - skew > currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
-    if (this.payload?.exp && (this.payload.exp as number) < currentDate) {
+    if (
+      this.payload?.exp &&
+      (this.payload.exp as number) + skew < currentDate
+    ) {
       throw new SDJWTException('Verify Error: JWT is expired');
     }
 
