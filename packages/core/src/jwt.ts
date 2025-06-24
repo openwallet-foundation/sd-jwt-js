@@ -16,8 +16,15 @@ export type JwtData<
  * Options for the JWT verifier
  */
 export type VerifierOptions = {
-  currentDate?: number; // current time in seconds since epoch
-  skewSeconds?: number; // allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
+/**
+ * current time in seconds since epoch
+ */
+  currentDate?: number;
+
+ /**
+  * allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
+  */
+  skewSeconds?: number;
 };
 
 // This class is used to create and verify JWT
