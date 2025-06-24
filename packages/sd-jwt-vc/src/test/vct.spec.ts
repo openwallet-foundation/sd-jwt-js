@@ -9,6 +9,16 @@ import { HttpResponse, http } from 'msw';
 import { afterEach } from 'node:test';
 import type { TypeMetadataFormat } from '../sd-jwt-vc-type-metadata-format';
 
+const exampleVctm = {
+  vct: 'http://example.com/example',
+  name: 'ExampleCredentialType',
+  description: 'An example credential type',
+  schema_uri: 'http://example.com/schema/example',
+  //this value could be generated on demand to make it easier when changing the values
+  'schema_uri#Integrity':
+    'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
+};
+
 const restHandlers = [
   http.get('http://example.com/schema/example', () => {
     const res = {
@@ -42,15 +52,7 @@ const restHandlers = [
     return HttpResponse.json(res);
   }),
   http.get('http://example.com/example', () => {
-    const res: TypeMetadataFormat = {
-      vct: 'http://example.com/example',
-      name: 'ExampleCredentialType',
-      description: 'An example credential type',
-      schema_uri: 'http://example.com/schema/example',
-      //this value could be generated on demand to make it easier when changing the values
-      'schema_uri#Integrity':
-        'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
-    };
+    const res: TypeMetadataFormat = exampleVctm;
     return HttpResponse.json(res);
   }),
   http.get('http://example.com/timeout', () => {
@@ -128,6 +130,26 @@ describe('App', () => {
     const encodedSdjwt = await sdjwt.issue(
       expectedPayload,
       disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    await sdjwt.verify(encodedSdjwt);
+  });
+
+  test('VCT from JWT header Validation', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct,
+      'vct#Integrity': vctIntegrity,
+      ...claims,
+    };
+    const header = {
+      vctm: [Buffer.from(JSON.stringify(exampleVctm)).toString('base64url')],
+    };
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+      { header },
     );
 
     await sdjwt.verify(encodedSdjwt);
