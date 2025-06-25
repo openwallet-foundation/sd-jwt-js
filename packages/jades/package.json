@@ -1,0 +1,55 @@
+{
+  "name": "sd-jwt-jades",
+  "version": "0.1.2",
+  "description": "JADES implementation in typescript",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf **/dist && tsup",
+    "lint": "biome lint ./src",
+    "test": "pnpm run test:node && pnpm run test:browser && pnpm run test:cov",
+    "test:node": "vitest run ./src/test/*.spec.ts",
+    "test:browser": "vitest run ./src/test/*.spec.ts --environment jsdom",
+    "test:cov": "vitest run --coverage"
+  },
+  "keywords": [
+    "jades",
+    "sd-jwt",
+    "jwt"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "author": "Lukas.J.Han <lukas.j.han@gmail.com>",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "tsup": {
+    "entry": [
+      "./src/index.ts"
+    ],
+    "sourceMap": true,
+    "splitting": false,
+    "clean": true,
+    "dts": true,
+    "format": [
+      "cjs",
+      "esm"
+    ]
+  },
+  "dependencies": {
+    "@sd-jwt/core": "workspace:*",
+    "@sd-jwt/crypto-nodejs": "workspace:*",
+    "@sd-jwt/types": "workspace:*",
+    "@sd-jwt/utils": "workspace:*",
+    "asn1js": "^3.0.5"
+  }
+}
