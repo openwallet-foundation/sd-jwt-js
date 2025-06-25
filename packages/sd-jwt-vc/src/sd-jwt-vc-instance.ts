@@ -1,6 +1,6 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
+import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
 import type {
   SDJWTVCConfig,
@@ -294,10 +294,48 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       throw new SDJWTException('vct claim is required');
     }
 
+    if (result.header?.vctm) {
+      return this.fetchVctFromHeader(result.payload.vct, result);
+    }
+
     const fetcher: VcTFetcher =
       this.userConfig.vctFetcher ??
       ((uri, integrity) => this.fetch(uri, integrity));
     return fetcher(result.payload.vct, result.payload['vct#Integrity']);
+  }
+
+  /**
+   * Fetches VCT Metadata from the header of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
+   * @param result
+   * @param
+   */
+  private async fetchVctFromHeader(
+    vct: string,
+    result: VerificationResult,
+  ): Promise<TypeMetadataFormat> {
+    const vctmHeader = result.header?.vctm;
+
+    if (!vctmHeader || !Array.isArray(vctmHeader)) {
+      throw new Error('vctm claim in SD JWT header is invalid');
+    }
+
+    const typeMetadataFormat = (vctmHeader as unknown[])
+      .map((vctm) => {
+        if (!(typeof vctm === 'string')) {
+          throw new Error('vctm claim in SD JWT header is invalid');
+        }
+
+        return JSON.parse(base64urlDecode(vctm));
+      })
+      .find((typeMetadataFormat) => {
+        return typeMetadataFormat.vct === vct;
+      });
+
+    if (!typeMetadataFormat) {
+      throw new Error('could not find VCT Metadata in JWT header');
+    }
+
+    return typeMetadataFormat;
   }
 
   /**
