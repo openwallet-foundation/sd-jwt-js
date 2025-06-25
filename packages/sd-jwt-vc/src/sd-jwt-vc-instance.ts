@@ -1,6 +1,6 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
+import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
 import type {
   SDJWTVCConfig,
@@ -325,7 +325,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           throw new Error('vctm claim in SD JWT header is invalid');
         }
 
-        return JSON.parse(Buffer.from(vctm, 'base64url').toString());
+        return JSON.parse(base64urlDecode(vctm));
       })
       .find((typeMetadataFormat) => {
         return typeMetadataFormat.vct === vct;
