@@ -58,7 +58,7 @@ type SDJWTConfig = {
 - issue(payload[, disclosureFrame, options])
 - present(encodedSDJwt[, presentationFrame, options])
 - validate(encodedSDJwt)
-- verify(encodedSDJwt[, requiredClaimKeys, requireKeyBindings])
+- verify(encodedSDJwt[, verifierConfig])
 - config(newConfig)
 - encode(sdJwt)
 - decode(encodedSDJwt)

@@ -23,7 +23,7 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
     id: '1234',
   };
   const disclosureFrame: DisclosureFrame<typeof claims> = {
-    _sd: ['firstname', 'id'],
+    _sd: ['ssn', 'id'],
   };
 
   const kbPayload = {
@@ -48,6 +48,9 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
     },
   );
 
-  const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
+  const verified = await sdjwt.verify(presentedSdJwt, {
+    requiredClaimKeys: ['ssn', 'id'],
+    keyBindingNonce: '1234',
+  });
   console.log(verified);
 })();

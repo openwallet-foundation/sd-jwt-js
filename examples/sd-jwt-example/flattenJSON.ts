@@ -52,6 +52,6 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
   const flattenPresentationJSON = FlattenJSON.fromEncode(presentedSdJwt);
   console.log('flattenJSON(presentation): ', flattenPresentationJSON.toJson());
 
-  const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
+  const verified = await sdjwt.verify(presentedSdJwt, {requiredClaimKeys: ['firstname', 'id'], keyBindingNonce: '1234'});
   console.log(verified);
 })();
