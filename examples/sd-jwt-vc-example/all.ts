@@ -111,6 +111,8 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
   // Verify the presentation using the public key and the required claims
   // return a boolean result
-  const verified = await sdjwt.verify(credential, requiredClaims);
+  const verified = await sdjwt.verify(credential, {
+    requiredClaimKeys: requiredClaims,
+  });
   console.log('verified:', verified);
 })();

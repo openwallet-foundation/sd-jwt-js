@@ -1,8 +1,10 @@
 ```ts
 const verified = await sdjwt.verify(
   encodedSdjwt,
-  requiredClaimKeys,
-  requireKeyBindings,
+  {
+    requiredClaims: ['id', 'ssn'], // required claims to verify
+    keyBindingNonce: 'secure_none'
+  }
 );
 ```
 

@@ -25,6 +25,17 @@ export type VerifierOptions = {
    * allowed skew for the current time in seconds. Positive value that will lower the iat and nbf checks, and increase the exp check.
    */
   skewSeconds?: number;
+
+  /**
+   * required claim keys for the payload.
+   * If the payload does not contain these keys, the verification will fail.
+   */
+  requiredClaimKeys?: string[];
+
+  /**
+   * nonce used to verify the key binding jwt to prevent replay attacks.
+   */
+  keyBindingNonce?: string;
 };
 
 // This class is used to create and verify JWT
