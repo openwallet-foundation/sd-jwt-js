@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.13.0...v0.14.0) (2025-06-30)
+
+
+### Features
+
+* Add Verifier options ([#297](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/297)) ([2a6a367](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/2a6a3674f94742f48feaf660056226b1a54145e7))
+
+
+
+
+
 # [0.13.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.12.0...v0.13.0) (2025-06-25)
 
 
