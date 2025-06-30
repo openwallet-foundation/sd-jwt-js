@@ -110,14 +110,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    */
   async verify(
     encodedSDJwt: string,
-    //TODO: we need to move these values in options, causing a breaking change
-    requiredClaimKeys?: string[],
-    requireKeyBindings?: boolean,
     options?: VerifierOptions,
   ) {
     // Call the parent class's verify method
     const result: VerificationResult = await super
-      .verify(encodedSDJwt, requiredClaimKeys, requireKeyBindings)
+      .verify(encodedSDJwt, options)
       .then((res) => {
         return {
           payload: res.payload as SdJwtVcPayload,
