@@ -108,10 +108,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * Verifies the SD-JWT-VC. It will validate the signature, the keybindings when required, the status, and the VCT.
    * @param currentDate current time in seconds
    */
-  async verify(
-    encodedSDJwt: string,
-    options?: VerifierOptions,
-  ) {
+  async verify(encodedSDJwt: string, options?: VerifierOptions) {
     // Call the parent class's verify method
     const result: VerificationResult = await super
       .verify(encodedSDJwt, options)

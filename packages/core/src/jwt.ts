@@ -30,12 +30,12 @@ export type VerifierOptions = {
    * required claim keys for the payload.
    * If the payload does not contain these keys, the verification will fail.
    */
-  requiredClaimKeys?: string[],
+  requiredClaimKeys?: string[];
 
   /**
    * nonce used to verify the key binding jwt to prevent replay attacks.
    */
-  keyBindingNonce?: string,
+  keyBindingNonce?: string;
 };
 
 // This class is used to create and verify JWT

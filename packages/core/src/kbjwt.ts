@@ -14,7 +14,11 @@ export class KBJwt<
 > extends Jwt<Header, Payload> {
   // Checking the validity of the key binding jwt
   // the type unknown is not good, but we don't know at this point how to get the public key of the signer, this is defined in the kbVerifier
-  public async verifyKB(values: { verifier: KbVerifier; payload: JwtPayload, nonce: string }) {
+  public async verifyKB(values: {
+    verifier: KbVerifier;
+    payload: JwtPayload;
+    nonce: string;
+  }) {
     if (!this.header || !this.payload || !this.signature) {
       throw new SDJWTException('Verify Error: Invalid JWT');
     }
@@ -45,7 +49,7 @@ export class KBJwt<
     if (!verified) {
       throw new SDJWTException('Verify Error: Invalid JWT Signature');
     }
-    if(this.payload.nonce !== values.nonce) {
+    if (this.payload.nonce !== values.nonce) {
       throw new SDJWTException('Verify Error: Invalid Nonce');
     }
 

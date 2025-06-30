@@ -178,7 +178,11 @@ describe('KB JWT', () => {
     const encodedKbJwt = await kbJwt.sign(testSigner);
     const decoded = KBJwt.fromKBEncode(encodedKbJwt);
     try {
-      await decoded.verifyKB({ verifier: testVerifier, payload, nonce: 'nonce' });
+      await decoded.verifyKB({
+        verifier: testVerifier,
+        payload,
+        nonce: 'nonce',
+      });
     } catch (e: unknown) {
       const error = e as SDJWTException;
       expect(error.message).toBe('Invalid Key Binding Jwt');
@@ -223,7 +227,11 @@ describe('KB JWT', () => {
     const encodedKbJwt = await kbJwt.sign(testSigner);
     const decoded = KBJwt.fromKBEncode(encodedKbJwt);
     try {
-      await decoded.verifyKB({ verifier: testVerifier, payload, nonce: 'nonce' });
+      await decoded.verifyKB({
+        verifier: testVerifier,
+        payload,
+        nonce: 'nonce',
+      });
     } catch (e: unknown) {
       const error = e as SDJWTException;
       expect(error.message).toBe('Verify Error: Invalid JWT Signature');
@@ -269,7 +277,11 @@ describe('KB JWT', () => {
     const decoded = KBJwt.fromKBEncode(encodedKbJwt);
     decoded.signature = undefined;
     try {
-      await decoded.verifyKB({ verifier: testVerifier, payload, nonce: 'nonce' });
+      await decoded.verifyKB({
+        verifier: testVerifier,
+        payload,
+        nonce: 'nonce',
+      });
     } catch (e: unknown) {
       const error = e as SDJWTException;
       expect(error.message).toBe('Verify Error: Invalid JWT');
