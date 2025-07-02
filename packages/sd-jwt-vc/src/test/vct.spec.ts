@@ -155,6 +155,26 @@ describe('App', () => {
     await sdjwt.verify(encodedSdjwt);
   });
 
+  test('VCT from URL Validation', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct: 'http://example.com/example',
+      'vct#Integrity': vctIntegrity,
+      ...claims,
+    };
+    const header = {
+      vctm: [Buffer.from(JSON.stringify(exampleVctm)).toString('base64url')],
+    };
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+      { header },
+    );
+
+    await sdjwt.verify(encodedSdjwt);
+  });
+
   test('VCT Validation with timeout', async () => {
     const vct = 'http://example.com/timeout';
     const expectedPayload: SdJwtVcPayload = {

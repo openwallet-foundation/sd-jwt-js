@@ -292,6 +292,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       return this.fetchVctFromHeader(result.payload.vct, result);
     }
 
+    if (result.payload.vct.startsWith('https')) {
+      return this.fetchVctFromUrl(result.payload.vct, result);
+    }
+
     const fetcher: VcTFetcher =
       this.userConfig.vctFetcher ??
       ((uri, integrity) => this.fetch(uri, integrity));
@@ -330,6 +334,13 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     }
 
     return typeMetadataFormat;
+  }
+
+  private async fetchVctFromUrl(
+    vct: string,
+    result: VerificationResult,
+  ): Promise<TypeMetadataFormat> {
+    return this.fetch(vct, result.payload['vct#integrity'] as string);
   }
 
   /**
