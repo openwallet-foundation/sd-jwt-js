@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.13.0...v0.14.0) (2025-06-30)
+
+**Note:** Version bump only for package @sd-jwt/hash
+
+
+
+
+
+# [0.13.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.12.0...v0.13.0) (2025-06-25)
+
+
+### Features
+
+* add sha384, sha512 support ([#282](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/282)) ([0a2f20b](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/0a2f20b6383d2356540e7a9cc37748c7b9caced2))
+
+
+
+
+
 # [0.12.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.11.0...v0.12.0) (2025-06-21)
 
 **Note:** Version bump only for package @sd-jwt/hash

@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.13.0...v0.14.0) (2025-06-30)
+
+
+### Features
+
+* Add Verifier options ([#297](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/297)) ([2a6a367](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/2a6a3674f94742f48feaf660056226b1a54145e7))
+
+
+
+
+
+# [0.13.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.12.0...v0.13.0) (2025-06-25)
+
+
+### Features
+
+* add sha384, sha512 support ([#282](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/282)) ([0a2f20b](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/0a2f20b6383d2356540e7a9cc37748c7b9caced2))
+* fetch VCT Metadata from SD JWT header ([#288](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/288)) ([#294](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/294)) ([f89ba44](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/f89ba445aeb57ce342ec76b58a0eb6d0c090a4e9))
+
+
+
+
+
 # [0.12.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.11.0...v0.12.0) (2025-06-21)
 
 

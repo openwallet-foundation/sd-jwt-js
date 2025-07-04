@@ -74,7 +74,10 @@ import { createSignerVerifier, digest, generateSalt, ES256 } from './utils';
     JSON.stringify(generalPresentationJSON.toJson(), null, 2),
   );
 
-  const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
+  const verified = await sdjwt.verify(presentedSdJwt, {
+    requiredClaimKeys: ['firstname', 'id'],
+    keyBindingNonce: '1234',
+  });
   console.log(verified);
 
   const generalVerified = await generalJSONSdJwt.verify(generalJSON);

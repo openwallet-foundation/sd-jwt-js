@@ -56,6 +56,9 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
     },
   );
 
-  const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
+  const verified = await sdjwt.verify(presentedSdJwt, {
+    requiredClaimKeys: ['firstname', 'id'],
+    keyBindingNonce: '1234',
+  });
   console.log(verified);
 })();

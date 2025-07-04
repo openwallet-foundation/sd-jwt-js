@@ -4,7 +4,7 @@ import {
   SDJWTException,
   uint8ArrayToBase64Url,
 } from '@sd-jwt/utils';
-import { Jwt } from './jwt';
+import { Jwt, type VerifierOptions } from './jwt';
 import { KBJwt } from './kbjwt';
 import { SDJwt, pack } from './sdjwt';
 import {
@@ -86,11 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return jwt;
   }
 
-  private async VerifyJwt(jwt: Jwt, currentDate: number) {
+  private async VerifyJwt(jwt: Jwt, options?: VerifierOptions) {
     if (!this.userConfig.verifier) {
       throw new SDJWTException('Verifier not found');
     }
-    return jwt.verify(this.userConfig.verifier, currentDate);
+    return jwt.verify(this.userConfig.verifier, options);
   }
 
   public async issue<Payload extends ExtendedPayload>(
@@ -196,11 +196,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   // This function is for verifying the SD JWT
   // If requiredClaimKeys is provided, it will check if the required claim keys are presentation in the SD JWT
   // If requireKeyBindings is true, it will check if the key binding JWT is presentation and verify it
-  public async verify(
-    encodedSDJwt: string,
-    requiredClaimKeys?: string[],
-    requireKeyBindings?: boolean,
-  ) {
+  public async verify(encodedSDJwt: string, options?: VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -212,9 +208,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     }
     const { payload, header } = await this.validate(encodedSDJwt);
 
-    if (requiredClaimKeys) {
+    if (options?.requiredClaimKeys) {
       const keys = await sdjwt.keys(hasher);
-      const missingKeys = requiredClaimKeys.filter((k) => !keys.includes(k));
+      const missingKeys = options.requiredClaimKeys.filter(
+        (k) => !keys.includes(k),
+      );
       if (missingKeys.length > 0) {
         throw new SDJWTException(
           `Missing required claim keys: ${missingKeys.join(', ')}`,
@@ -222,7 +220,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       }
     }
 
-    if (!requireKeyBindings) {
+    if (!options?.keyBindingNonce) {
       return { payload, header };
     }
 
@@ -235,10 +233,12 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     const kb = await sdjwt.kbJwt.verifyKB({
       verifier: this.userConfig.kbVerifier,
       payload: payload as JwtPayload,
+      nonce: options.keyBindingNonce,
     });
     if (!kb) {
       throw new Error('signature is not valid');
     }
+
     const sdHashfromKb = kb.payload.sd_hash;
     const sdjwtWithoutKb = new SDJwt({
       jwt: sdjwt.jwt,
@@ -277,13 +277,10 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
    * This function is for validating the SD JWT
    * Checking signature, if provided the iat and exp when provided and return its the claims
    * @param encodedSDJwt
-   * @param currentDate
+   * @param options
    * @returns
    */
-  public async validate(
-    encodedSDJwt: string,
-    currentDate: number = Math.floor(Date.now() / 1000),
-  ) {
+  public async validate(encodedSDJwt: string, options?: VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -294,7 +291,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, currentDate);
+    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, options);
     const claims = await sdjwt.getClaims(hasher);
     return { payload: claims, header: verifiedPayloads.header };
   }
@@ -524,11 +521,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
   // This function is for verifying the SD JWT
   // If requiredClaimKeys is provided, it will check if the required claim keys are presentation in the SD JWT
   // If requireKeyBindings is true, it will check if the key binding JWT is presentation and verify it
-  public async verify(
-    generalJSON: GeneralJSON,
-    requiredClaimKeys?: string[],
-    requireKeyBindings?: boolean,
-  ) {
+  public async verify(generalJSON: GeneralJSON, options?: VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -542,9 +535,11 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    if (requiredClaimKeys) {
+    if (options?.requiredClaimKeys) {
       const keys = await sdjwt.keys(hasher);
-      const missingKeys = requiredClaimKeys.filter((k) => !keys.includes(k));
+      const missingKeys = options?.requiredClaimKeys.filter(
+        (k) => !keys.includes(k),
+      );
       if (missingKeys.length > 0) {
         throw new SDJWTException(
           `Missing required claim keys: ${missingKeys.join(', ')}`,
@@ -552,7 +547,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       }
     }
 
-    if (!requireKeyBindings) {
+    if (!options?.keyBindingNonce) {
       return { payload, headers };
     }
 
@@ -565,6 +560,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     const kb = await sdjwt.kbJwt.verifyKB({
       verifier: this.userConfig.kbVerifier,
       payload: payload as JwtPayload,
+      nonce: options.keyBindingNonce as string,
     });
     if (!kb) {
       throw new Error('signature is not valid');

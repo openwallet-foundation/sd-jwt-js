@@ -269,12 +269,39 @@ describe('JWT', () => {
     });
 
     try {
-      await jwt.verify(testVerifier, Math.floor(Date.now() / 1000) + 100);
+      await jwt.verify(testVerifier, {
+        currentDate: Math.floor(Date.now() / 1000) + 100,
+      });
     } catch (e: unknown) {
       expect(e).toBeInstanceOf(SDJWTException);
       expect((e as SDJWTException).message).toBe(
         'Verify Error: JWT is expired',
       );
     }
+  });
+
+  test('verify with skew', async () => {
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const testVerifier: Verifier = async (data: string, sig: string) => {
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        publicKey,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const jwt = new Jwt({
+      header: { alg: 'EdDSA' },
+      payload: { exp: Math.floor(Date.now() / 1000) - 1 },
+    });
+
+    const testSigner: Signer = async (data: string) => {
+      const sig = Crypto.sign(null, Buffer.from(data), privateKey);
+      return Buffer.from(sig).toString('base64url');
+    };
+
+    await jwt.sign(testSigner);
+    await jwt.verify(testVerifier, { skewSeconds: 2 });
   });
 });

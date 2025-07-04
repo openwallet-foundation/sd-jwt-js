@@ -40,6 +40,9 @@ const presentedSdJwt = await sdjwt.present(
 ## Verify
 
 ```ts
-const verified = await sdjwt.verify(presentedSdJwt, ['id', 'ssn'], true);
+const verified = await sdjwt.verify(presentedSdJwt, {
+  requiredClaimKeys: ['id', 'ssn'],
+  keyBindingNonce: '1234'
+});
 console.log(verified.kb); // key binding header and payload is in kb object
 ```

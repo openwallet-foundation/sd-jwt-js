@@ -1,6 +1,6 @@
-import { Jwt, SDJwt, SDJwtInstance } from '@sd-jwt/core';
+import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
+import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
 import type {
   SDJWTVCConfig,
@@ -108,15 +108,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * Verifies the SD-JWT-VC. It will validate the signature, the keybindings when required, the status, and the VCT.
    * @param currentDate current time in seconds
    */
-  async verify(
-    encodedSDJwt: string,
-    requiredClaimKeys?: string[],
-    requireKeyBindings?: boolean,
-    currentDate: number = Math.floor(Date.now() / 1000),
-  ) {
+  async verify(encodedSDJwt: string, options?: VerifierOptions) {
     // Call the parent class's verify method
     const result: VerificationResult = await super
-      .verify(encodedSDJwt, requiredClaimKeys, requireKeyBindings)
+      .verify(encodedSDJwt, options)
       .then((res) => {
         return {
           payload: res.payload as SdJwtVcPayload,
@@ -125,7 +120,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         };
       });
 
-    await this.verifyStatus(result, currentDate);
+    await this.verifyStatus(result, options);
     if (this.userConfig.loadTypeMetadataFormat) {
       await this.verifyVct(result);
     }
@@ -293,6 +288,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       throw new SDJWTException('vct claim is required');
     }
 
+    if (result.header?.vctm) {
+      return this.fetchVctFromHeader(result.payload.vct, result);
+    }
+
     const fetcher: VcTFetcher =
       this.userConfig.vctFetcher ??
       ((uri, integrity) => this.fetch(uri, integrity));
@@ -300,13 +299,47 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
+   * Fetches VCT Metadata from the header of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
+   * @param result
+   * @param
+   */
+  private async fetchVctFromHeader(
+    vct: string,
+    result: VerificationResult,
+  ): Promise<TypeMetadataFormat> {
+    const vctmHeader = result.header?.vctm;
+
+    if (!vctmHeader || !Array.isArray(vctmHeader)) {
+      throw new Error('vctm claim in SD JWT header is invalid');
+    }
+
+    const typeMetadataFormat = (vctmHeader as unknown[])
+      .map((vctm) => {
+        if (!(typeof vctm === 'string')) {
+          throw new Error('vctm claim in SD JWT header is invalid');
+        }
+
+        return JSON.parse(base64urlDecode(vctm));
+      })
+      .find((typeMetadataFormat) => {
+        return typeMetadataFormat.vct === vct;
+      });
+
+    if (!typeMetadataFormat) {
+      throw new Error('could not find VCT Metadata in JWT header');
+    }
+
+    return typeMetadataFormat;
+  }
+
+  /**
    * Verifies the status of the SD-JWT-VC.
    * @param result
-   * @param currentDate current time in seconds
+   * @param options
    */
   private async verifyStatus(
     result: VerificationResult,
-    currentDate: number,
+    options?: VerifierOptions,
   ): Promise<void> {
     if (result.payload.status) {
       //checks if a status field is present in the payload based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html
@@ -325,8 +358,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
-        await slJWT.verify(this.userConfig.verifier as Verifier, currentDate);
+        await slJWT.verify(this.userConfig.verifier as Verifier, options);
 
+        const currentDate =
+          options?.currentDate ?? Math.floor(Date.now() / 1000);
         //check if the status list is expired
         if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
           throw new SDJWTException('Status list is expired');
