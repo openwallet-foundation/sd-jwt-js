@@ -110,7 +110,7 @@ export type Claim = {
    * REQUIRED. Array of one or more paths to the claim in the credential subject.
    * Each path is an array of strings (or null for array elements).
    */
-  path: ClaimPath[];
+  path: ClaimPath;
   /** OPTIONAL. Display metadata in multiple languages. */
   display?: ClaimDisplay[];
   /** OPTIONAL. Controls whether the claim must, may, or must not be selectively disclosed. */
