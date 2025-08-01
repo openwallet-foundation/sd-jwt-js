@@ -206,7 +206,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     if (!sdjwt.jwt || !sdjwt.jwt.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
-    const { payload, header } = await this.validate(encodedSDJwt);
+    const { payload, header } = await this.validate(encodedSDJwt, options);
 
     if (options?.requiredClaimKeys) {
       const keys = await sdjwt.keys(hasher);
