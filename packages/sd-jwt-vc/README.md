@@ -71,7 +71,7 @@ const valid = await sdjwt.validate(credential);
 
 // Holder defines the presentation frame to specify which claims should be presented
 // The list of presented claims must be a subset of the disclosed claims
-const presentationFrame = ['firstname', 'ssn'];
+const presentationFrame = { firstname: true, ssn: true };
 
 // Holder creates a presentation using the issued credential and the presentation frame
 // returns an encoded SD JWT.
