@@ -358,7 +358,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
-        await slJWT.verify(this.userConfig.statusVerifier ?? this.userConfig.verifier as Verifier, options);
+        await slJWT.verify(
+          this.userConfig.statusVerifier ??
+            (this.userConfig.verifier as Verifier),
+          options,
+        );
 
         const currentDate =
           options?.currentDate ?? Math.floor(Date.now() / 1000);
