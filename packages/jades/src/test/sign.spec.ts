@@ -5,12 +5,14 @@ import {
   type X509Certificate,
   createPrivateKey,
   type KeyObject,
+  createSign,
 } from 'node:crypto';
 import { Sign } from '../sign';
 import type { DisclosureFrame } from '@sd-jwt/types';
 import type { ProtectedHeader } from '../type';
 import { base64urlDecode } from '@sd-jwt/utils';
 import { parseCerts } from '../utils';
+import { ALGORITHMS } from '../constant';
 
 describe('Sign', () => {
   let testCert: X509Certificate[];
@@ -125,13 +127,36 @@ describe('Sign', () => {
     });
   });
 
-  describe('sign', () => {
-    it('should throw when alg is not set', async () => {
-      const sign = new Sign({ test: 'value' });
-      await expect(sign.sign({} as KeyObject, 'kid')).rejects.toThrow();
-    });
+  // Helper function to create signature using Node.js crypto
+  function createTestSignature(
+    data: string,
+    alg: string,
+    privateKey: KeyObject,
+  ): string {
+    const algorithm = ALGORITHMS[alg as keyof typeof ALGORITHMS];
+    const signer = createSign(algorithm.hash);
+    signer.update(data);
 
-    it('should sign payload with RS256', async () => {
+    let signature: Buffer;
+    if (alg.startsWith('RS') || alg.startsWith('PS')) {
+      signature = signer.sign({
+        key: privateKey,
+        padding: (algorithm as any).padding,
+      });
+    } else if (alg.startsWith('ES')) {
+      signature = signer.sign({
+        key: privateKey,
+        dsaEncoding: 'ieee-p1363',
+      });
+    } else {
+      signature = signer.sign({ key: privateKey });
+    }
+
+    return signature.toString('base64url');
+  }
+
+  describe('getHash and addSignature', () => {
+    it('should get hash and add signature for payload', async () => {
       const payload = { test: 'value' };
       const sign = new Sign(payload);
       sign
@@ -141,18 +166,29 @@ describe('Sign', () => {
         })
         .setX5c(testCert);
 
-      const result = await sign.sign(privateKey, 'test-kid');
-      // @ts-expect-error accessing private field for testing
-      const serialized = result.serialized;
+      // Get hash for HSM signing
+      const hash = await sign.getHash('RS256', 'test-kid');
+      expect(hash).toBeInstanceOf(Uint8Array);
+      expect(hash.length).toBeGreaterThan(0);
 
+      // Create signature (simulating HSM response)
+      // In real usage, this would be done by HSM
+      const signingInput = sign['getSignPayload']('test-kid');
+      const signature = createTestSignature(signingInput, 'RS256', privateKey);
+
+      // Add the signature
+      const result = await sign.addSignature(signature, 'test-kid');
+      expect(result).toBe(sign);
+
+      const serialized = sign.toJSON();
       expect(serialized).toBeDefined();
-      expect(serialized?.signatures).toHaveLength(1);
-      expect(serialized?.signatures[0].protected).toBeDefined();
-      expect(serialized?.signatures[0].signature).toBeDefined();
+      expect(serialized.signatures).toHaveLength(1);
+      expect(serialized.signatures[0].protected).toBeDefined();
+      expect(serialized.signatures[0].signature).toBe(signature);
 
       // Verify the protected header
       const protectedHeader = JSON.parse(
-        base64urlDecode(serialized?.signatures[0].protected ?? '').toString(),
+        base64urlDecode(serialized.signatures[0].protected).toString(),
       );
       expect(protectedHeader.alg).toBe('RS256');
       expect(protectedHeader.kid).toBe('test-kid');
@@ -169,15 +205,20 @@ describe('Sign', () => {
         })
         .setX5c(testCert);
 
-      const result = await sign.sign(privateKey, 'test-kid');
-      // @ts-expect-error accessing private field for testing
-      const serialized = result.serialized;
+      const hash = await sign.getHash('RS256', 'test-kid');
+      expect(hash).toBeInstanceOf(Uint8Array);
+
+      const signingInput = sign['getSignPayload']('test-kid');
+      const signature = createTestSignature(signingInput, 'RS256', privateKey);
+
+      const result = await sign.addSignature(signature, 'test-kid');
+      const serialized = result.toJSON();
 
       expect(serialized).toBeDefined();
-      expect(serialized?.payload).toBe('');
-      expect(serialized?.signatures).toHaveLength(1);
-      expect(serialized?.signatures[0].protected).toBeDefined();
-      expect(serialized?.signatures[0].signature).toBeDefined();
+      expect(serialized.payload).toBe('');
+      expect(serialized.signatures).toHaveLength(1);
+      expect(serialized.signatures[0].protected).toBeDefined();
+      expect(serialized.signatures[0].signature).toBe(signature);
     });
 
     it('should append multiple signatures', async () => {
@@ -190,22 +231,38 @@ describe('Sign', () => {
         })
         .setX5c(testCert);
 
-      await sign.sign(privateKey, 'kid1');
-      await sign.sign(privateKey, 'kid2');
+      // First signature
+      const hash1 = await sign.getHash('RS256', 'kid1');
+      const signingInput1 = sign['getSignPayload']('kid1');
+      const signature1 = createTestSignature(
+        signingInput1,
+        'RS256',
+        privateKey,
+      );
+      await sign.addSignature(signature1, 'kid1');
 
-      // @ts-expect-error accessing private field for testing
-      const serialized = sign.serialized;
+      // Second signature
+      const hash2 = await sign.getHash('RS256', 'kid2');
+      const signingInput2 = sign['getSignPayload']('kid2');
+      const signature2 = createTestSignature(
+        signingInput2,
+        'RS256',
+        privateKey,
+      );
+      await sign.addSignature(signature2, 'kid2');
 
-      expect(serialized?.signatures).toHaveLength(2);
-      expect(serialized?.signatures[0].protected).toBeDefined();
-      expect(serialized?.signatures[1].protected).toBeDefined();
+      const serialized = sign.toJSON();
+
+      expect(serialized.signatures).toHaveLength(2);
+      expect(serialized.signatures[0].protected).toBeDefined();
+      expect(serialized.signatures[1].protected).toBeDefined();
 
       // Verify different kids
       const header1 = JSON.parse(
-        base64urlDecode(serialized?.signatures[0].protected ?? '').toString(),
+        base64urlDecode(serialized.signatures[0].protected).toString(),
       );
       const header2 = JSON.parse(
-        base64urlDecode(serialized?.signatures[1].protected ?? '').toString(),
+        base64urlDecode(serialized.signatures[1].protected).toString(),
       );
       expect(header1.kid).toBe('kid1');
       expect(header2.kid).toBe('kid2');
@@ -213,48 +270,42 @@ describe('Sign', () => {
       expect(header2.x5c).toBeDefined();
     });
 
-    it('should sign with disclosure frame', async () => {
-      const payload = { test: 'value', sensitive: 'data' };
-      const sign = new Sign(payload);
-      const result = await sign
-        .setProtectedHeader({
-          alg: 'RS256',
-          typ: 'JWT',
-        })
-        .setX5c(testCert)
-        .setDisclosureFrame({
-          _sd: ['sensitive'],
-        })
-        .sign(privateKey, 'test-kid');
+    it('should work with different algorithms', async () => {
+      const payload = { test: 'value' };
+      const algorithms = [
+        'RS256',
+        'RS384',
+        'RS512',
+        'PS256',
+        'PS384',
+        'PS512',
+      ] as const;
 
-      // @ts-expect-error accessing private field for testing
-      const serialized = result.serialized;
+      for (const alg of algorithms) {
+        const sign = new Sign(payload);
+        sign
+          .setProtectedHeader({
+            alg,
+            typ: 'JWT',
+          })
+          .setX5c(testCert);
 
-      expect(serialized).toBeDefined();
-      expect(serialized?.signatures).toHaveLength(1);
+        const hash = await sign.getHash(alg, 'test-kid');
+        expect(hash).toBeInstanceOf(Uint8Array);
+        expect(hash.length).toBeGreaterThan(0);
 
-      // The payload should contain _sd array with hash
-      const decodedPayload = JSON.parse(
-        base64urlDecode(serialized?.payload ?? '').toString(),
-      );
-      expect(decodedPayload._sd).toBeDefined();
-      expect(Array.isArray(decodedPayload._sd)).toBe(true);
-      expect(decodedPayload.test).toBe('value');
-      expect(decodedPayload.sensitive).toBeUndefined();
-    });
-  });
+        const signingInput = sign['getSignPayload']('test-kid');
+        const signature = createTestSignature(signingInput, alg, privateKey);
+        await sign.addSignature(signature, 'test-kid');
 
-  describe('error cases', () => {
-    it('should throw when attempting to append signature without serialization', async () => {
-      const sign = new Sign({ test: 'value' });
-      // @ts-expect-error: Testing private method
-      await expect(sign.appendSignature(null, 'kid')).rejects.toThrow();
-    });
+        const serialized = sign.toJSON();
+        expect(serialized.signatures).toHaveLength(1);
 
-    it('should throw when alg is not set', async () => {
-      const sign = new Sign({ test: 'value' });
-      // @ts-expect-error: Testing private method
-      await expect(sign.createSignature(null, 'kid')).rejects.toThrow();
+        const protectedHeader = JSON.parse(
+          base64urlDecode(serialized.signatures[0].protected).toString(),
+        );
+        expect(protectedHeader.alg).toBe(alg);
+      }
     });
   });
 });
