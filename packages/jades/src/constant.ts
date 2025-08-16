@@ -15,9 +15,6 @@ export const ALGORITHMS = {
   ES256: { hash: 'sha256', namedCurve: 'P-256' },
   ES384: { hash: 'sha384', namedCurve: 'P-384' },
   ES512: { hash: 'sha512', namedCurve: 'P-521' },
-
-  // EdDSA
-  EdDSA: { curves: ['ed25519', 'ed448'] },
 };
 
 export enum CommitmentOIDs {

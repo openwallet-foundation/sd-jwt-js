@@ -23,7 +23,6 @@ export class Sign<T extends Record<string, unknown>> {
 
   private protectedHeader: Partial<ProtectedHeader>;
 
-  // TODO: implement
   // unprotected header
   private header: UnprotectedHeader;
 
@@ -39,76 +38,10 @@ export class Sign<T extends Record<string, unknown>> {
     this.header = {};
   }
 
-  private async appendSignature(key: KeyObject, kid: string) {
+  async addSignature(signature: string, kid: string) {
+    const encodedProtectedHeader = this.encodedProtectedHeader(kid);
+
     if (this.serialized === undefined) {
-      throw new Error('Signature must be appended to serialized');
-    }
-
-    if (
-      !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as Alg | 'none') === 'none'
-    ) {
-      throw new Error('alg must be set and not "none"');
-    }
-
-    if (this.payload === undefined) {
-      const encodedProtectedHeader = base64urlEncode(
-        JSON.stringify({ ...this.protectedHeader, kid }),
-      );
-      const encodedPayload = '';
-      const protectedData = `${encodedProtectedHeader}.${encodedPayload}`;
-
-      const signature = JWTSigner.sign(
-        this.protectedHeader.alg,
-        protectedData,
-        key,
-      );
-      this.serialized.signatures.push({
-        protected: protectedData,
-        signature,
-        header: this.header,
-      });
-      return this;
-    }
-
-    const generalJSON = GeneralJSON.fromSerialized(this.serialized);
-    const signer = (data: string) => {
-      if (!this.protectedHeader.alg)
-        throw new Error('alg must be set when signing');
-      return JWTSigner.sign(this.protectedHeader.alg, data, key);
-    };
-    await generalJSON.addSignature({ ...this.protectedHeader, kid }, signer);
-    const serialized = generalJSON.toJson();
-    this.serialized = serialized;
-    return this;
-  }
-
-  private async createSignature(key: KeyObject, kid: string) {
-    if (
-      !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as Alg | 'none') === 'none'
-    ) {
-      throw new Error('alg must be set and not "none"');
-    }
-
-    if (this.payload === undefined) {
-      /**
-       * If the payload is empty, It uses Detached JWS Payload described in TS 119 182-1 v1.2.1 section 5.2.8
-       * So Create manual signature here.
-       */
-
-      const encodedProtectedHeader = base64urlEncode(
-        JSON.stringify({ ...this.protectedHeader, kid }),
-      );
-      const encodedPayload = '';
-      const protectedData = `${encodedProtectedHeader}.${encodedPayload}`;
-
-      const signature = JWTSigner.sign(
-        this.protectedHeader.alg,
-        protectedData,
-        key,
-      );
-
       this.serialized = {
         payload: '',
         signatures: [
@@ -119,71 +52,38 @@ export class Sign<T extends Record<string, unknown>> {
           },
         ],
       };
-      return this;
+    } else {
+      this.serialized.signatures.push({
+        protected: encodedProtectedHeader,
+        signature,
+        header: this.header,
+      });
     }
-
-    /**
-     * Create a General JWS Payload with SD-JWT library.
-     */
-
-    const sdjwtInstance = new SDJwtGeneralJSONInstance({
-      hashAlg: 'sha-256',
-      signAlg: this.protectedHeader.alg,
-      hasher: digest,
-      saltGenerator: generateSalt,
-    });
-
-    const disclosureFrame = this.disclosureFrame;
-
-    const generalJSON = await sdjwtInstance.issue(
-      this.payload,
-      disclosureFrame,
-      {
-        sigs: [
-          {
-            alg: this.protectedHeader.alg,
-            kid: kid,
-            header: this.protectedHeader,
-            signer: (data: string) => {
-              if (!this.protectedHeader.alg)
-                throw new Error('alg must be set when signing');
-              return JWTSigner.sign(this.protectedHeader.alg, data, key);
-            },
-          },
-        ],
-      },
-    );
-
-    const serialized = generalJSON.toJson();
-    this.serialized = {
-      payload: serialized.payload,
-      signatures: serialized.signatures.map((sig) => ({
-        ...sig,
-        header: {
-          ...sig.header,
-          ...this.header,
-        },
-      })),
-    };
 
     return this;
   }
 
-  async sign(key: KeyObject, kid: string) {
-    if (
-      !this.protectedHeader.alg ||
-      (this.protectedHeader.alg as Alg | 'none') === 'none'
-    ) {
-      throw new Error('alg must be set and not "none"');
-    }
+  private encodedProtectedHeader(kid: string): string {
+    return base64urlEncode(JSON.stringify({ ...this.protectedHeader, kid }));
+  }
 
-    this.validateCertificateHeaders();
+  private getSignPayload(kid: string): string {
+    const encodedProtectedHeader = this.encodedProtectedHeader(kid);
 
-    if (this.serialized !== undefined) {
-      return this.appendSignature(key, kid);
-    }
+    const encodedPayload =
+      this.payload === undefined
+        ? ''
+        : base64urlEncode(JSON.stringify(this.payload));
 
-    return this.createSignature(key, kid);
+    const protectedData = `${encodedProtectedHeader}.${encodedPayload}`;
+    return protectedData;
+  }
+
+  async getHash(alg: Alg, kid: string): Promise<Uint8Array> {
+    const hashAlg = ALGORITHMS[alg].hash as string;
+
+    const signPayload = this.getSignPayload(kid);
+    return digest(signPayload, hashAlg);
   }
 
   setProtectedHeader(header: ProtectedHeader) {
@@ -316,79 +216,3 @@ export class Sign<T extends Record<string, unknown>> {
     return this.serialized;
   }
 }
-
-const JWTSigner = {
-  sign(alg: Alg, signingInput: string, privateKey: KeyObject) {
-    const signature = JWTSigner.createSignature(alg, signingInput, privateKey);
-    return signature;
-  },
-
-  createSignature(alg: Alg, signingInput: string, privateKey: KeyObject) {
-    switch (alg) {
-      case 'RS256':
-      case 'RS384':
-      case 'RS512':
-      case 'PS256':
-      case 'PS384':
-      case 'PS512': {
-        const option = ALGORITHMS[alg];
-        return JWTSigner.createRSASignature(signingInput, privateKey, option);
-      }
-      case 'ES256':
-      case 'ES384':
-      case 'ES512': {
-        const option = ALGORITHMS[alg];
-        return JWTSigner.createECDSASignature(signingInput, privateKey, option);
-      }
-      case 'EdDSA': {
-        const option = ALGORITHMS[alg];
-        return JWTSigner.createEdDSASignature(signingInput, privateKey, option);
-      }
-      default:
-    }
-    throw new Error(`Unsupported algorithm: ${alg}`);
-  },
-
-  createRSASignature(
-    signingInput: string,
-    privateKey: KeyObject,
-    options: { hash: string; padding: number },
-  ) {
-    const signer = createSign(options.hash);
-    signer.update(signingInput);
-    const signature = signer.sign({
-      key: privateKey,
-      padding: options.padding,
-    });
-    return signature.toString('base64url');
-  },
-
-  createECDSASignature(
-    signingInput: string,
-    privateKey: KeyObject,
-    options: { hash: string; namedCurve: string },
-  ) {
-    const signer = createSign(options.hash);
-    signer.update(signingInput);
-
-    const signature = signer.sign({
-      key: privateKey,
-      dsaEncoding: 'ieee-p1363',
-    });
-
-    return signature.toString('base64url');
-  },
-
-  createEdDSASignature(
-    signingInput: string,
-    privateKey: KeyObject,
-    options: { curves: string[] },
-  ) {
-    const signer = createSign(options.curves[0]);
-    signer.update(signingInput);
-    const signature = signer.sign({
-      key: privateKey,
-    });
-    return signature.toString('base64url');
-  },
-};

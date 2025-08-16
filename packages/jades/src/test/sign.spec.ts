@@ -11,9 +11,6 @@ import type { DisclosureFrame } from '@sd-jwt/types';
 import type { ProtectedHeader } from '../type';
 import { base64urlDecode } from '@sd-jwt/utils';
 import { parseCerts } from '../utils';
-import { GeneralJSON, SDJwtGeneralJSONInstance } from '@sd-jwt/core';
-import { digest } from '@sd-jwt/crypto-nodejs';
-import { JWTVerifier } from '../verify';
 
 describe('Sign', () => {
   let testCert: X509Certificate[];
@@ -244,36 +241,6 @@ describe('Sign', () => {
       expect(Array.isArray(decodedPayload._sd)).toBe(true);
       expect(decodedPayload.test).toBe('value');
       expect(decodedPayload.sensitive).toBeUndefined();
-    });
-  });
-
-  describe('verify', () => {
-    it('verify signed JAdES', async () => {
-      const payload = { test: 'value', sensitive: 'data' };
-      const sign = new Sign(payload);
-      const result = await sign
-        .setProtectedHeader({
-          alg: 'RS256',
-          typ: 'JWT',
-        })
-        .setX5c(testCert)
-        .setDisclosureFrame({
-          _sd: ['sensitive'],
-        })
-        .sign(privateKey, 'test-kid');
-
-      const serialized = result.toJSON();
-
-      expect(serialized).toBeDefined();
-      const instance = new SDJwtGeneralJSONInstance({
-        hasher: digest,
-        verifier: JWTVerifier.verifier,
-      });
-      const verifiedData = await instance.verify(
-        GeneralJSON.fromSerialized(serialized),
-      );
-      expect(verifiedData).toBeDefined();
-      expect(verifiedData.payload).toEqual(payload);
     });
   });
 
