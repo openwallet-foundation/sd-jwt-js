@@ -142,7 +142,7 @@ describe('Sign', () => {
     if (alg.startsWith('RS') || alg.startsWith('PS')) {
       signature = signer.sign({
         key: privateKey,
-        padding: (algorithm as any).padding,
+        padding: (algorithm as { padding: number }).padding,
       });
     } else if (alg.startsWith('ES')) {
       signature = signer.sign({
@@ -174,7 +174,7 @@ describe('Sign', () => {
 
       // Create signature (simulating HSM response)
       // In real usage, this would be done by HSM
-      const signingInput = sign['getSignPayload']('test-kid');
+      const signingInput = sign.getSignPayload('test-kid');
       const signature = createTestSignature(signingInput, 'RS256', privateKey);
 
       // Add the signature
@@ -209,7 +209,7 @@ describe('Sign', () => {
       const hash = await sign.getHash('RS256', 'test-kid');
       expect(hash).toBeInstanceOf(Uint8Array);
 
-      const signingInput = sign['getSignPayload']('test-kid');
+      const signingInput = sign.getSignPayload('test-kid');
       const signature = createTestSignature(signingInput, 'RS256', privateKey);
 
       const result = await sign.addSignature(signature, 'test-kid');
@@ -234,7 +234,7 @@ describe('Sign', () => {
 
       // First signature
       const hash1 = await sign.getHash('RS256', 'kid1');
-      const signingInput1 = sign['getSignPayload']('kid1');
+      const signingInput1 = sign.getSignPayload('kid1');
       const signature1 = createTestSignature(
         signingInput1,
         'RS256',
@@ -244,7 +244,7 @@ describe('Sign', () => {
 
       // Second signature
       const hash2 = await sign.getHash('RS256', 'kid2');
-      const signingInput2 = sign['getSignPayload']('kid2');
+      const signingInput2 = sign.getSignPayload('kid2');
       const signature2 = createTestSignature(
         signingInput2,
         'RS256',
@@ -295,7 +295,7 @@ describe('Sign', () => {
         expect(hash).toBeInstanceOf(Uint8Array);
         expect(hash.length).toBeGreaterThan(0);
 
-        const signingInput = sign['getSignPayload']('test-kid');
+        const signingInput = sign.getSignPayload('test-kid');
         const signature = createTestSignature(signingInput, alg, privateKey);
         await sign.addSignature(signature, 'test-kid');
 
@@ -326,7 +326,7 @@ describe('Sign', () => {
       const actualHash = await sign.getHash(alg, kid);
 
       // Calculate expected hash manually
-      const signingInput = sign['getSignPayload'](kid);
+      const signingInput = sign.getSignPayload(kid);
       const expectedHash = createHash('sha256').update(signingInput).digest();
 
       // Compare the hashes
@@ -359,7 +359,7 @@ describe('Sign', () => {
         const actualHash = await sign.getHash(alg, kid);
 
         // Calculate expected hash manually
-        const signingInput = sign['getSignPayload'](kid);
+        const signingInput = sign.getSignPayload(kid);
         const expectedHash = createHash(hashAlg).update(signingInput).digest();
 
         // Verify hash correctness and length

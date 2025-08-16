@@ -67,7 +67,7 @@ export class Sign<T extends Record<string, unknown>> {
     return base64urlEncode(JSON.stringify({ ...this.protectedHeader, kid }));
   }
 
-  private getSignPayload(kid: string): string {
+  public getSignPayload(kid: string): string {
     const encodedProtectedHeader = this.encodedProtectedHeader(kid);
 
     const encodedPayload =
