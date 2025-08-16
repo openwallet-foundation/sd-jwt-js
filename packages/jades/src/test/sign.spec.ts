@@ -6,6 +6,7 @@ import {
   createPrivateKey,
   type KeyObject,
   createSign,
+  createHash,
 } from 'node:crypto';
 import { Sign } from '../sign';
 import type { DisclosureFrame } from '@sd-jwt/types';
@@ -306,6 +307,100 @@ describe('Sign', () => {
         );
         expect(protectedHeader.alg).toBe(alg);
       }
+    });
+
+    it('should return correct hash value', async () => {
+      const payload = { test: 'value', data: 'example' };
+      const sign = new Sign(payload);
+      const kid = 'test-kid';
+      const alg = 'RS256';
+
+      sign
+        .setProtectedHeader({
+          alg,
+          typ: 'JWT',
+        })
+        .setX5c(testCert);
+
+      // Get hash from the Sign class
+      const actualHash = await sign.getHash(alg, kid);
+
+      // Calculate expected hash manually
+      const signingInput = sign['getSignPayload'](kid);
+      const expectedHash = createHash('sha256').update(signingInput).digest();
+
+      // Compare the hashes
+      expect(actualHash).toEqual(new Uint8Array(expectedHash));
+      expect(actualHash.length).toBe(32); // SHA-256 produces 32 bytes
+    });
+
+    it('should return correct hash for different algorithms', async () => {
+      const payload = { test: 'value' };
+      const kid = 'test-kid';
+      const testCases = [
+        { alg: 'RS256', hashAlg: 'sha256', expectedLength: 32 },
+        { alg: 'RS384', hashAlg: 'sha384', expectedLength: 48 },
+        { alg: 'RS512', hashAlg: 'sha512', expectedLength: 64 },
+        { alg: 'PS256', hashAlg: 'sha256', expectedLength: 32 },
+        { alg: 'PS384', hashAlg: 'sha384', expectedLength: 48 },
+        { alg: 'PS512', hashAlg: 'sha512', expectedLength: 64 },
+      ] as const;
+
+      for (const { alg, hashAlg, expectedLength } of testCases) {
+        const sign = new Sign(payload);
+        sign
+          .setProtectedHeader({
+            alg,
+            typ: 'JWT',
+          })
+          .setX5c(testCert);
+
+        // Get hash from the Sign class
+        const actualHash = await sign.getHash(alg, kid);
+
+        // Calculate expected hash manually
+        const signingInput = sign['getSignPayload'](kid);
+        const expectedHash = createHash(hashAlg).update(signingInput).digest();
+
+        // Verify hash correctness and length
+        expect(actualHash).toEqual(new Uint8Array(expectedHash));
+        expect(actualHash.length).toBe(expectedLength);
+      }
+    });
+
+    it('should return different hashes for different payloads', async () => {
+      const kid = 'test-kid';
+      const alg = 'RS256';
+
+      // Create two different payloads
+      const payload1 = { test: 'value1' };
+      const payload2 = { test: 'value2' };
+
+      const sign1 = new Sign(payload1);
+      sign1.setProtectedHeader({ alg, typ: 'JWT' }).setX5c(testCert);
+
+      const sign2 = new Sign(payload2);
+      sign2.setProtectedHeader({ alg, typ: 'JWT' }).setX5c(testCert);
+
+      const hash1 = await sign1.getHash(alg, kid);
+      const hash2 = await sign2.getHash(alg, kid);
+
+      // Hashes should be different for different payloads
+      expect(hash1).not.toEqual(hash2);
+    });
+
+    it('should return different hashes for different kids', async () => {
+      const payload = { test: 'value' };
+      const alg = 'RS256';
+
+      const sign = new Sign(payload);
+      sign.setProtectedHeader({ alg, typ: 'JWT' }).setX5c(testCert);
+
+      const hash1 = await sign.getHash(alg, 'kid1');
+      const hash2 = await sign.getHash(alg, 'kid2');
+
+      // Hashes should be different for different kids
+      expect(hash1).not.toEqual(hash2);
     });
   });
 });
