@@ -22,6 +22,10 @@ const iat = Math.floor(Date.now() / 1000);
 
 const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
 
+//create a separate keypair for the status list
+const { privateKey: statusListPrivateKey, publicKey: statusListPublicKey } =
+  Crypto.generateKeyPairSync('ed25519');
+
 //TODO: to simulate a hosted status list, use the same appraoch as in vct.spec.ts
 
 const createSignerVerifier = () => {
@@ -54,7 +58,7 @@ const generateStatusList = async (): Promise<string> => {
   const values = createHeaderAndPayload(statusList, payload, header);
   return new SignJWT(values.payload)
     .setProtectedHeader(values.header)
-    .sign(privateKey);
+    .sign(statusListPrivateKey);
 };
 
 const statusListJWT = await generateStatusList();
@@ -105,6 +109,15 @@ describe('Revocation', () => {
     //   if (status === 0) return Promise.resolve();
     //   throw new Error('Status is not valid');
     // },
+    statusVerifier: async (data: string, sig: string) => {
+      //we could also look into the data to extract the public key from the x5c when provided
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        statusListPublicKey,
+        Buffer.from(sig, 'base64url'),
+      );
+    },
   });
 
   test('Test with a non revcoked credential', async () => {

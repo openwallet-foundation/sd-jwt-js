@@ -87,6 +87,8 @@ Check out more details in our [documentation](https://github.com/openwallet-foun
 
 To add revocation capabilities, you can use the `@sd-jwt/jwt-status-list` library to create a JWT Status List and include it in the SD-JWT-VC.
 
+You can pass a dedicated `statusVerifier` function in the configuration to verify the signature of the payload of the JWT of the statuslist. If no function is provided, it will fallback to the verifier that is also used for the sd-jwt-vc.
+
 ### Type Metadata
 
 By setting the `loadTypeMetadataFormat` to `true` like this:
