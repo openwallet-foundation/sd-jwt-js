@@ -35,9 +35,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
 
   /**
    * Issue a sd jwt vc
-   * @param payload 
-   * @param disclosureFrame 
-   * @returns 
+   * @param payload
+   * @param disclosureFrame
+   * @returns
    */
   issue(
     payload: SdJwtVcPayload,
@@ -71,7 +71,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         disclosureFrame._sd as string[]
       ).filter((key) => reservedNames.includes(key));
       if (reservedNamesInDisclosureFrame.length > 0) {
-        throw new SDJWTException(`Cannot disclose protected fields: ${reservedNamesInDisclosureFrame.join(', ')}`);
+        throw new SDJWTException(
+          `Cannot disclose protected fields: ${reservedNamesInDisclosureFrame.join(
+            ', ',
+          )}`,
+        );
       }
     }
   }
