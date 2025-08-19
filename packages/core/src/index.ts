@@ -97,7 +97,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     payload: Payload,
     disclosureFrame?: DisclosureFrame<Payload>,
     options?: {
-      header?: object; // This is for customizing the header of the jwt
+      header?: object; // This is for customizing the header of the jwt      
     },
   ): Promise<SDJWTCompact> {
     if (!this.userConfig.hasher) {
