@@ -34,11 +34,30 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
+   * Issue a sd jwt vc
+   * @param payload 
+   * @param disclosureFrame 
+   * @returns 
+   */
+  issue(
+    payload: SdJwtVcPayload,
+    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
+  ): Promise<string> {
+    // validate the disclosure frame
+    try {
+      this.validateReservedFields(disclosureFrame);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+    return super.issue(payload, disclosureFrame);
+  }
+
+  /**
    * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
    * @param disclosureFrame
    */
   protected validateReservedFields(
-    disclosureFrame: DisclosureFrame<SdJwtVcPayload>,
+    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
   ): void {
     //validate disclosureFrame according to https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#section-3.2.2.2
     if (
@@ -52,7 +71,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         disclosureFrame._sd as string[]
       ).filter((key) => reservedNames.includes(key));
       if (reservedNamesInDisclosureFrame.length > 0) {
-        throw new SDJWTException('Cannot disclose protected field');
+        throw new SDJWTException(`Cannot disclose protected fields: ${reservedNamesInDisclosureFrame.join(', ')}`);
       }
     }
   }
