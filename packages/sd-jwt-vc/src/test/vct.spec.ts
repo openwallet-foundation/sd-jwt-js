@@ -174,22 +174,20 @@ describe('App', () => {
   });
 
   test('VCT Validation with invalid schema', async () => {
-    const claims = {      
+    const claims = {
       lastname: 'Doe',
     };
     const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
     const encodedSdjwt = await sdjwt.issue(expectedPayload, undefined, {
       schema: {
         type: 'object',
-        properties: {          
+        properties: {
           lastname: { type: 'string' },
         },
         required: ['lastname'],
       },
     });
-    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
-      /firstName/
-    );
+    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(/firstName/);
   });
 
   test('VCT Metadata retrieval', async () => {

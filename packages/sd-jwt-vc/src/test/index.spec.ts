@@ -162,7 +162,7 @@ describe('Revocation', () => {
 
   test('passing a schema but with inconsistent fields', async () => {
     const claims = {
-      firstname: 'John',      
+      firstname: 'John',
     };
     const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
     const encodedSdjwt = sdjwt.issue(expectedPayload, undefined, {

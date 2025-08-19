@@ -44,13 +44,13 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
     options?: {
       header?: object; // This is for customizing the header of the jwt
-      schema?: SchemaObject
-    }
+      schema?: SchemaObject;
+    },
   ): Promise<string> {
     // validate the disclosure frame
     try {
       this.validateReservedFields(disclosureFrame);
-      if (options?.schema) {        
+      if (options?.schema) {
         this.validateSchema(payload, options.schema);
       }
     } catch (error) {
@@ -61,15 +61,17 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
 
   /**
    * Validates the schemas against the provided payload. If e.g. required fields are not set, it will throw an error.
-   * @param payload 
-   * @param schema 
+   * @param payload
+   * @param schema
    */
   private validateSchema(payload: SdJwtVcPayload, schema: SchemaObject) {
     const ajv = new Ajv();
     addFormats(ajv);
-    const validate = ajv.compile(schema);    
-    if (!validate(payload)) {      
-      throw new SDJWTException(`Payload validation failed: ${ajv.errorsText(validate.errors)}`);
+    const validate = ajv.compile(schema);
+    if (!validate(payload)) {
+      throw new SDJWTException(
+        `Payload validation failed: ${ajv.errorsText(validate.errors)}`,
+      );
     }
   }
 
