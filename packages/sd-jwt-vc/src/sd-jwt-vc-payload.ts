@@ -2,8 +2,8 @@ import type { SdJwtPayload } from '@sd-jwt/core';
 import type { SDJWTVCStatusReference } from './sd-jwt-vc-status-reference';
 
 export interface SdJwtVcPayload extends SdJwtPayload {
-  // REQUIRED. The Issuer of the Verifiable Credential. The value of iss MUST be a URI. See [RFC7519] for more information.
-  iss: string;
+  // OPTIONAL. The Issuer of the Verifiable Credential. The value is a case-sensitive string containing a StringOrURI value. See [RFC7519] for more information.
+  iss?: string;
   // OPTIONAL. The time before which the Verifiable Credential MUST NOT be accepted before validating. See [RFC7519] for more information.
   nbf?: number;
   // OPTIONAL. The expiry time of the Verifiable Credential after which the Verifiable Credential is no longer valid. See [RFC7519] for more information.
