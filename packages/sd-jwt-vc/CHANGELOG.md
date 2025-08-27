@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.14.1...v0.15.0) (2025-08-20)
+
+
+### Features
+
+* Allows to pass a custom function for the status list JWT validation ([#306](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/306)) ([25e546e](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/25e546e1536178f8ee41b0e1b3836656fd6f48ab))
+
+
+
+
+
 ## [0.14.1](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.14.0...v0.14.1) (2025-08-02)
 
 
