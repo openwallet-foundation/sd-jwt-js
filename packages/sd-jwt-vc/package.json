@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/sd-jwt-vc",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

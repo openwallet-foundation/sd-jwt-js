@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.15.1](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.15.0...v0.15.1) (2025-08-28)
+
+
+### Bug Fixes
+
+* make iss claim optional in SD-JWT VC payload ([#310](https://github.com/openwallet-foundation-labs/sd-jwt-js/issues/310)) ([f6275e3](https://github.com/openwallet-foundation-labs/sd-jwt-js/commit/f6275e35e66777709321328ba50fec53e5f48c7b))
+
+
+
+
+
 # [0.15.0](https://github.com/openwallet-foundation-labs/sd-jwt-js/compare/v0.14.1...v0.15.0) (2025-08-20)
 
 
