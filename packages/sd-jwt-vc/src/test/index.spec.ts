@@ -159,4 +159,41 @@ describe('Revocation', () => {
   test('test with an expired status list', async () => {
     //TODO: needs to be implemented
   });
+
+  test('passing a schema but with inconsistent fields', async () => {
+    const claims = {
+      firstname: 'John',
+    };
+    const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
+    const encodedSdjwt = sdjwt.issue(expectedPayload, undefined, {
+      schema: {
+        type: 'object',
+        properties: {
+          firstname: { type: 'string' },
+          lastname: { type: 'string' },
+        },
+        required: ['firstname', 'lastname'],
+      },
+    });
+    expect(encodedSdjwt).rejects.toThrowError(/lastname/);
+  });
+
+  test('passing a schema but with consistent fields', async () => {
+    const claims = {
+      firstname: 'John',
+      lastname: 'Doe',
+    };
+    const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
+    const encodedSdjwt = sdjwt.issue(expectedPayload, undefined, {
+      schema: {
+        type: 'object',
+        properties: {
+          firstname: { type: 'string' },
+          lastname: { type: 'string' },
+        },
+        required: ['firstname'],
+      },
+    });
+    expect(encodedSdjwt).toBeDefined();
+  });
 });

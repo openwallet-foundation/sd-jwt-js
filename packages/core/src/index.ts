@@ -112,10 +112,6 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('sign alogrithm not specified');
     }
 
-    if (disclosureFrame) {
-      this.validateReservedFields<Payload>(disclosureFrame);
-    }
-
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
 
@@ -146,17 +142,6 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     });
 
     return sdJwt.encodeSDJwt();
-  }
-
-  /**
-   * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
-   * @param disclosureFrame
-   * @returns
-   */
-  protected validateReservedFields<T extends ExtendedPayload>(
-    disclosureFrame: DisclosureFrame<T>,
-  ) {
-    return;
   }
 
   public async present<T extends Record<string, unknown>>(
