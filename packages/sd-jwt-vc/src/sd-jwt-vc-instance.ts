@@ -34,53 +34,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Issue a sd jwt vc
-   * @param payload
-   * @param disclosureFrame
-   * @returns
-   */
-  issue(
-    payload: SdJwtVcPayload,
-    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
-    options?: {
-      header?: object; // This is for customizing the header of the jwt
-      schema?: SchemaObject;
-    },
-  ): Promise<string> {
-    // validate the disclosure frame
-    try {
-      this.validateReservedFields(disclosureFrame);
-      if (options?.schema) {
-        this.validateSchema(payload, options.schema);
-      }
-    } catch (error) {
-      return Promise.reject(error);
-    }
-    return super.issue(payload, disclosureFrame);
-  }
-
-  /**
-   * Validates the schemas against the provided payload. If e.g. required fields are not set, it will throw an error.
-   * @param payload
-   * @param schema
-   */
-  private validateSchema(payload: SdJwtVcPayload, schema: SchemaObject) {
-    const ajv = new Ajv();
-    addFormats(ajv);
-    const validate = ajv.compile(schema);
-    if (!validate(payload)) {
-      throw new SDJWTException(
-        `Payload validation failed: ${ajv.errorsText(validate.errors)}`,
-      );
-    }
-  }
-
-  /**
    * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
    * @param disclosureFrame
    */
   protected validateReservedFields(
-    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
+    disclosureFrame: DisclosureFrame<SdJwtVcPayload>,
   ): void {
     //validate disclosureFrame according to https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#section-3.2.2.2
     if (
@@ -94,11 +52,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         disclosureFrame._sd as string[]
       ).filter((key) => reservedNames.includes(key));
       if (reservedNamesInDisclosureFrame.length > 0) {
-        throw new SDJWTException(
-          `Cannot disclose protected fields: ${reservedNamesInDisclosureFrame.join(
-            ', ',
-          )}`,
-        );
+        throw new SDJWTException('Cannot disclose protected field');
       }
     }
   }
