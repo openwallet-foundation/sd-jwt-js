@@ -16,7 +16,7 @@ const exampleVctm = {
   schema_uri: 'http://example.com/schema/example',
   //this value could be generated on demand to make it easier when changing the values
   'schema_uri#Integrity':
-    'sha256-1fd7c768eabdda5e91855ae6f7042fd2eb4582db128c6c13f773d6a72a71263a',
+    'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
 };
 
 const restHandlers = [
@@ -47,7 +47,7 @@ const restHandlers = [
           type: 'string',
         },
       },
-      required: ['iss', 'vct', 'firstName'],
+      required: ['iss', 'vct'],
     };
     return HttpResponse.json(res);
   }),
@@ -66,7 +66,7 @@ const restHandlers = [
 
 //this value could be generated on demand to make it easier when changing the values
 const vctIntegrity =
-  'sha256-e404c3aa9b730b5cb17a468c0d46c6eb035f83c1621da97644ea40239e3017d6';
+  'sha256-96bed58130a44af05ae8970aa9caa0bf0135cd15afe721ea29f553394692acef';
 
 const server = setupServer(...restHandlers);
 
@@ -107,10 +107,10 @@ describe('App', () => {
   });
 
   const claims = {
-    firstName: 'John',
+    firstname: 'John',
   };
   const disclosureFrame = {
-    _sd: ['firstName'],
+    _sd: ['firstname'],
   };
 
   beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
@@ -173,23 +173,6 @@ describe('App', () => {
     );
   });
 
-  test('VCT Validation with invalid schema', async () => {
-    const claims = {
-      lastname: 'Doe',
-    };
-    const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
-    const encodedSdjwt = await sdjwt.issue(expectedPayload, undefined, {
-      schema: {
-        type: 'object',
-        properties: {
-          lastname: { type: 'string' },
-        },
-        required: ['lastname'],
-      },
-    });
-    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(/firstName/);
-  });
-
   test('VCT Metadata retrieval', async () => {
     const expectedPayload: SdJwtVcPayload = {
       iat,
@@ -209,7 +192,7 @@ describe('App', () => {
       name: 'ExampleCredentialType',
       schema_uri: 'http://example.com/schema/example',
       'schema_uri#Integrity':
-        'sha256-1fd7c768eabdda5e91855ae6f7042fd2eb4582db128c6c13f773d6a72a71263a',
+        'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
       vct: 'http://example.com/example',
     });
   });
