@@ -1,5 +1,20 @@
 You can make Key Binding JWT and verify it.
 
+## Prerequisites
+
+Prepare signer and verifier for key binding.
+
+```ts
+// Create SDJwt instance for use
+const sdjwt = new SDJwtInstance({
+  hasher: digest,
+  saltGenerator: generateSalt,
+  kbSigner: signer,        // signer for key binding
+  kbSignAlg: ES256.alg,    // algorithm for key binding
+  kbVerifier: verifier,    // verifier for key binding
+});
+```
+
 ## Issue
 
 Assume that you have SD-JWT from issuer like this.
