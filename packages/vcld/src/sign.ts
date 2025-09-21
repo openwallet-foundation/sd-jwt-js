@@ -1,17 +1,17 @@
 import { decodeSdJwtSync, getClaimsSync } from '@sd-jwt/decode';
 import { hasher } from '@sd-jwt/hash';
-import { JsonLdDocument } from 'jsonld';
+import type { JsonLdDocument } from 'jsonld';
 import { SDJwtInstance } from '@sd-jwt/core';
 import { createSign } from 'node:crypto';
 import type { DisclosureFrame } from '@sd-jwt/types';
-import { type KeyObject } from 'node:crypto';
+import type { KeyObject } from 'node:crypto';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import { ALGORITHMS, type Alg } from './type';
 
 export class Signer {
   private doc: JsonLdDocument;
   private signAlg: Alg;
-  // TODO: fix type
+  // biome-ignore lint/suspicious/noExplicitAny: use any for disclosureFrame
   private disclosureFrame: DisclosureFrame<any> | undefined;
   private header: Record<string, unknown> | undefined;
 
@@ -31,6 +31,7 @@ export class Signer {
     return this;
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: use any for disclosureFrame
   setDisclosureFrame(disclosureFrame: DisclosureFrame<any>) {
     this.disclosureFrame = disclosureFrame;
     return this;
@@ -79,10 +80,11 @@ export class Signer {
       nbf: this.nbf,
       ld: this.doc,
     };
-    const disclosureFrame = { ld: this.disclosureFrame };
+    const disclosureFrame = { ld: this.disclosureFrame } as DisclosureFrame<
+      typeof payload
+    >;
 
-    // TODO: fix type
-    const compact = await sdjwtInstance.issue(payload, disclosureFrame as any, {
+    const compact = await sdjwtInstance.issue(payload, disclosureFrame, {
       header: this.header,
     });
 
@@ -99,7 +101,7 @@ export const decode = (compact: string) => {
   ) as Record<string, unknown>;
 
   if ('ld' in claims) {
-    return { claims, ld: claims['ld'] };
+    return { claims, ld: claims.ld };
   }
 
   return { claims };

@@ -58,7 +58,7 @@ describe('Signer and Decode Tests', () => {
     it('should set disclosureFrame', () => {
       const signer = new Signer(sampleDoc, vct);
       const frame = { credentialSubject: { _sd: ['degree'] } };
-      signer.setDisclosureFrame(frame as any);
+      signer.setDisclosureFrame(frame);
       // @ts-expect-error access private member for test
       expect(signer.disclosureFrame).toEqual(frame);
     });
@@ -168,7 +168,7 @@ describe('Signer and Decode Tests', () => {
     const nbf = Math.floor(Date.now() / 1000);
     const disclosureFrame = {
       credentialSubject: { _sd: ['degree'] },
-    } as any;
+    };
 
     it('should decode a signed JWT (ES256) and verify claims', async () => {
       const signer = new Signer(sampleDoc, vct);
@@ -232,7 +232,8 @@ describe('Signer and Decode Tests', () => {
       expect(ld).toBeDefined();
       // @ts-expect-error ld is checked
       expect(ld?.credentialSubject?.degree?.name).toEqual(
-        (sampleDoc?.credentialSubject as any)?.degree?.name,
+        // @ts-expect-error
+        sampleDoc?.credentialSubject?.degree?.name,
       ); // Entire degree object should be present
       // @ts-expect-error ld is checked
       expect(ld?.id).toEqual(sampleDoc?.id);

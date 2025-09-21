@@ -1,6 +1,6 @@
 import { SDJwtInstance } from '@sd-jwt/core';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import { type PresentationFrame } from '@sd-jwt/types';
+import type { PresentationFrame } from '@sd-jwt/types';
 
 export const Present = {
   async present<T extends Record<string, unknown>>(
