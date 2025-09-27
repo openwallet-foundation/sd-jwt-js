@@ -114,6 +114,7 @@ jobs:
     # needs permissions to write tags to the repository
     permissions:
       contents: write
+      id-token: write
     needs:
       - build
       - test
@@ -125,6 +126,7 @@ jobs:
       GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }}
       GH_USER: github-actions
       GH_EMAIL: github-actions@github.com
+      NPM_CONFIG_PROVENANCE: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
