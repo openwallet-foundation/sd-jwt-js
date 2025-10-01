@@ -49,7 +49,7 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
   );
 
   const verified = await sdjwt.verify(presentedSdJwt, {
-    requiredClaimKeys: ['ssn', 'id'],
+    requiredClaimKeys: ['id'],
     keyBindingNonce: '1234',
   });
   console.log(verified);
