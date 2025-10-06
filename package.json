@@ -23,12 +23,12 @@
     "pnpm": ">=9"
   },
   "repository": {
-    "url": "https://github.com/openwallet-foundation-labs/sd-jwt-js"
+    "url": "https://github.com/openwallet-foundation/sd-jwt-js"
   },
   "author": "Lukas.J.Han <lukas.j.han@gmail.com>",
   "homepage": "https://sdjwt.js.org",
   "bugs": {
-    "url": "https://github.com/openwallet-foundation-labs/sd-jwt-js/issues"
+    "url": "https://github.com/openwallet-foundation/sd-jwt-js/issues"
   },
   "license": "Apache-2.0",
   "devDependencies": {

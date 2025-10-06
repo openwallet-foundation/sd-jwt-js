@@ -1,7 +1,7 @@
-![License](https://img.shields.io/github/license/openwallet-foundation-labs/sd-jwt-js.svg)
+![License](https://img.shields.io/github/license/openwallet-foundation/sd-jwt-js.svg)
 ![NPM](https://img.shields.io/npm/v/%40sd-jwt%2Fhash)
-![Release](https://img.shields.io/github/v/release/openwallet-foundation-labs/sd-jwt-js)
-![Stars](https://img.shields.io/github/stars/openwallet-foundation-labs/sd-jwt-js)
+![Release](https://img.shields.io/github/v/release/openwallet-foundation/sd-jwt-js)
+![Stars](https://img.shields.io/github/stars/openwallet-foundation/sd-jwt-js)
 
 # SD-JWT Implementation in JavaScript (TypeScript)
 
