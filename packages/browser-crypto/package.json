@@ -24,8 +24,7 @@
     "sd-jwt-vc"
   ],
   "repository": {
-    "type": "git",
-    "url": "https://github.com/openwallet-foundation-labs/sd-jwt-js.git"
+    "url": "https://github.com/openwallet-foundation-labs/sd-jwt-js"
   },
   "author": "Lukas.J.Han <lukas.j.han@gmail.com>",
   "homepage": "https://github.com/openwallet-foundation-labs/sd-jwt-js/wiki",
