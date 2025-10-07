@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.16.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.15.1...v0.16.0) (2025-10-07)
+
+
+### Bug Fixes
+
+* add provenance to release step ([#319](https://github.com/openwallet-foundation/sd-jwt-js/issues/319)) ([748d8c0](https://github.com/openwallet-foundation/sd-jwt-js/commit/748d8c01519ddae8ddc6f72ebc791c6524858e1f))
+* change repo url from labs to other one ([#323](https://github.com/openwallet-foundation/sd-jwt-js/issues/323)) ([f68c847](https://github.com/openwallet-foundation/sd-jwt-js/commit/f68c8476c2f04bb9d53acd4059b59caf271df015))
+* correct requiredClaimKeys in sd-jwt kb example to match presented claims ([#320](https://github.com/openwallet-foundation/sd-jwt-js/issues/320)) ([ca9a020](https://github.com/openwallet-foundation/sd-jwt-js/commit/ca9a020b57c79da36bc13b82130ee44e7fa944a6))
+* release ci, node version ([#325](https://github.com/openwallet-foundation/sd-jwt-js/issues/325)) ([aa121b1](https://github.com/openwallet-foundation/sd-jwt-js/commit/aa121b187ecfa287bd5b104666b876ce3d18b3f4))
+* set correct url in package json ([#321](https://github.com/openwallet-foundation/sd-jwt-js/issues/321)) ([554152c](https://github.com/openwallet-foundation/sd-jwt-js/commit/554152cc819bbc3afb504b25f4a2018a92fb72f1))
+
+
+### Features
+
+* Adding validation during issuance when a schema is passed ([#308](https://github.com/openwallet-foundation/sd-jwt-js/issues/308)) ([90eef6b](https://github.com/openwallet-foundation/sd-jwt-js/commit/90eef6be1c0838d334ecdef083dbb609c3812357))
+* updates all dependencies to latest versions + biome updates ([#324](https://github.com/openwallet-foundation/sd-jwt-js/issues/324)) ([75d5780](https://github.com/openwallet-foundation/sd-jwt-js/commit/75d5780fb53c5e2c886537b283503fc6fb088a4a))
+
+
+
+
+
 ## [0.15.1](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.15.0...v0.15.1) (2025-08-28)
 
 
