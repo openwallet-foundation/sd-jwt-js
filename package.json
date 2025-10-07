@@ -19,7 +19,7 @@
     "sd-jwt-vc"
   ],
   "engines": {
-    "node": ">=18",
+    "node": ">=20",
     "pnpm": ">=9"
   },
   "repository": {
