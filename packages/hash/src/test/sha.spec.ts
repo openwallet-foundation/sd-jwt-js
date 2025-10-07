@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { digest } from '@sd-jwt/crypto-nodejs';
 import { describe, expect, test } from 'vitest';
 import { hasher, sha256 } from '../index';
-import { bytesToHex } from '@noble/hashes/utils.js';
 
 describe('hashing tests', () => {
   test('test#1', async () => {

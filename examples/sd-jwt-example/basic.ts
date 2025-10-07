@@ -34,7 +34,7 @@ import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
   // Holder Receive the credential from the issuer and validate it
   // Return a result of header and payload
-  const valid = await sdjwt.validate(credential);
+  const _valid = await sdjwt.validate(credential);
 
   // Holder Define the presentation frame to specify which claims should be presented
   // The list of presented claims must be a subset of the disclosed claims
