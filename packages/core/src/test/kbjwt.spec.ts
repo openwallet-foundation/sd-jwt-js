@@ -1,15 +1,14 @@
-import type { SDJWTException } from '@sd-jwt/utils';
-import { KBJwt } from '../kbjwt';
+import Crypto, { type KeyLike } from 'node:crypto';
 import {
   type JwtPayload,
   KB_JWT_TYP,
   type KbVerifier,
   type Signer,
-  Verifier,
 } from '@sd-jwt/types';
-import Crypto, { type KeyLike } from 'node:crypto';
+import type { SDJWTException } from '@sd-jwt/utils';
+import { exportJWK, importJWK, type JWK } from 'jose';
 import { describe, expect, test } from 'vitest';
-import { type JWK, exportJWK, importJWK } from 'jose';
+import { KBJwt } from '../kbjwt';
 
 describe('KB JWT', () => {
   test('create', async () => {
@@ -202,8 +201,8 @@ describe('KB JWT', () => {
       },
     };
     const testVerifier: KbVerifier = async (
-      data: string,
-      sig: string,
+      _data: string,
+      _sig: string,
       payload: JwtPayload,
     ) => {
       expect(payload).toStrictEqual(payload);
@@ -251,8 +250,8 @@ describe('KB JWT', () => {
       },
     };
     const testVerifier: KbVerifier = async (
-      data: string,
-      sig: string,
+      _data: string,
+      _sig: string,
       payload: JwtPayload,
     ) => {
       expect(payload).toStrictEqual(payload);

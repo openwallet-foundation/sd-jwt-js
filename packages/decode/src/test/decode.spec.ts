@@ -1,3 +1,4 @@
+import { digest } from '@sd-jwt/crypto-nodejs';
 import { describe, expect, test } from 'vitest';
 import {
   createHashMapping,
@@ -10,7 +11,6 @@ import {
   splitSdJwt,
   unpackObj,
 } from '../index';
-import { digest } from '@sd-jwt/crypto-nodejs';
 
 describe('decode tests', () => {
   test('decode jwt', () => {
@@ -180,7 +180,7 @@ describe('decode tests', () => {
   });
 
   test('Test default sd hash algorithm', () => {
-    const { _sd_alg, payload } = getSDAlgAndPayload({});
+    const { _sd_alg } = getSDAlgAndPayload({});
     expect(_sd_alg).toBe('sha-256');
   });
 
@@ -190,7 +190,7 @@ describe('decode tests', () => {
     const decodedSdJwt = await decodeSdJwt(sdjwt, digest);
     const jwtPayload = JSON.parse(JSON.stringify(decodedSdJwt.jwt.payload));
 
-    const { _sd_alg, payload } = getSDAlgAndPayload(decodedSdJwt.jwt.payload);
+    const { _sd_alg } = getSDAlgAndPayload(decodedSdJwt.jwt.payload);
     const hash = { hasher: digest, alg: _sd_alg };
     const map = await createHashMapping(decodedSdJwt.disclosures, hash);
 

@@ -1,7 +1,7 @@
+import Crypto from 'node:crypto';
+import type { Signer, Verifier } from '@sd-jwt/types';
 import { describe, expect, test } from 'vitest';
 import { GeneralJSON } from '..';
-import type { Signer, Verifier } from '@sd-jwt/types';
-import Crypto from 'node:crypto';
 
 const createSignerVerifier = () => {
   const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');

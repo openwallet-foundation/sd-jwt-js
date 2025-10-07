@@ -32,18 +32,15 @@ export const hasher = (
   data: string | ArrayBuffer,
   algorithm: HasherAlgorithm = 'sha256',
 ) => {
-  const msg =
-    typeof data === 'string' ? toUTF8Array(data) : new Uint8Array(data);
-
   const alg = toCryptoAlg(algorithm);
 
   switch (alg) {
     case 'sha256':
-      return sha256(msg);
+      return sha256(data);
     case 'sha384':
-      return sha384(msg);
+      return sha384(data);
     case 'sha512':
-      return sha512(msg);
+      return sha512(data);
     default:
       throw new SDJWTException(`Unsupported algorithm: ${algorithm}`);
   }

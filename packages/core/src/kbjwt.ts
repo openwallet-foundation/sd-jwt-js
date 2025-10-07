@@ -1,12 +1,12 @@
-import { SDJWTException } from '@sd-jwt/utils';
-import { Jwt } from './jwt';
 import {
   type JwtPayload,
   KB_JWT_TYP,
+  type KbVerifier,
   type kbHeader,
   type kbPayload,
-  type KbVerifier,
 } from '@sd-jwt/types';
+import { SDJWTException } from '@sd-jwt/utils';
+import { Jwt } from './jwt';
 
 export class KBJwt<
   Header extends kbHeader = kbHeader,

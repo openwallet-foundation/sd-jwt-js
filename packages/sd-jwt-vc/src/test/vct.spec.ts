@@ -1,12 +1,12 @@
+import Crypto from 'node:crypto';
+import { afterEach } from 'node:test';
 import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import type { DisclosureFrame, Signer, Verifier } from '@sd-jwt/types';
-import { describe, test, beforeAll, afterAll, expect } from 'vitest';
+import { HttpResponse, http } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { SDJwtVcInstance } from '..';
 import type { SdJwtVcPayload } from '../sd-jwt-vc-payload';
-import Crypto from 'node:crypto';
-import { setupServer } from 'msw/node';
-import { HttpResponse, http } from 'msw';
-import { afterEach } from 'node:test';
 import type { TypeMetadataFormat } from '../sd-jwt-vc-type-metadata-format';
 
 const exampleVctm = {

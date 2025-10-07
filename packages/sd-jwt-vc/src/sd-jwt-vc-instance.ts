@@ -1,22 +1,22 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
+import {
+  getListFromStatusListJWT,
+  type StatusListJWTHeaderParameters,
+  type StatusListJWTPayload,
+} from '@sd-jwt/jwt-status-list';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
-import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
+import Ajv, { type SchemaObject } from 'ajv';
+import addFormats from 'ajv-formats';
 import type {
   SDJWTVCConfig,
   StatusListFetcher,
   StatusValidator,
 } from './sd-jwt-vc-config';
-import {
-  type StatusListJWTPayload,
-  getListFromStatusListJWT,
-  type StatusListJWTHeaderParameters,
-} from '@sd-jwt/jwt-status-list';
+import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
 import type { TypeMetadataFormat } from './sd-jwt-vc-type-metadata-format';
-import Ajv, { type SchemaObject } from 'ajv';
-import type { VerificationResult } from './verification-result';
-import addFormats from 'ajv-formats';
 import type { VcTFetcher } from './sd-jwt-vc-vct';
+import type { VerificationResult } from './verification-result';
 
 export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   /**

@@ -1,4 +1,4 @@
-import type { kbPayload, kbHeader } from '@sd-jwt/types';
+import type { kbHeader, kbPayload } from '@sd-jwt/types';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
 import type { TypeMetadataFormat } from './sd-jwt-vc-type-metadata-format';
 

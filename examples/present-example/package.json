@@ -11,14 +11,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^24.7.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@sd-jwt/present": "workspace:*",
+    "@sd-jwt/crypto-nodejs": "workspace:*",
     "@sd-jwt/decode": "workspace:*",
-    "@sd-jwt/types": "workspace:*",
-    "@sd-jwt/crypto-nodejs": "workspace:*"
+    "@sd-jwt/present": "workspace:*",
+    "@sd-jwt/types": "workspace:*"
   }
 }

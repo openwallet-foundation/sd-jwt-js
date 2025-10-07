@@ -1,9 +1,9 @@
-import { SDJwtInstance, type SdJwtPayload } from '../index';
-import type { Signer, Verifier, KbVerifier, JwtPayload } from '@sd-jwt/types';
 import Crypto, { type KeyLike } from 'node:crypto';
+import { digest, ES256, generateSalt } from '@sd-jwt/crypto-nodejs';
+import type { JwtPayload, KbVerifier, Signer, Verifier } from '@sd-jwt/types';
+import { exportJWK, importJWK, type JWK } from 'jose';
 import { describe, expect, test } from 'vitest';
-import { digest, generateSalt, ES256 } from '@sd-jwt/crypto-nodejs';
-import { importJWK, exportJWK, type JWK } from 'jose';
+import { SDJwtInstance, type SdJwtPayload } from '../index';
 
 // Extract the major version as a number
 const nodeVersionMajor = Number.parseInt(
@@ -373,7 +373,7 @@ describe('index', () => {
       },
     );
     try {
-      const results = await sdjwt.verify(presentation, ['foo'], true);
+      await sdjwt.verify(presentation, { requiredClaimKeys: ['foo'] });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -403,7 +403,7 @@ describe('index', () => {
       },
     );
     try {
-      const presentation = await sdjwt.present<typeof claims>(
+      await sdjwt.present<typeof claims>(
         credential,
         { foo: true },
         {
@@ -459,7 +459,7 @@ describe('index', () => {
       },
     );
     try {
-      const results = await sdjwt.verify(presentation, ['foo'], true);
+      await sdjwt.verify(presentation, { requiredClaimKeys: ['foo'] });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -625,7 +625,7 @@ describe('index', () => {
         kbVerifier: await ES256.getVerifier(kbPubkey),
       });
 
-      const decode = await sdjwt.verify(encodedJwt, undefined, true);
+      const decode = await sdjwt.verify(encodedJwt);
       expect(decode).toBeDefined();
     },
   );

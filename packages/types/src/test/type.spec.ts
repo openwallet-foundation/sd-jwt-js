@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import {
-  SD_SEPARATOR,
-  SD_LIST_KEY,
-  SD_DIGEST,
-  SD_DECOY,
-  KB_JWT_TYP,
   type DisclosureFrame,
+  KB_JWT_TYP,
   type PresentationFrame,
+  SD_DECOY,
+  SD_DIGEST,
+  SD_LIST_KEY,
+  SD_SEPARATOR,
 } from '../index';
 
 const claims = {

@@ -1,4 +1,3 @@
-import { base64urlDecode, SDJWTException, Disclosure } from '@sd-jwt/utils';
 import {
   type Hasher,
   type HasherAndAlg,
@@ -7,6 +6,7 @@ import {
   SD_SEPARATOR,
 } from '@sd-jwt/types';
 import type { HasherAndAlgSync, HasherSync } from '@sd-jwt/types/src/type';
+import { base64urlDecode, Disclosure, SDJWTException } from '@sd-jwt/utils';
 
 export const decodeJwt = <
   H extends Record<string, unknown>,

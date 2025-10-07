@@ -1,11 +1,11 @@
-import { Disclosure } from '@sd-jwt/utils';
-import { Jwt } from '../jwt';
-import { SDJwt, listKeys, pack } from '../sdjwt';
 import Crypto from 'node:crypto';
-import { describe, test, expect } from 'vitest';
-import type { DisclosureFrame, Signer } from '@sd-jwt/types';
 import { generateSalt, digest as hasher } from '@sd-jwt/crypto-nodejs';
-import { unpack, createHashMapping } from '@sd-jwt/decode';
+import { createHashMapping, unpack } from '@sd-jwt/decode';
+import type { DisclosureFrame, Signer } from '@sd-jwt/types';
+import { Disclosure } from '@sd-jwt/utils';
+import { describe, expect, test } from 'vitest';
+import { Jwt } from '../jwt';
+import { listKeys, pack, SDJwt } from '../sdjwt';
 
 const hash = { alg: 'SHA256', hasher };
 
