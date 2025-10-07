@@ -1,16 +1,16 @@
-import { describe, expect, test } from 'vitest';
 import { digest } from '@sd-jwt/crypto-nodejs';
+import { decodeSdJwt, decodeSdJwtSync } from '@sd-jwt/decode';
+import type { PresentationFrame } from '@sd-jwt/types';
+import { describe, expect, test } from 'vitest';
 import {
-  type SerializedDisclosure,
   present,
-  presentSync,
   presentableKeys,
   presentableKeysSync,
+  presentSync,
+  type SerializedDisclosure,
   selectDisclosures,
   transformPresentationFrame,
 } from '../index';
-import { decodeSdJwt, decodeSdJwtSync } from '@sd-jwt/decode';
-import type { PresentationFrame } from '@sd-jwt/types';
 
 describe('Present tests', () => {
   test('presentableKeys', async () => {
@@ -275,7 +275,7 @@ describe('Present tests', () => {
     };
 
     const disclosures: SerializedDisclosure[] = [
-      //@ts-ignore
+      //@ts-expect-error
       {
         encoded: 'WyJiMDQ3NjBiOTgxMDgyM2ZhIiwiZmlyc3RuYW1lIiwiSm9obiJd',
         salt: 'b04760b9810823fa',

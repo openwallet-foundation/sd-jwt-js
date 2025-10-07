@@ -1,17 +1,17 @@
+import { generateKeyPairSync } from 'node:crypto';
+import type { JwtPayload } from '@sd-jwt/types';
+import { jwtVerify, type KeyLike, SignJWT } from 'jose';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { StatusList } from '../status-list';
 import {
   createHeaderAndPayload,
   getListFromStatusListJWT,
   getStatusListFromJWT,
 } from '../status-list-jwt';
 import type {
-  StatusListJWTHeaderParameters,
   JWTwithStatusListPayload,
+  StatusListJWTHeaderParameters,
 } from '../types';
-import { StatusList } from '../status-list';
-import { jwtVerify, type KeyLike, SignJWT } from 'jose';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { generateKeyPairSync } from 'node:crypto';
-import type { JwtPayload } from '@sd-jwt/types';
 
 describe('JWTStatusList', () => {
   let publicKey: KeyLike;

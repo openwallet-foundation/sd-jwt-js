@@ -1,12 +1,12 @@
 import type { JwtPayload } from '@sd-jwt/types';
+import base64Url from 'base64url';
 import { StatusList } from './status-list';
 import type {
   JWTwithStatusListPayload,
-  StatusListJWTHeaderParameters,
   StatusListEntry,
+  StatusListJWTHeaderParameters,
   StatusListJWTPayload,
 } from './types';
-import base64Url from 'base64url';
 
 /**
  * Decode a JWT and return the payload.

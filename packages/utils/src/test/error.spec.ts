@@ -1,5 +1,5 @@
-import { SDJWTException } from '../error';
 import { describe, expect, test } from 'vitest';
+import { SDJWTException } from '../error';
 
 describe('Error tests', () => {
   test('Detail', () => {

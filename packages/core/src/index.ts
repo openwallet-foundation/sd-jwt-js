@@ -1,34 +1,34 @@
+import { getSDAlgAndPayload } from '@sd-jwt/decode';
+import {
+  type DisclosureFrame,
+  type Hasher,
+  IANA_HASH_ALGORITHMS,
+  type JwtPayload,
+  KB_JWT_TYP,
+  type KBOptions,
+  type PresentationFrame,
+  type SDJWTCompact,
+  type SDJWTConfig,
+  type Signer,
+} from '@sd-jwt/types';
 import {
   base64urlDecode,
   base64urlEncode,
   SDJWTException,
   uint8ArrayToBase64Url,
 } from '@sd-jwt/utils';
-import { Jwt, type VerifierOptions } from './jwt';
-import { KBJwt } from './kbjwt';
-import { SDJwt, pack } from './sdjwt';
-import {
-  type DisclosureFrame,
-  type Hasher,
-  type KBOptions,
-  KB_JWT_TYP,
-  type PresentationFrame,
-  type SDJWTCompact,
-  type SDJWTConfig,
-  type JwtPayload,
-  type Signer,
-  IANA_HASH_ALGORITHMS,
-} from '@sd-jwt/types';
-import { getSDAlgAndPayload } from '@sd-jwt/decode';
 import { FlattenJSON } from './flattenJSON';
 import { GeneralJSON } from './generalJSON';
+import { Jwt, type VerifierOptions } from './jwt';
+import { KBJwt } from './kbjwt';
+import { pack, SDJwt } from './sdjwt';
 
-export * from './sdjwt';
-export * from './kbjwt';
-export * from './jwt';
 export * from './decoy';
 export * from './flattenJSON';
 export * from './generalJSON';
+export * from './jwt';
+export * from './kbjwt';
+export * from './sdjwt';
 
 export type SdJwtPayload = Record<string, unknown>;
 
@@ -154,7 +154,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
    * @returns
    */
   protected validateReservedFields<T extends ExtendedPayload>(
-    disclosureFrame: DisclosureFrame<T>,
+    _disclosureFrame: DisclosureFrame<T>,
   ) {
     return;
   }
@@ -466,7 +466,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
    * @returns
    */
   protected validateReservedFields<T extends ExtendedPayload>(
-    disclosureFrame: DisclosureFrame<T>,
+    _disclosureFrame: DisclosureFrame<T>,
   ) {
     return;
   }

@@ -1,20 +1,20 @@
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import type {
-  DisclosureFrame,
-  Signer,
-  Verifier,
-  JwtPayload,
-} from '@sd-jwt/types';
-import { describe, test, expect } from 'vitest';
-import { SDJwtVcInstance } from '..';
-import type { SdJwtVcPayload } from '../sd-jwt-vc-payload';
 import Crypto from 'node:crypto';
+import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import {
+  createHeaderAndPayload,
   StatusList,
   type StatusListJWTHeaderParameters,
-  createHeaderAndPayload,
 } from '@sd-jwt/jwt-status-list';
+import type {
+  DisclosureFrame,
+  JwtPayload,
+  Signer,
+  Verifier,
+} from '@sd-jwt/types';
 import { SignJWT } from 'jose';
+import { describe, expect, test } from 'vitest';
+import { SDJwtVcInstance } from '..';
+import type { SdJwtVcPayload } from '../sd-jwt-vc-payload';
 
 const iss = 'ExampleIssuer';
 const vct = 'ExampleCredentialType';
@@ -100,7 +100,7 @@ describe('Revocation', () => {
     hasher: digest,
     hashAlg: 'sha-256',
     saltGenerator: generateSalt,
-    statusListFetcher(uri: string) {
+    statusListFetcher(_uri: string) {
       // we emulate fetching the status list from the uri. Validation of the JWT is not done here in the test but should be done in the implementation.
       return Promise.resolve(statusListJWT);
     },

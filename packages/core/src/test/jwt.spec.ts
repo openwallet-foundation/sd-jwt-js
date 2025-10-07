@@ -1,8 +1,8 @@
-import { SDJWTException } from '@sd-jwt/utils';
-import { Jwt } from '../jwt';
 import Crypto from 'node:crypto';
 import type { Signer, Verifier } from '@sd-jwt/types';
+import { SDJWTException } from '@sd-jwt/utils';
 import { describe, expect, test } from 'vitest';
+import { Jwt } from '../jwt';
 
 describe('JWT', () => {
   test('create', async () => {
@@ -106,7 +106,7 @@ describe('JWT', () => {
   });
 
   test('encode', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
@@ -140,7 +140,7 @@ describe('JWT', () => {
   });
 
   test('getUnsignedToken failed', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
@@ -158,7 +158,7 @@ describe('JWT', () => {
   });
 
   test('wrong encoded field', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { privateKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
       return Buffer.from(sig).toString('base64url');
@@ -178,7 +178,7 @@ describe('JWT', () => {
   });
 
   test('verify failed no signature', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { publicKey } = Crypto.generateKeyPairSync('ed25519');
     const testVerifier: Verifier = async (data: string, sig: string) => {
       return Crypto.verify(
         null,
@@ -201,7 +201,7 @@ describe('JWT', () => {
   });
 
   test('verify with issuance date in the future', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { publicKey } = Crypto.generateKeyPairSync('ed25519');
     const testVerifier: Verifier = async (data: string, sig: string) => {
       return Crypto.verify(
         null,
@@ -227,7 +227,7 @@ describe('JWT', () => {
   });
 
   test('verify with not before in the future', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { publicKey } = Crypto.generateKeyPairSync('ed25519');
     const testVerifier: Verifier = async (data: string, sig: string) => {
       return Crypto.verify(
         null,
@@ -253,7 +253,7 @@ describe('JWT', () => {
   });
 
   test('verify with expired', async () => {
-    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+    const { publicKey } = Crypto.generateKeyPairSync('ed25519');
     const testVerifier: Verifier = async (data: string, sig: string) => {
       return Crypto.verify(
         null,

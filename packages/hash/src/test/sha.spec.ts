@@ -1,8 +1,8 @@
-import { digest } from '@sd-jwt/crypto-nodejs';
-import { bytesToHex } from '@noble/hashes/utils';
-import { hasher, sha256 } from '../index';
-import { describe, expect, test } from 'vitest';
 import { createHash } from 'node:crypto';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { digest } from '@sd-jwt/crypto-nodejs';
+import { describe, expect, test } from 'vitest';
+import { hasher, sha256 } from '../index';
 
 describe('hashing tests', () => {
   test('test#1', async () => {
@@ -119,7 +119,7 @@ describe('hashing tests', () => {
 
   test('Hasher failed', async () => {
     try {
-      const s1 = hasher('test', 'sha-512');
+      hasher('test', 'sha-512');
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
     }

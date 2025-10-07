@@ -1,14 +1,14 @@
-import {
-  uint8ArrayToBase64Url,
-  base64urlDecode,
-  base64urlEncode,
-} from './base64url';
-import { SDJWTException } from './error';
 import type {
-  HasherAndAlg,
   DisclosureData,
+  HasherAndAlg,
   HasherAndAlgSync,
 } from '@sd-jwt/types';
+import {
+  base64urlDecode,
+  base64urlEncode,
+  uint8ArrayToBase64Url,
+} from './base64url';
+import { SDJWTException } from './error';
 
 export class Disclosure<T = unknown> {
   public salt: string;

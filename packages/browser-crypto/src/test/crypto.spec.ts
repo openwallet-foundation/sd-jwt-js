@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { generateSalt, digest, getHasher, ES256 } from '../index';
+import { digest, ES256, generateSalt, getHasher } from '../index';
 
 // Extract the major version as a number
 const nodeVersionMajor = Number.parseInt(

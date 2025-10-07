@@ -1,23 +1,23 @@
-import { createDecoy } from './decoy';
-import { SDJWTException, Disclosure } from '@sd-jwt/utils';
-import { Jwt } from './jwt';
-import { KBJwt } from './kbjwt';
+import { createHashMapping, getSDAlgAndPayload, unpack } from '@sd-jwt/decode';
+import { transformPresentationFrame } from '@sd-jwt/present';
 import {
   type DisclosureFrame,
   type Hasher,
   type HasherAndAlg,
+  type kbHeader,
+  type kbPayload,
   type PresentationFrame,
-  type SDJWTCompact,
+  type SaltGenerator,
   SD_DECOY,
   SD_DIGEST,
   SD_LIST_KEY,
   SD_SEPARATOR,
-  type SaltGenerator,
-  type kbHeader,
-  type kbPayload,
+  type SDJWTCompact,
 } from '@sd-jwt/types';
-import { createHashMapping, getSDAlgAndPayload, unpack } from '@sd-jwt/decode';
-import { transformPresentationFrame } from '@sd-jwt/present';
+import { Disclosure, SDJWTException } from '@sd-jwt/utils';
+import { createDecoy } from './decoy';
+import { Jwt } from './jwt';
+import { KBJwt } from './kbjwt';
 
 export type SDJwtData<
   Header extends Record<string, unknown>,
@@ -254,7 +254,7 @@ export const pack = async <T extends Record<string, unknown>>(
 
     for (const key in disclosureFrame) {
       if (key !== SD_DIGEST) {
-        const idx = Number.parseInt(key);
+        const idx = Number.parseInt(key, 10);
         const packed = await pack(
           claims[idx],
           disclosureFrame[idx],
@@ -287,7 +287,7 @@ export const pack = async <T extends Record<string, unknown>>(
        *
        *  So If the index `i` is in the disclosure list(sd), then we create a disclosure for the claim
        */
-      // @ts-ignore
+      // @ts-expect-error
       if (sd.includes(i)) {
         const salt = await saltGenerator(16);
         const disclosure = new Disclosure([salt, claim]);
@@ -312,7 +312,7 @@ export const pack = async <T extends Record<string, unknown>>(
   for (const key in disclosureFrame) {
     if (key !== SD_DIGEST) {
       const packed = await pack(
-        // @ts-ignore
+        // @ts-expect-error
         claims[key],
         disclosureFrame[key],
         hash,
@@ -329,7 +329,6 @@ export const pack = async <T extends Record<string, unknown>>(
     const claim = recursivePackedClaims[key]
       ? recursivePackedClaims[key]
       : claims[key];
-    // @ts-ignore
     if (sd.includes(key)) {
       const salt = await saltGenerator(16);
       const disclosure = new Disclosure([salt, key, claim]);

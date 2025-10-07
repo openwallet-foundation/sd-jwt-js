@@ -25,7 +25,7 @@
     "sd-jwt-vc"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "repository": {
     "url": "https://github.com/openwallet-foundation/sd-jwt-js"
@@ -40,7 +40,7 @@
     "@sd-jwt/crypto-nodejs": "workspace:*"
   },
   "dependencies": {
-    "@noble/hashes": "^1.8.0",
+    "@noble/hashes": "^2.0.1",
     "@sd-jwt/utils": "workspace:*"
   },
   "publishConfig": {

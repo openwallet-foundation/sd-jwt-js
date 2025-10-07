@@ -1,6 +1,6 @@
 import { generateSalt, digest as hasher } from '@sd-jwt/crypto-nodejs';
-import { Disclosure } from '../disclosure';
 import { describe, expect, test } from 'vitest';
+import { Disclosure } from '../disclosure';
 import { base64urlEncode, type SDJWTException } from '../index';
 
 const hash = { alg: 'SHA256', hasher };
