@@ -188,9 +188,9 @@ importers:
       '@sd-jwt/types':
         specifier: workspace:*
         version: link:../types
-      base64url:
-        specifier: ^3.0.1
-        version: 3.0.1
+      '@sd-jwt/utils':
+        specifier: workspace:*
+        version: link:../utils
       pako:
         specifier: ^2.1.0
         version: 2.1.0
@@ -1350,10 +1350,6 @@ packages:
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
-
-  base64url@3.0.1:
-    resolution: {integrity: sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A==}
-    engines: {node: '>=6.0.0'}
 
   before-after-hook@2.2.3:
     resolution: {integrity: sha512-NzUnlZexiaH/46WDhANlyR2bXRopNg4F/zuSA3OpZnllCUgRaOF2znDioDWrmbNVsuZk6l9pMquQB38cfBZwkQ==}
@@ -4679,8 +4675,6 @@ snapshots:
   balanced-match@1.0.2: {}
 
   base64-js@1.5.1: {}
-
-  base64url@3.0.1: {}
 
   before-after-hook@2.2.3: {}
 

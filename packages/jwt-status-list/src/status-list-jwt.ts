@@ -1,5 +1,5 @@
 import type { JwtPayload } from '@sd-jwt/types';
-import base64Url from 'base64url';
+import { base64urlDecode } from '@sd-jwt/utils';
 import { StatusList } from './status-list';
 import type {
   JWTwithStatusListPayload,
@@ -15,7 +15,7 @@ import type {
  */
 function decodeJwt<T>(jwt: string): T {
   const parts = jwt.split('.');
-  return JSON.parse(base64Url.decode(parts[1]));
+  return JSON.parse(base64urlDecode(parts[1]));
 }
 
 /**
