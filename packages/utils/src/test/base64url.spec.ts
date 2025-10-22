@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'vitest';
 import {
   base64urlDecode,
   base64urlEncode,
   uint8ArrayToBase64Url,
   base64UrlToUint8Array,
 } from '../base64url';
+import { describe, expect, test } from 'vitest';
 
 describe('Base64url', () => {
   const raw = 'abcdefghijklmnopqrstuvwxyz';
