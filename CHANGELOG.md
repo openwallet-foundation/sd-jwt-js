@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.17.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.16.0...v0.17.0) (2025-10-23)
+
+
+### Features
+
+* alter base64url to internal utils package for RN support ([#328](https://github.com/openwallet-foundation/sd-jwt-js/issues/328)) ([09708e7](https://github.com/openwallet-foundation/sd-jwt-js/commit/09708e7881c1e3e003444d7200af686eda4b8a55))
+
+
+
+
+
 # [0.16.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.15.1...v0.16.0) (2025-10-07)
 
 
