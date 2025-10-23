@@ -1,6 +1,6 @@
-import { generateKeyPairSync } from 'node:crypto';
+import { generateKeyPairSync, type KeyObject } from 'node:crypto';
 import type { JwtPayload } from '@sd-jwt/types';
-import { jwtVerify, type KeyLike, SignJWT } from 'jose';
+import { jwtVerify, SignJWT } from 'jose';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { StatusList } from '../status-list';
 import {
@@ -14,8 +14,8 @@ import type {
 } from '../types';
 
 describe('JWTStatusList', () => {
-  let publicKey: KeyLike;
-  let privateKey: KeyLike;
+  let publicKey: KeyObject;
+  let privateKey: KeyObject;
 
   const header: StatusListJWTHeaderParameters = {
     alg: 'ES256',

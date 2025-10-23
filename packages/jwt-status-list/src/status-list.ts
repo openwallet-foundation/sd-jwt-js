@@ -1,4 +1,4 @@
-import base64Url from 'base64url';
+import { base64UrlToUint8Array, uint8ArrayToBase64Url } from '@sd-jwt/utils';
 import { deflate, inflate } from 'pako';
 import type { BitsPerStatus } from './types';
 /**
@@ -75,7 +75,7 @@ export class StatusList {
   compressStatusList(): string {
     const byteArray = this.encodeStatusList();
     const compressed = deflate(byteArray, { level: 9 });
-    return base64Url.encode(compressed as Buffer);
+    return uint8ArrayToBase64Url(compressed);
   }
 
   /**
@@ -87,12 +87,7 @@ export class StatusList {
     compressed: string,
     bitsPerStatus: BitsPerStatus,
   ): StatusList {
-    const decoded = new Uint8Array(
-      base64Url
-        .decode(compressed, 'binary')
-        .split('')
-        .map((c) => c.charCodeAt(0)),
-    );
+    const decoded = base64UrlToUint8Array(compressed);
     try {
       const decompressed = inflate(decoded);
       const statusList = StatusList.decodeStatusList(

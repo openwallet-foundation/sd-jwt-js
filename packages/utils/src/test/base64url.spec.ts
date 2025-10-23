@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  base64UrlToUint8Array,
   base64urlDecode,
   base64urlEncode,
   uint8ArrayToBase64Url,
@@ -22,5 +23,11 @@ describe('Base64url', () => {
     const str = 'hello world';
     const uint8 = new TextEncoder().encode(str);
     expect(uint8ArrayToBase64Url(uint8)).toStrictEqual(base64urlEncode(str));
+  });
+
+  test('Base64Url to Uint8Array', () => {
+    const str = 'hello world';
+    const uint8 = new TextEncoder().encode(str);
+    expect(base64UrlToUint8Array(base64urlEncode(str))).toStrictEqual(uint8);
   });
 });
