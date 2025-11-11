@@ -141,16 +141,4 @@ export type TypeMetadataFormat = {
   display?: Display[];
   /** OPTIONAL. Array of claim metadata. */
   claims?: Claim[];
-  /**
-   * OPTIONAL. Embedded JSON Schema describing the VC structure.
-   * Must not be present if schema_uri is provided.
-   */
-  schema?: object;
-  /**
-   * OPTIONAL. URI pointing to a JSON Schema for the VC structure.
-   * Must not be present if schema is provided.
-   */
-  schema_uri?: string;
-  /** OPTIONAL. Integrity metadata for the schema_uri field. */
-  'schema_uri#Integrity'?: string;
 };

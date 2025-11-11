@@ -40,9 +40,7 @@
   "dependencies": {
     "@sd-jwt/core": "workspace:*",
     "@sd-jwt/jwt-status-list": "workspace:*",
-    "@sd-jwt/utils": "workspace:*",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "@sd-jwt/utils": "workspace:*"
   },
   "devDependencies": {
     "@sd-jwt/crypto-nodejs": "workspace:*",

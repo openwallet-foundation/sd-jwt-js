@@ -6,8 +6,6 @@ import {
 } from '@sd-jwt/jwt-status-list';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
 import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
-import Ajv, { type SchemaObject } from 'ajv';
-import addFormats from 'ajv-formats';
 import type {
   SDJWTVCConfig,
   StatusListFetcher,
@@ -210,25 +208,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Loads the schema either from the object or as fallback from the uri.
-   * @param typeMetadataFormat
-   * @returns
-   */
-  private async loadSchema(typeMetadataFormat: TypeMetadataFormat) {
-    //if schema is present, return it
-    if (typeMetadataFormat.schema) return typeMetadataFormat.schema;
-    if (typeMetadataFormat.schema_uri) {
-      const schema = await this.fetch<SchemaObject>(
-        typeMetadataFormat.schema_uri,
-        typeMetadataFormat['schema_uri#Integrity'],
-      );
-      return schema;
-    }
-    throw new Error('No schema or schema_uri found');
-  }
-
-  /**
-   * Verifies the VCT of the SD-JWT-VC. Returns the type metadata format. If the schema does not match, an error is thrown. If it matches, it will return the type metadata format.
+   * Verifies the VCT of the SD-JWT-VC. Returns the type metadata format.
    * @param result
    * @returns
    */
@@ -241,38 +221,6 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
       //TODO: needs to be implemented. Unclear at this point which values will overwrite the values from the extended type metadata format
     }
-
-    //init the json schema validator, load referenced schemas on demand
-    const schema = await this.loadSchema(typeMetadataFormat);
-    const loadedSchemas = new Set<string>();
-    // init the json schema validator
-    const ajv = new Ajv({
-      loadSchema: async (uri: string) => {
-        if (loadedSchemas.has(uri)) {
-          return {};
-        }
-        const response = await fetch(uri);
-        if (!response.ok) {
-          throw new Error(
-            `Error fetching schema: ${
-              response.status
-            } ${await response.text()}`,
-          );
-        }
-        loadedSchemas.add(uri);
-        return response.json();
-      },
-    });
-    addFormats(ajv);
-    const validate = await ajv.compileAsync(schema);
-    const valid = validate(result.payload);
-
-    if (!valid) {
-      throw new SDJWTException(
-        `Payload does not match the schema: ${JSON.stringify(validate.errors)}`,
-      );
-    }
-
     return typeMetadataFormat;
   }
 

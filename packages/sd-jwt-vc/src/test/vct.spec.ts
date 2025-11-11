@@ -13,44 +13,9 @@ const exampleVctm = {
   vct: 'http://example.com/example',
   name: 'ExampleCredentialType',
   description: 'An example credential type',
-  schema_uri: 'http://example.com/schema/example',
-  //this value could be generated on demand to make it easier when changing the values
-  'schema_uri#Integrity':
-    'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
 };
 
 const restHandlers = [
-  http.get('http://example.com/schema/example', () => {
-    const res = {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      type: 'object',
-      properties: {
-        vct: {
-          type: 'string',
-        },
-        iss: {
-          type: 'string',
-        },
-        nbf: {
-          type: 'number',
-        },
-        exp: {
-          type: 'number',
-        },
-        cnf: {
-          type: 'object',
-        },
-        status: {
-          type: 'object',
-        },
-        firstName: {
-          type: 'string',
-        },
-      },
-      required: ['iss', 'vct'],
-    };
-    return HttpResponse.json(res);
-  }),
   http.get('http://example.com/example', () => {
     const res: TypeMetadataFormat = exampleVctm;
     return HttpResponse.json(res);
@@ -66,7 +31,7 @@ const restHandlers = [
 
 //this value could be generated on demand to make it easier when changing the values
 const vctIntegrity =
-  'sha256-96bed58130a44af05ae8970aa9caa0bf0135cd15afe721ea29f553394692acef';
+  'sha256-e8bf419e6b860595f385611fc6172f1e95c18de3c80eef57c865f49e03747637';
 
 const server = setupServer(...restHandlers);
 
@@ -190,9 +155,6 @@ describe('App', () => {
     expect(typeMetadataFormat).to.deep.eq({
       description: 'An example credential type',
       name: 'ExampleCredentialType',
-      schema_uri: 'http://example.com/schema/example',
-      'schema_uri#Integrity':
-        'sha256-48a61b283ded3b55e8d9a9b063327641dc4c53f76bd5daa96c23f232822167ae',
       vct: 'http://example.com/example',
     });
   });
