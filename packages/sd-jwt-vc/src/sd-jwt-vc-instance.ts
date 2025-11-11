@@ -220,7 +220,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     if (typeMetadataFormat.extends) {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
       //TODO: needs to be implemented. Unclear at this point which values will overwrite the values from the extended type metadata format
-    }    
+    }
     return typeMetadataFormat;
   }
 

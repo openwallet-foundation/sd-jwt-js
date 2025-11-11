@@ -12,10 +12,10 @@ import type { TypeMetadataFormat } from '../sd-jwt-vc-type-metadata-format';
 const exampleVctm = {
   vct: 'http://example.com/example',
   name: 'ExampleCredentialType',
-  description: 'An example credential type',  
+  description: 'An example credential type',
 };
 
-const restHandlers = [  
+const restHandlers = [
   http.get('http://example.com/example', () => {
     const res: TypeMetadataFormat = exampleVctm;
     return HttpResponse.json(res);
@@ -154,7 +154,7 @@ describe('App', () => {
     const typeMetadataFormat = await sdjwt.getVct(encodedSdjwt);
     expect(typeMetadataFormat).to.deep.eq({
       description: 'An example credential type',
-      name: 'ExampleCredentialType',      
+      name: 'ExampleCredentialType',
       vct: 'http://example.com/example',
     });
   });
