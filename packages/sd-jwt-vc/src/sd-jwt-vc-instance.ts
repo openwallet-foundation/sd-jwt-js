@@ -314,7 +314,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           )
           .then((result) => {
             if (!result) {
-              throw new SDJWTException('Verify Error: Status list JWT signature is invalid');
+              throw new SDJWTException(
+                'Verify Error: Status list JWT signature is invalid',
+              );
             }
           });
 
@@ -333,14 +335,18 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           (slJWT.payload.iat as number) - (options?.skewSeconds ?? 0) >
             currentDate
         ) {
-          throw new SDJWTException('Verify Error: Status list is not yet valid');
+          throw new SDJWTException(
+            'Verify Error: Status list is not yet valid',
+          );
         }
         if (
           slJWT.payload?.nbf &&
           (slJWT.payload.nbf as number) - (options?.skewSeconds ?? 0) >
             currentDate
         ) {
-          throw new SDJWTException('Verify Error: Status list is not yet valid');
+          throw new SDJWTException(
+            'Verify Error: Status list is not yet valid',
+          );
         }
 
         // get the status list from the status list JWT
