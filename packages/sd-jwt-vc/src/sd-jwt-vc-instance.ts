@@ -316,7 +316,8 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           .catch((err: SLException) => {
             throw new SLException(
               `Status List JWT verification failed: ${err.message}`,
-            err.details);
+              err.details,
+            );
           });
 
         // get the status list from the status list JWT
