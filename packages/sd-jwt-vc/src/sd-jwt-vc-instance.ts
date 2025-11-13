@@ -310,14 +310,25 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           this.userConfig.statusVerifier ??
             (this.userConfig.verifier as Verifier),
           options,
-        );
+        ).then(result => {
+          if (!result) {
+            throw new SDJWTException('Status list JWT signature is invalid');
+          }
+        });
 
         const currentDate =
           options?.currentDate ?? Math.floor(Date.now() / 1000);
         //check if the status list is expired
-        if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
+        if (slJWT.payload?.exp && (slJWT.payload.exp as number) + (options?.skewSeconds ?? 0) < currentDate) {
           throw new SDJWTException('Status list is expired');
         }
+        if(slJWT.payload?.iat && (slJWT.payload.iat as number) - (options?.skewSeconds ?? 0) > currentDate) {
+          throw new SDJWTException('Status list is not yet valid');
+        }
+        if(slJWT.payload?.nbf && (slJWT.payload.nbf as number) - (options?.skewSeconds ?? 0) > currentDate) {
+          throw new SDJWTException('Status list is not yet valid');
+        }        
+
 
         // get the status list from the status list JWT
         const statusList = getListFromStatusListJWT(statusListJWT);
