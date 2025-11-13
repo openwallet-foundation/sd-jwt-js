@@ -1,7 +1,7 @@
 import { base64UrlToUint8Array, uint8ArrayToBase64Url } from '@sd-jwt/utils';
 import { deflate, inflate } from 'pako';
-import type { BitsPerStatus } from './types';
 import { SLException } from './status-list-exception';
+import type { BitsPerStatus } from './types';
 /**
  * StatusListManager is a class that manages a list of statuses with variable bit size.
  */

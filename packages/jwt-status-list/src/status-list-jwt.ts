@@ -1,13 +1,13 @@
 import type { JwtPayload } from '@sd-jwt/types';
 import { base64urlDecode } from '@sd-jwt/utils';
 import { StatusList } from './status-list';
+import { SLException } from './status-list-exception';
 import type {
   JWTwithStatusListPayload,
   StatusListEntry,
   StatusListJWTHeaderParameters,
   StatusListJWTPayload,
 } from './types';
-import { SLException } from './status-list-exception';
 
 /**
  * Decode a JWT and return the payload.
