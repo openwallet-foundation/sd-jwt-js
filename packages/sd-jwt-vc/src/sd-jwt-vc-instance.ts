@@ -311,11 +311,12 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
             this.userConfig.statusVerifier ??
               (this.userConfig.verifier as Verifier),
             options,
-          ).catch((err) => {
+          )
+          .catch((err) => {
             throw new SDJWTException(
               `Status List JWT verification failed: ${err.message}`,
             );
-          });           
+          });
 
         // get the status list from the status list JWT
         const statusList = getListFromStatusListJWT(statusListJWT);
