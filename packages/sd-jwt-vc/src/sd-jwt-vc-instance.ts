@@ -1,6 +1,7 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import {
   getListFromStatusListJWT,
+  SLException,
   type StatusListJWTHeaderParameters,
   type StatusListJWTPayload,
 } from '@sd-jwt/jwt-status-list';
@@ -306,18 +307,18 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
-        await slJWT.verify(
-          this.userConfig.statusVerifier ??
-            (this.userConfig.verifier as Verifier),
-          options,
-        );
-
-        const currentDate =
-          options?.currentDate ?? Math.floor(Date.now() / 1000);
-        //check if the status list is expired
-        if (slJWT.payload?.exp && (slJWT.payload.exp as number) < currentDate) {
-          throw new SDJWTException('Status list is expired');
-        }
+        await slJWT
+          .verify(
+            this.userConfig.statusVerifier ??
+              (this.userConfig.verifier as Verifier),
+            options,
+          )
+          .catch((err: SLException) => {
+            throw new SLException(
+              `Status List JWT verification failed: ${err.message}`,
+              err.details,
+            );
+          });
 
         // get the status list from the status list JWT
         const statusList = getListFromStatusListJWT(statusListJWT);
