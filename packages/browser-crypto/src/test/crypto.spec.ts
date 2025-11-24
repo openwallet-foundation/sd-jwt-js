@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { digest, ES256, generateSalt, getHasher } from '../index';
+import { digest, ES256, ES384, ES512, generateSalt, getHasher } from '../index';
 
 // Extract the major version as a number
 const nodeVersionMajor = Number.parseInt(
@@ -42,24 +42,39 @@ describe('This file is for utility functions', () => {
     expect(hash).toBeDefined();
   });
 
-  (nodeVersionMajor < 20 ? test.skip : test)('ES256 alg', () => {
-    expect(ES256.alg).toBe('ES256');
-  });
+  for (const algLib of [
+    {
+      name: 'ES256',
+      lib: ES256,
+    },
+    {
+      name: 'ES384',
+      lib: ES384,
+    },
+    {
+      name: 'ES512',
+      lib: ES512,
+    }
+  ]) {
+    (nodeVersionMajor < 20 ? test.skip : test)(`${algLib.name} alg`, () => {
+      expect(algLib.lib.alg).toBe(algLib.name);
+    });
 
-  (nodeVersionMajor < 20 ? test.skip : test)('ES256', async () => {
-    const { privateKey, publicKey } = await ES256.generateKeyPair();
-    expect(privateKey).toBeDefined();
-    expect(publicKey).toBeDefined();
-    expect(typeof privateKey).toBe('object');
-    expect(typeof publicKey).toBe('object');
+    (nodeVersionMajor < 20 ? test.skip : test)(algLib.name, async () => {
+      const { privateKey, publicKey } = await algLib.lib.generateKeyPair();
+      expect(privateKey).toBeDefined();
+      expect(publicKey).toBeDefined();
+      expect(typeof privateKey).toBe('object');
+      expect(typeof publicKey).toBe('object');
 
-    const data =
-      'In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data, a password or passphrase.';
-    const signature = await (await ES256.getSigner(privateKey))(data);
-    expect(signature).toBeDefined();
-    expect(typeof signature).toBe('string');
+      const data =
+        'In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data, a password or passphrase.';
+      const signature = await (await algLib.lib.getSigner(privateKey))(data);
+      expect(signature).toBeDefined();
+      expect(typeof signature).toBe('string');
 
-    const result = await (await ES256.getVerifier(publicKey))(data, signature);
-    expect(result).toBe(true);
-  });
+      const result = await (await algLib.lib.getVerifier(publicKey))(data, signature);
+      expect(result).toBe(true);
+    });
+  }
 });
