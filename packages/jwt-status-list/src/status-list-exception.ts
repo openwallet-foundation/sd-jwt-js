@@ -1,13 +1,13 @@
 /**
- * SLException is a custom error class for Status List related exceptions.
+ * StatusListException is a custom error class for Status List related exceptions.
  */
-export class SLException extends Error {
+export class StatusListException extends Error {
   public details?: unknown;
 
   constructor(message: string, details?: unknown) {
     super(message);
-    Object.setPrototypeOf(this, SLException.prototype);
-    this.name = 'SLException';
+    Object.setPrototypeOf(this, StatusListException.prototype);
+    this.name = 'StatusListException';
     this.details = details;
   }
 

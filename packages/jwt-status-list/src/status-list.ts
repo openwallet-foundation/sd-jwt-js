@@ -1,6 +1,6 @@
 import { base64UrlToUint8Array, uint8ArrayToBase64Url } from '@sd-jwt/utils';
 import { deflate, inflate } from 'pako';
-import { SLException } from './status-list-exception';
+import { StatusListException } from './status-list-exception';
 import type { BitsPerStatus } from './types';
 /**
  * StatusListManager is a class that manages a list of statuses with variable bit size.
@@ -17,12 +17,12 @@ export class StatusList {
    */
   constructor(statusList: number[], bitsPerStatus: BitsPerStatus) {
     if (![1, 2, 4, 8].includes(bitsPerStatus)) {
-      throw new SLException('bitsPerStatus must be 1, 2, 4, or 8');
+      throw new StatusListException('bitsPerStatus must be 1, 2, 4, or 8');
     }
     //check that the entries in the statusList are within the range of the bitsPerStatus
     for (let i = 0; i < statusList.length; i++) {
       if (statusList[i] > 2 ** bitsPerStatus) {
-        throw new SLException(
+        throw new StatusListException(
           `Status value out of range at index ${i} with value ${statusList[i]}`,
         );
       }
