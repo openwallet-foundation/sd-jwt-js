@@ -1,6 +1,6 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import {
-  getListFromStatusListJWT,
+  getListFromStatusListJWT,  
   StatusListException,
   type StatusListJWTHeaderParameters,
   type StatusListJWTPayload,
@@ -316,8 +316,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           .catch((err: StatusListException) => {
             if (!(err instanceof StatusListException)) {
               throw new StatusListException(
-                `Status List JWT verification failed: ${err.message}`,
-                err.details,
+                `Status List JWT verification failed: ${(err as Error).message}`,                
               );
             }
             throw err;
