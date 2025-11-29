@@ -40,7 +40,7 @@ type ImportKeyAlgorithm =
 type SignAlgorithm = AlgorithmIdentifier | RsaPssParams | EcdsaParams;
 type VerifyAlgorithm = AlgorithmIdentifier | RsaPssParams | EcdsaParams;
 
-export async function generateKeyPair(keyAlgorithm: GenerateKeyAlgorithm) {
+async function generateKeyPair(keyAlgorithm: GenerateKeyAlgorithm) {
   const keyPair = await window.crypto.subtle.generateKey(
     keyAlgorithm,
     true, // whether the key is extractable (i.e., can be used in exportKey)
@@ -60,7 +60,7 @@ export async function generateKeyPair(keyAlgorithm: GenerateKeyAlgorithm) {
   return { publicKey: publicKeyJWK, privateKey: privateKeyJWK };
 }
 
-export async function getSigner(
+async function getSigner(
   privateKeyJWK: object,
   keyAlgorithm: ImportKeyAlgorithm,
   signAlgorithm: SignAlgorithm,
@@ -88,7 +88,7 @@ export async function getSigner(
   };
 }
 
-export async function getVerifier(
+async function getVerifier(
   publicKeyJWK: object,
   keyAlgorithm: ImportKeyAlgorithm,
   verifyAlgorithm: VerifyAlgorithm,
