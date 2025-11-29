@@ -34,7 +34,7 @@ describe('This file is for utility functions', () => {
     expect(s1.length).toBe(64);
   });
 
-  for (const algObj of [ ES256, ES384, ES512 ]) {
+  for (const algObj of [ES256, ES384, ES512]) {
     (nodeVersionMajor < 20 ? test.skip : test)(algObj.alg, async () => {
       const { privateKey, publicKey } = await algObj.generateKeyPair();
       expect(privateKey).toBeDefined();

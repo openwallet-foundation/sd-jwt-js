@@ -54,7 +54,7 @@ describe('This file is for utility functions', () => {
     {
       name: 'ES512',
       lib: ES512,
-    }
+    },
   ]) {
     (nodeVersionMajor < 20 ? test.skip : test)(`${algLib.name} alg`, () => {
       expect(algLib.lib.alg).toBe(algLib.name);
@@ -73,7 +73,10 @@ describe('This file is for utility functions', () => {
       expect(signature).toBeDefined();
       expect(typeof signature).toBe('string');
 
-      const result = await (await algLib.lib.getVerifier(publicKey))(data, signature);
+      const result = await (await algLib.lib.getVerifier(publicKey))(
+        data,
+        signature,
+      );
       expect(result).toBe(true);
     });
   }
