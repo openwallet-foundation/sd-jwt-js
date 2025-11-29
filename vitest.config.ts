@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     // Define your workspace projects here
     projects: ['packages/*/vitest.config.mts'],
-    
+
     // Global test configuration (applies to all projects)
     globals: true,
     coverage: {
