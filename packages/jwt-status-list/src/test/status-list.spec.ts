@@ -200,28 +200,22 @@ describe('StatusList', () => {
         [7], // Invalid bitsPerStatus value
         [9], // Invalid bitsPerStatus value
         [10], // Invalid bitsPerStatus value
-      ])(
-        'throws an error for invalid bitsPerStatus value (%i)',
-        (bitsPerStatus) => {
-          expect(() => {
-            new StatusList([], bitsPerStatus as BitsPerStatus);
-          }).toThrowError('bitsPerStatus must be 1, 2, 4, or 8');
-        },
-      );
+      ])('throws an error for invalid bitsPerStatus value (%i)', (bitsPerStatus) => {
+        expect(() => {
+          new StatusList([], bitsPerStatus as BitsPerStatus);
+        }).toThrowError('bitsPerStatus must be 1, 2, 4, or 8');
+      });
 
       test.each<[BitsPerStatus]>([
         [1], // Valid bitsPerStatus value
         [2], // Valid bitsPerStatus value
         [4], // Valid bitsPerStatus value
         [8], // Valid bitsPerStatus value
-      ])(
-        'does not throw an error for valid bitsPerStatus value (%i)',
-        (bitsPerStatus) => {
-          expect(() => {
-            new StatusList([], bitsPerStatus);
-          }).not.toThrowError();
-        },
-      );
+      ])('does not throw an error for valid bitsPerStatus value (%i)', (bitsPerStatus) => {
+        expect(() => {
+          new StatusList([], bitsPerStatus);
+        }).not.toThrowError();
+      });
     });
   });
 });
