@@ -97,7 +97,10 @@ export class StatusList {
       );
       return new StatusList(statusList, bitsPerStatus);
     } catch (err: unknown) {
-      throw new Error(`Decompression failed: ${err}`);
+      throw new StatusListException('Failed to process status list', {
+        details: { operation: 'decode' },
+        cause: err as Error,
+      });
     }
   }
 

@@ -133,7 +133,7 @@ describe('App', () => {
       disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
     );
 
-    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
+    await expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
       `Request to ${vct} timed out`,
     );
   });

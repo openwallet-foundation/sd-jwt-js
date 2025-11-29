@@ -501,7 +501,7 @@ describe('index', () => {
         },
       },
     );
-    expect(presentation).rejects.toThrow(
+    await expect(presentation).rejects.toThrow(
       'Key Binding sign algorithm not specified',
     );
   });
@@ -526,11 +526,11 @@ describe('index', () => {
       },
     );
     const sdjwt = new SDJwtInstance<SdJwtPayload>({});
-    expect(sdjwt.keys('')).rejects.toThrow('Hasher not found');
-    expect(sdjwt.presentableKeys('')).rejects.toThrow('Hasher not found');
-    expect(sdjwt.getClaims('')).rejects.toThrow('Hasher not found');
+    await expect(sdjwt.keys('')).rejects.toThrow('Hasher not found');
+    await expect(sdjwt.presentableKeys('')).rejects.toThrow('Hasher not found');
+    await expect(sdjwt.getClaims('')).rejects.toThrow('Hasher not found');
     expect(() => sdjwt.decode('')).toThrowError('Hasher not found');
-    expect(
+    await expect(
       sdjwt.present<typeof claims>(credential, { foo: true }),
     ).rejects.toThrow('Hasher not found');
   });
