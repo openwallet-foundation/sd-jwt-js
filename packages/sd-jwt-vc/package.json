@@ -45,8 +45,8 @@
   "devDependencies": {
     "@sd-jwt/crypto-nodejs": "workspace:*",
     "@sd-jwt/types": "workspace:*",
-    "jose": "^6.1.0",
-    "msw": "^2.11.3"
+    "jose": "^6.1.2",
+    "msw": "^2.12.3"
   },
   "publishConfig": {
     "access": "public"

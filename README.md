@@ -13,9 +13,9 @@ Hopae, a founding member of OpenWallet Foundation, is building wallet module in 
 
 Currently compliant with:
 
-- **[draft-ietf-oauth-selective-disclosure-jwt-17](https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt/)**
-- **[draft-ietf-oauth-sd-jwt-vc-08](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)**
-- **[draft-ietf-oauth-status-list-05](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)**
+- **[ietf-oauth-selective-disclosure-jwt (RFC 9901)](https://www.rfc-editor.org/rfc/rfc9901.html)**
+- **[draft-ietf-oauth-sd-jwt-vc-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/)**
+- **[draft-ietf-oauth-status-list-13](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)**
 
 ## **Background**
 

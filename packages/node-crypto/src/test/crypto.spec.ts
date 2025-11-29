@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { digest, ES256, generateSalt } from '../index';
+import { digest, ES256, ES384, ES512, generateSalt } from '../index';
 
 // Extract the major version as a number
 const nodeVersionMajor = Number.parseInt(
@@ -34,22 +34,24 @@ describe('This file is for utility functions', () => {
     expect(s1.length).toBe(64);
   });
 
-  (nodeVersionMajor < 20 ? test.skip : test)('ES256', async () => {
-    const { privateKey, publicKey } = await ES256.generateKeyPair();
-    expect(privateKey).toBeDefined();
-    expect(publicKey).toBeDefined();
-    expect(typeof privateKey).toBe('object');
-    expect(typeof publicKey).toBe('object');
+  for (const algObj of [ES256, ES384, ES512]) {
+    (nodeVersionMajor < 20 ? test.skip : test)(algObj.alg, async () => {
+      const { privateKey, publicKey } = await algObj.generateKeyPair();
+      expect(privateKey).toBeDefined();
+      expect(publicKey).toBeDefined();
+      expect(typeof privateKey).toBe('object');
+      expect(typeof publicKey).toBe('object');
 
-    const data =
-      'In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data, a password or passphrase.';
-    const signer = await ES256.getSigner(privateKey);
-    const signature = await signer(data);
-    expect(signature).toBeDefined();
-    expect(typeof signature).toBe('string');
+      const data =
+        'In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data, a password or passphrase.';
+      const signer = await algObj.getSigner(privateKey);
+      const signature = await signer(data);
+      expect(signature).toBeDefined();
+      expect(typeof signature).toBe('string');
 
-    const verifier = await ES256.getVerifier(publicKey);
-    const result = await verifier(data, signature);
-    expect(result).toBe(true);
-  });
+      const verifier = await algObj.getVerifier(publicKey);
+      const result = await verifier(data, signature);
+      expect(result).toBe(true);
+    });
+  }
 });

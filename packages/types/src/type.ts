@@ -165,20 +165,21 @@ export type DECOY = { [SD_DECOY]?: number };
  * }
  *
  */
-type Frame<Payload> = Payload extends Array<infer U>
-  ? U extends object
-    ? Record<number, Frame<U>> & SD<Payload> & DECOY
-    : SD<Payload> & DECOY
-  : Payload extends Record<string, unknown>
-    ? NonNever<
-        {
-          [K in keyof Payload]?: NonNullable<Payload[K]> extends object
-            ? Frame<Payload[K]>
-            : never;
-        } & SD<Payload> &
-          DECOY
-      >
-    : SD<Payload> & DECOY;
+type Frame<Payload> =
+  Payload extends Array<infer U>
+    ? U extends object
+      ? Record<number, Frame<U>> & SD<Payload> & DECOY
+      : SD<Payload> & DECOY
+    : Payload extends Record<string, unknown>
+      ? NonNever<
+          {
+            [K in keyof Payload]?: NonNullable<Payload[K]> extends object
+              ? Frame<Payload[K]>
+              : never;
+          } & SD<Payload> &
+            DECOY
+        >
+      : SD<Payload> & DECOY;
 
 /**
  * This is a disclosureFrame type that is used to represent the structure of what is being disclosed.
@@ -230,14 +231,15 @@ export type DisclosureFrame<T extends Extensible> = Frame<T>;
     data2: true,
   };
 */
-type PFrame<Payload> = Payload extends Array<infer U>
-  ? U extends object
-    ? Record<number, PFrame<U> | boolean> | boolean
-    : Record<number, boolean> | boolean
-  : {
-      [K in keyof Payload]?: NonNullable<Payload[K]> extends object
-        ? PFrame<Payload[K]> | boolean
-        : boolean;
-    };
+type PFrame<Payload> =
+  Payload extends Array<infer U>
+    ? U extends object
+      ? Record<number, PFrame<U> | boolean> | boolean
+      : Record<number, boolean> | boolean
+    : {
+        [K in keyof Payload]?: NonNullable<Payload[K]> extends object
+          ? PFrame<Payload[K]> | boolean
+          : boolean;
+      };
 
 export type PresentationFrame<T extends Extensible> = PFrame<T>;
