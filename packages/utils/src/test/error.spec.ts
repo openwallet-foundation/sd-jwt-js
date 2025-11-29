@@ -4,11 +4,11 @@ import { SDJWTException } from '../error';
 describe('Error tests', () => {
   test('Detail', () => {
     try {
-      throw new SDJWTException('msg', { info: 'details' });
+      throw new SDJWTException('msg', { details: 'details' });
     } catch (e: unknown) {
       const exception = e as SDJWTException;
       expect(exception.getFullMessage()).toEqual(
-        'SDJWTException: msg - {"info":"details"}',
+        'SDJWTException: msg - "details"',
       );
     }
   });

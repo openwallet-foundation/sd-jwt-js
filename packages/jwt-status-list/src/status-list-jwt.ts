@@ -1,7 +1,7 @@
 import type { JwtPayload } from '@sd-jwt/types';
 import { base64urlDecode } from '@sd-jwt/utils';
 import { StatusList } from './status-list';
-import { SLException } from './status-list-exception';
+import { StatusListException } from './status-list-exception';
 import type {
   JWTwithStatusListPayload,
   StatusListEntry,
@@ -34,13 +34,13 @@ export function createHeaderAndPayload(
   // validate if the required fieds are present based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html#section-5.1
 
   if (!payload.iss) {
-    throw new SLException('iss field is required');
+    throw new StatusListException('iss field is required');
   }
   if (!payload.sub) {
-    throw new SLException('sub field is required');
+    throw new StatusListException('sub field is required');
   }
   if (!payload.iat) {
-    throw new SLException('iat field is required');
+    throw new StatusListException('iat field is required');
   }
   //exp and tll are optional. We will not validate the business logic of the values like exp > iat etc.
 
