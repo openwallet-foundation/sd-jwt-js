@@ -4,7 +4,7 @@ export const generateSalt = (length: number): string => {
   }
   // a hex is represented by 2 characters, so we split the length by 2
   const array = new Uint8Array(length / 2);
-  window.crypto.getRandomValues(array);
+  globalThis.crypto.getRandomValues(array);
 
   const salt = Array.from(array, (byte) =>
     byte.toString(16).padStart(2, '0'),
@@ -18,7 +18,7 @@ export async function digest(
   algorithm = 'sha-256',
 ): Promise<Uint8Array> {
   const ec = new TextEncoder();
-  const digest = await window.crypto.subtle.digest(
+  const digest = await globalThis.crypto.subtle.digest(
     algorithm,
     typeof data === 'string' ? ec.encode(data) : data,
   );
@@ -41,18 +41,18 @@ type SignAlgorithm = AlgorithmIdentifier | RsaPssParams | EcdsaParams;
 type VerifyAlgorithm = AlgorithmIdentifier | RsaPssParams | EcdsaParams;
 
 async function generateKeyPair(keyAlgorithm: GenerateKeyAlgorithm) {
-  const keyPair = await window.crypto.subtle.generateKey(
+  const keyPair = await globalThis.crypto.subtle.generateKey(
     keyAlgorithm,
     true, // whether the key is extractable (i.e., can be used in exportKey)
     ['sign', 'verify'], // can be used to sign and verify signatures
   );
 
   // Export the public and private keys in JWK format
-  const publicKeyJWK = await window.crypto.subtle.exportKey(
+  const publicKeyJWK = await globalThis.crypto.subtle.exportKey(
     'jwk',
     keyPair.publicKey,
   );
-  const privateKeyJWK = await window.crypto.subtle.exportKey(
+  const privateKeyJWK = await globalThis.crypto.subtle.exportKey(
     'jwk',
     keyPair.privateKey,
   );
@@ -65,7 +65,7 @@ async function getSigner(
   keyAlgorithm: ImportKeyAlgorithm,
   signAlgorithm: SignAlgorithm,
 ) {
-  const privateKey = await window.crypto.subtle.importKey(
+  const privateKey = await globalThis.crypto.subtle.importKey(
     'jwk',
     privateKeyJWK,
     keyAlgorithm,
@@ -75,7 +75,7 @@ async function getSigner(
 
   return async (data: string) => {
     const encoder = new TextEncoder();
-    const signature = await window.crypto.subtle.sign(
+    const signature = await globalThis.crypto.subtle.sign(
       signAlgorithm,
       privateKey,
       encoder.encode(data),
@@ -93,7 +93,7 @@ async function getVerifier(
   keyAlgorithm: ImportKeyAlgorithm,
   verifyAlgorithm: VerifyAlgorithm,
 ) {
-  const publicKey = await window.crypto.subtle.importKey(
+  const publicKey = await globalThis.crypto.subtle.importKey(
     'jwk',
     publicKeyJWK,
     keyAlgorithm,
@@ -107,7 +107,7 @@ async function getVerifier(
       atob(signatureBase64url.replace(/-/g, '+').replace(/_/g, '/')),
       (c) => c.charCodeAt(0),
     );
-    const isValid = await window.crypto.subtle.verify(
+    const isValid = await globalThis.crypto.subtle.verify(
       verifyAlgorithm,
       publicKey,
       signature,

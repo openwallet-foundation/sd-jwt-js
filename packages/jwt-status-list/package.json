@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/pako": "^2.0.4",
-    "jose": "^6.1.0"
+    "jose": "^6.1.2"
   },
   "dependencies": {
     "@sd-jwt/types": "workspace:*",

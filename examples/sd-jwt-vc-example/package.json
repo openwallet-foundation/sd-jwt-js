@@ -17,11 +17,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^24.7.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  },
   "dependencies": {
     "@sd-jwt/crypto-nodejs": "workspace:*",
     "@sd-jwt/sd-jwt-vc": "workspace:*",
