@@ -22,7 +22,7 @@
       }
     }
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "nested_array": [["foo"], ["qux"]]
   },
   "requiredClaimKeys": ["nested_array.0.0", "nested_array.1.0"]

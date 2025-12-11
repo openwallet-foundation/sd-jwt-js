@@ -59,7 +59,7 @@ describe('index', () => {
 
     expect(credential).toBeDefined();
 
-    const presentation = await sdjwt.present<typeof claims>(
+    const presentation = await sdjwt.present(
       credential,
       { foo: true },
       {
@@ -173,7 +173,7 @@ describe('index', () => {
       },
     );
 
-    const presentation = await sdjwt.present<typeof claims>(
+    const presentation = await sdjwt.present(
       credential,
       { foo: true },
       {
@@ -249,7 +249,7 @@ describe('index', () => {
       },
     );
 
-    const presentation = await sdjwt.present<typeof claims>(
+    const presentation = await sdjwt.present(
       credential,
       { foo: true },
       {
@@ -263,7 +263,9 @@ describe('index', () => {
       },
     );
 
-    const results = await sdjwt.verify(presentation, ['foo'], true);
+    const results = await sdjwt.verify(presentation, {
+      requiredClaimKeys: ['foo'],
+    });
     expect(results).toBeDefined();
   });
 
@@ -359,7 +361,7 @@ describe('index', () => {
       },
     );
 
-    const presentation = await sdjwt.present<typeof claims>(
+    const presentation = await sdjwt.present(
       credential,
       { foo: true },
       {
@@ -403,7 +405,7 @@ describe('index', () => {
       },
     );
     try {
-      await sdjwt.present<typeof claims>(
+      await sdjwt.present(
         credential,
         { foo: true },
         {
@@ -445,7 +447,7 @@ describe('index', () => {
       },
     );
 
-    const presentation = await sdjwt.present<typeof claims>(
+    const presentation = await sdjwt.present(
       credential,
       { foo: true },
       {
@@ -488,7 +490,7 @@ describe('index', () => {
       },
     );
 
-    const presentation = sdjwt.present<typeof claims>(
+    const presentation = sdjwt.present(
       credential,
       { foo: true },
       {
@@ -530,9 +532,9 @@ describe('index', () => {
     await expect(sdjwt.presentableKeys('')).rejects.toThrow('Hasher not found');
     await expect(sdjwt.getClaims('')).rejects.toThrow('Hasher not found');
     expect(() => sdjwt.decode('')).toThrowError('Hasher not found');
-    await expect(
-      sdjwt.present<typeof claims>(credential, { foo: true }),
-    ).rejects.toThrow('Hasher not found');
+    await expect(sdjwt.present(credential, { foo: true })).rejects.toThrow(
+      'Hasher not found',
+    );
   });
 
   test('presentableKeys', async () => {
@@ -581,19 +583,15 @@ describe('index', () => {
       },
     );
 
-    const presentation = await sdjwt.present<typeof claims>(
-      credential,
-      undefined,
-      {
-        kb: {
-          payload: {
-            aud: '1',
-            iat: 1,
-            nonce: '342',
-          },
+    const presentation = await sdjwt.present(credential, undefined, {
+      kb: {
+        payload: {
+          aud: '1',
+          iat: 1,
+          nonce: '342',
         },
       },
-    );
+    });
 
     const decoded = await sdjwt.decode(presentation);
     expect(decoded.jwt).toBeDefined();

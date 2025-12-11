@@ -29,7 +29,7 @@
     "family_name": true,
     "address": true
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "given_name": "John",
     "family_name": "Deo",
     "address": {

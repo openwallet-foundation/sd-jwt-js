@@ -131,7 +131,7 @@ describe('App', () => {
     });
 
     const requiredClaimKeys = ['firstname', 'id', 'data.ssn'];
-    const verified = await sdjwt.verify(encodedSdjwt, requiredClaimKeys);
+    const verified = await sdjwt.verify(encodedSdjwt, { requiredClaimKeys });
     expect(verified).toBeDefined();
   });
 
@@ -233,9 +233,11 @@ async function JSONtest(filename: string) {
 
   const presentationClaims = await sdjwt.getClaims(presentedSDJwt);
 
-  expect(presentationClaims).toEqual(test.presenatedClaims);
+  expect(presentationClaims).toEqual(test.presentedClaims);
 
-  const verified = await sdjwt.verify(encodedSdjwt, test.requiredClaimKeys);
+  const verified = await sdjwt.verify(encodedSdjwt, {
+    requiredClaimKeys: test.requiredClaimKeys,
+  });
 
   expect(verified).toBeDefined();
   expect(verified).toStrictEqual({
@@ -248,7 +250,7 @@ type TestJson = {
   claims: SdJwtPayload;
   disclosureFrame: DisclosureFrame<SdJwtPayload>;
   presentationFrames: PresentationFrame<SdJwtPayload>;
-  presenatedClaims: object;
+  presentedClaims: object;
   requiredClaimKeys: string[];
 };
 
