@@ -8,26 +8,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Check if user is in CODEOWNERS
         id: check_user
         run: |
-            CODEOWNERS_PATH="CODEOWNERS"
-            if [ ! -f "$CODEOWNERS_PATH" ]; then
-                echo "CODEOWNERS file not found."
-                exit 1            
-            fi
-            
-            # Extract GitHub usernames from CODEOWNERS file (assumes usernames, not emails or teams)
-            USERS=$(grep '@' $CODEOWNERS_PATH | sed -E 's/.*@([^ ]+).*/\1/' | sed 's/://g' | tr '\n' ' ')
-            
-            # Check if the actor is in the list of users
-            if [[ ! " $USERS " =~ " ${{ github.actor }} " ]]; then
-                echo "Error: Actor ${{ github.actor }} is not listed in CODEOWNERS."
-                exit 1
-            else
-                echo "Actor ${{ github.actor }} is listed in CODEOWNERS."
-            fi
+          CODEOWNERS_PATH="CODEOWNERS"
+          if [ ! -f "$CODEOWNERS_PATH" ]; then
+              echo "CODEOWNERS file not found."
+              exit 1            
+          fi
+
+          # Extract GitHub usernames from CODEOWNERS file (assumes usernames, not emails or teams)
+          USERS=$(grep '@' $CODEOWNERS_PATH | sed -E 's/.*@([^ ]+).*/\1/' | sed 's/://g' | tr '\n' ' ')
+
+          # Check if the actor is in the list of users
+          if [[ ! " $USERS " =~ " ${{ github.actor }} " ]]; then
+              echo "Error: Actor ${{ github.actor }} is not listed in CODEOWNERS."
+              exit 1
+          else
+              echo "Actor ${{ github.actor }} is listed in CODEOWNERS."
+          fi
   # we can add an approval stage with the environment so it can only be run when accepted by two authorized users.
   build:
     needs: check-author
@@ -126,10 +126,13 @@ jobs:
           node-version: 20
           cache: 'pnpm'
         # we are not using the github action for biome, but the package.json script. this makes sure we are using the same versions.
-      - name: Run Biome      
+      - name: Run Biome
         run: pnpm run biome:ci
 
-  publish:    
+      - name: Run test typecheck
+        run: pnpm run types:check:tests
+
+  publish:
     # needs permissions to write tags to the repository
     permissions:
       contents: write
@@ -182,5 +185,5 @@ jobs:
           echo "registry=https://registry.npmjs.org/" >> .npmrc
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
 
-      - name: 'Publish latest version'        
+      - name: 'Publish latest version'
         run: pnpm publish:latest

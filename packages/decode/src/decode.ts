@@ -1,3 +1,4 @@
+import type { HasherAndAlgSync, HasherSync } from '@sd-jwt/types';
 import {
   type Hasher,
   type HasherAndAlg,
@@ -5,7 +6,6 @@ import {
   SD_LIST_KEY,
   SD_SEPARATOR,
 } from '@sd-jwt/types';
-import type { HasherAndAlgSync, HasherSync } from '@sd-jwt/types/src/type';
 import { base64urlDecode, Disclosure, SDJWTException } from '@sd-jwt/utils';
 
 export const decodeJwt = <

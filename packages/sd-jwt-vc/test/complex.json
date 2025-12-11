@@ -32,7 +32,7 @@
     }
   },
   "presentationFrames": { "firstname": true, "id": true },
-  "presenatedClaims": {
+  "presentedClaims": {
     "lastname": "Doe",
     "ssn": "123-45-6789",
     "data": { "firstname": "John", "lastname": "Doe", "ssn": "123-45-6789" },

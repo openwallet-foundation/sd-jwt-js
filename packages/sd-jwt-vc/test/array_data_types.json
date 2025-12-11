@@ -17,7 +17,7 @@
       "5": true
     }
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "data_types": [null, 42, 3.14, "foo", ["Test"], { "foo": "bar" }]
   },
   "requiredClaimKeys": [

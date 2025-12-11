@@ -140,7 +140,7 @@ describe('hashing tests', () => {
       'sha256 - arraybuffer',
       () => {
         const data = new TextEncoder().encode('test');
-        const hashdata = hasher(data, 'sha-256');
+        const hashdata = hasher(data.buffer, 'sha-256');
         const hashdata2 = createHash('sha256').update(data).digest();
         expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
       },
@@ -160,7 +160,7 @@ describe('hashing tests', () => {
       'sha-384 - arraybuffer',
       () => {
         const data = new TextEncoder().encode('test');
-        const hashdata = hasher(data, 'sha-384');
+        const hashdata = hasher(data.buffer, 'sha-384');
         const hashdata2 = createHash('sha384').update(data).digest();
         expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
       },
@@ -180,7 +180,7 @@ describe('hashing tests', () => {
       'sha-512 - arraybuffer',
       () => {
         const data = new TextEncoder().encode('test');
-        const hashdata = hasher(data, 'sha-512');
+        const hashdata = hasher(data.buffer, 'sha-512');
         const hashdata2 = createHash('sha512').update(data).digest();
         expect(bytesToHex(hashdata)).toEqual(bytesToHex(hashdata2));
       },

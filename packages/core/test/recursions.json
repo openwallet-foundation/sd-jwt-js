@@ -86,7 +86,7 @@
       }
     }
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "foo": ["two"],
     "bar": {
       "green": 2

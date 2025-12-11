@@ -9,12 +9,12 @@ import {
   unpackObj,
   unpackSync,
 } from '@sd-jwt/decode';
+import type { Extensible, HasherSync } from '@sd-jwt/types';
 import {
   type Hasher,
   type PresentationFrame,
   SD_SEPARATOR,
 } from '@sd-jwt/types';
-import type { Extensible, HasherSync } from '@sd-jwt/types/src/type';
 import { Disclosure, SDJWTException } from '@sd-jwt/utils';
 
 // Presentable keys

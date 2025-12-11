@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    // For tests we rely on vitest, so we configure it flexibly
+    "module": "preserve",
+    "target": "es2022",
+    "moduleResolution": "bundler"
+  },
+  "include": ["**/*.spec.ts"]
+}

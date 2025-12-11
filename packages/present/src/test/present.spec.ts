@@ -116,7 +116,7 @@ describe('Present tests', () => {
       data2: true,
     };
 
-    const list = transformPresentationFrame<typeof claims>(presentFrame);
+    const list = transformPresentationFrame(presentFrame);
     expect(list).toStrictEqual([
       'firstname',
       'data',
@@ -148,7 +148,7 @@ describe('Present tests', () => {
         street: true,
       },
     };
-    const list = transformPresentationFrame<typeof claims>(obj);
+    const list = transformPresentationFrame(obj);
     expect(list).toStrictEqual(['address', 'address.city', 'address.street']);
   });
 

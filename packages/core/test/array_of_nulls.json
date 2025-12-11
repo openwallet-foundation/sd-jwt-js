@@ -8,7 +8,7 @@
     }
   },
   "presentationFrames": {},
-  "presenatedClaims": {
+  "presentedClaims": {
     "null_values": [null, null]
   },
   "requiredClaimKeys": ["null_values.0", "null_values.1"]
