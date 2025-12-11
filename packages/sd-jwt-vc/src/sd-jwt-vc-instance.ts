@@ -134,7 +134,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * @param encodedSDJwt
    * @returns
    */
-  async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat> {
+  async getVct(encodedSDJwt: string): Promise<TypeMetadataFormat | undefined> {
     // Call the parent class's verify method
     const { payload, header } = await SDJwt.extractJwt<
       Record<string, unknown>,
@@ -168,7 +168,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       // validate the integrity of the response according to https://www.w3.org/TR/SRI/
       const arrayBuffer = await response.arrayBuffer();
       const alg = integrity.split('-')[0];
-      //TODO: error handling when a hasher is passed that is not supporting the required algorithm acording to the spec
+      //TODO: error handling when a hasher is passed that is not supporting the required algorithm according to the spec
       const hashBuffer = await (this.userConfig.hasher as Hasher)(
         arrayBuffer,
         alg,
@@ -221,7 +221,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   ): Promise<TypeMetadataFormat | undefined> {
     const typeMetadataFormat = await this.fetchVct(result);
 
-    if (typeMetadataFormat.extends) {
+    if (typeMetadataFormat?.extends) {
       // implement based on https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-extending-type-metadata
       //TODO: needs to be implemented. Unclear at this point which values will overwrite the values from the extended type metadata format
     }
@@ -236,7 +236,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    */
   private async fetchVct(
     result: VerificationResult,
-  ): Promise<TypeMetadataFormat> {
+  ): Promise<TypeMetadataFormat | undefined> {
     if (!result.payload.vct) {
       throw new SDJWTException('vct claim is required');
     }
