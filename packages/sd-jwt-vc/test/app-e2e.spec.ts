@@ -271,7 +271,9 @@ async function JSONtest(filename: string) {
 
 type TestJson = {
   claims: object;
+  // biome-ignore lint/complexity/noBannedTypes: we want an empty object in this case
   disclosureFrame: DisclosureFrame<{}>;
+  // biome-ignore lint/complexity/noBannedTypes: we want an empty object in this case
   presentationFrames: PresentationFrame<{}>;
   presentedClaims: object;
   requiredClaimKeys: string[];

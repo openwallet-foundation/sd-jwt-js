@@ -263,7 +263,9 @@ describe('index', () => {
       },
     );
 
-    const results = await sdjwt.verify(presentation, ['foo'], true);
+    const results = await sdjwt.verify(presentation, {
+      requiredClaimKeys: ['foo'],
+    });
     expect(results).toBeDefined();
   });
 

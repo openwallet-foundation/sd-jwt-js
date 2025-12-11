@@ -3,7 +3,7 @@
   "description": "sd-jwt implementation in typescript",
   "scripts": {
     "build": "lerna run build --stream",
-    "lint": "biome lint ./packages",
+    "lint": "biome check .",
     "format": "biome format . --write",
     "biome:ci": "biome ci .",
     "test": "vitest run --coverage.enabled=true --coverage.include=packages/*",
