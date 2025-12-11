@@ -1,7 +1,7 @@
 import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
 import {
   getListFromStatusListJWT,
-  SLException,
+  StatusListException,
   type StatusListJWTHeaderParameters,
   type StatusListJWTPayload,
 } from '@sd-jwt/jwt-status-list';
@@ -205,7 +205,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       return response.json() as Promise<T>;
     } catch (error) {
       if ((error as Error).name === 'TimeoutError') {
-        throw new Error(`Request to ${url} timed out`);
+        throw new SDJWTException(`Request to ${url} timed out`);
       }
       throw error;
     }
@@ -317,11 +317,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
               (this.userConfig.verifier as Verifier),
             options,
           )
-          .catch((err: SLException) => {
-            throw new SLException(
-              `Status List JWT verification failed: ${err.message}`,
-              err.details,
-            );
+          .catch((err: Error) => {
+            throw new StatusListException('Failed to process status list', {
+              details: { operation: 'decode' },
+              cause: err as Error,
+            });
           });
 
         // get the status list from the status list JWT
