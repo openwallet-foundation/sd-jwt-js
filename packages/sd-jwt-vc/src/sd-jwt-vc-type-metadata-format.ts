@@ -136,7 +136,7 @@ export type TypeMetadataFormat = {
   /** OPTIONAL. URI of another type that this one extends. */
   extends?: string;
   /** OPTIONAL. Integrity metadata for the 'extends' field. */
-  'extends#Integrity'?: string;
+  'extends#integrity'?: string;
   /** OPTIONAL. Array of localized display metadata for the type. */
   display?: Display[];
   /** OPTIONAL. Array of claim metadata. */

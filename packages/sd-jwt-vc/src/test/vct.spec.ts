@@ -4,7 +4,7 @@ import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
 import type { DisclosureFrame, Signer, Verifier } from '@sd-jwt/types';
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vitest } from 'vitest';
 import { SDJwtVcInstance } from '..';
 import type { SdJwtVcPayload } from '../sd-jwt-vc-payload';
 import type { TypeMetadataFormat } from '../sd-jwt-vc-type-metadata-format';
@@ -85,19 +85,31 @@ describe('App', () => {
   afterEach(() => server.resetHandlers());
 
   test('VCT Validation', async () => {
+    // The method is private, so TS complains, but you can use spies on private method just fine.
+    // @ts-expect-error
+    const validateIntegritySpy = vitest.spyOn(sdjwt, 'validateIntegrity');
+
     const expectedPayload: SdJwtVcPayload = {
       iat,
       iss,
       vct,
-      'vct#Integrity': vctIntegrity,
+      'vct#integrity': vctIntegrity,
       ...claims,
     };
+
     const encodedSdjwt = await sdjwt.issue(
       expectedPayload,
       disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
     );
 
     await sdjwt.verify(encodedSdjwt);
+
+    // Ensure validateIntegrity method was called
+    expect(validateIntegritySpy).toHaveBeenCalledWith(
+      expect.any(Response),
+      vct,
+      vctIntegrity,
+    );
   });
 
   test('VCT from JWT header Validation', async () => {
@@ -133,7 +145,7 @@ describe('App', () => {
       disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
     );
 
-    expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
+    await expect(sdjwt.verify(encodedSdjwt)).rejects.toThrowError(
       `Request to ${vct} timed out`,
     );
   });
