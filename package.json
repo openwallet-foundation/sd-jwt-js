@@ -11,7 +11,8 @@
     "clean": "lerna clean -y",
     "publish:latest": "lerna publish --no-private --conventional-commits --include-merged-tags --create-release github --yes --dist-tag latest",
     "publish:next": "lerna publish --no-private --conventional-prerelease --force-publish --canary --no-git-tag-version --include-merged-tags --preid next --pre-dist-tag next --yes",
-    "prepare": "husky"
+    "prepare": "husky",
+    "types:check:tests": "tsc --project tsconfig.test.json"
   },
   "keywords": [
     "sd-jwt",

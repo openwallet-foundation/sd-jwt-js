@@ -12,7 +12,7 @@
       "1": true
     }
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "nationalities": ["CA", "DE"]
   },
   "requiredClaimKeys": ["nationalities.0", "nationalities.1"]

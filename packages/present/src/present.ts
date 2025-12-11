@@ -14,7 +14,7 @@ import {
   type PresentationFrame,
   SD_SEPARATOR,
 } from '@sd-jwt/types';
-import type { Extensible, HasherSync } from '@sd-jwt/types/src/type';
+import type { Extensible, HasherSync } from '@sd-jwt/types';
 import { Disclosure, SDJWTException } from '@sd-jwt/utils';
 
 // Presentable keys
