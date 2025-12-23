@@ -36,6 +36,11 @@ export type VerifierOptions = {
    * nonce used to verify the key binding jwt to prevent replay attacks.
    */
   keyBindingNonce?: string;
+
+  /**
+   * any other custom options
+   */
+  [key: string]: unknown;
 };
 
 // This class is used to create and verify JWT
