@@ -179,7 +179,7 @@ export class Jwt<
     }
     const data = this.getUnsignedToken();
 
-    const verified = await verifier(data, this.signature);
+    const verified = await verifier(data, this.signature, options);
     if (!verified) {
       throw new SDJWTException('Verify Error: Invalid JWT Signature');
     }

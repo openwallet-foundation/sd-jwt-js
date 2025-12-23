@@ -14,10 +14,10 @@ type TrustListOptions = {
   const extendedVerifier = async (
     data: string,
     signature: string,
-    options?: TrustListOptions,
+    options: unknown,
   ) => {
     // Example: check trustAnchors
-    if (!options?.trustAnchors?.includes('trusted-issuer')) {
+    if (!(options as TrustListOptions).trustAnchors?.includes('trusted-issuer')) {
       return false;
     }
     return verifier(data, signature);

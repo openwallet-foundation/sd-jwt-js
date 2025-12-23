@@ -96,7 +96,7 @@ export interface JwtPayload {
 export type OrPromise<T> = T | Promise<T>;
 
 export type Signer = (data: string) => OrPromise<string>;
-export type Verifier = (data: string, sig: string) => OrPromise<boolean>;
+export type Verifier = (data: string, sig: string, options?: unknown) => OrPromise<boolean>;
 export type KbVerifier = (
   data: string,
   sig: string,
