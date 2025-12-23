@@ -151,7 +151,7 @@ export class Jwt<
    * @param options - Options for verification, such as current date and skew seconds
    * @returns
    */
-  public async verify(verifier: Verifier, options?: VerifierOptions) {
+  public async verify<T>(verifier: Verifier<T>, options?: T & VerifierOptions) {
     const skew = options?.skewSeconds ? options.skewSeconds : 0;
     const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
     if (

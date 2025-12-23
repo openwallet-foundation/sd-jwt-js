@@ -1,4 +1,4 @@
-import type { DisclosureFrame } from '@sd-jwt/types';
+import type { DisclosureFrame, SDJWTConfig, Verifier } from '@sd-jwt/types';
 import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 import { SDJwtInstance } from '@sd-jwt/core';
 
@@ -11,19 +11,21 @@ type TrustListOptions = {
   const { signer, verifier } = await createSignerVerifier();
 
   // 2. Create an extended verifier that uses the options
-  const extendedVerifier = async (
+  const extendedVerifier: Verifier<TrustListOptions> = async (
     data: string,
     signature: string,
-    options: unknown,
+    options?: TrustListOptions,
   ) => {
     // Example: check trustAnchors
-    if (!(options as TrustListOptions).trustAnchors?.includes('trusted-issuer')) {
+    if (
+      !options?.trustAnchors?.includes('trusted-issuer')
+    ) {
       return false;
     }
     return verifier(data, signature);
   };
 
-  const sdjwt = new SDJwtInstance({
+  const sdjwt = new SDJwtInstance<typeof claims, TrustListOptions>({
     signer,
     verifier: extendedVerifier, // use the extended verifier
     signAlg: ES256.alg,
