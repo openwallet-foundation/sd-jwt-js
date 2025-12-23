@@ -17,9 +17,7 @@ type TrustListOptions = {
     options?: TrustListOptions,
   ) => {
     // Example: check trustAnchors
-    if (
-      !options?.trustAnchors?.includes('trusted-issuer')
-    ) {
+    if (!options?.trustAnchors?.includes('trusted-issuer')) {
       return false;
     }
     return verifier(data, signature);
