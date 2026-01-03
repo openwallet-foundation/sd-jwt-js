@@ -1,3 +1,5 @@
+import type { IntegrityMetadata } from '@sd-jwt/utils';
+
 /**
  * Logo metadata used in rendering a credential.
  */
@@ -5,7 +7,7 @@ export type Logo = {
   /** REQUIRED. A URI pointing to the logo image. */
   uri: string;
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
-  'uri#integrity'?: string;
+  'uri#integrity'?: IntegrityMetadata;
   /** OPTIONAL. A string containing alternative text for the logo image. */
   alt_text?: string;
 };
@@ -50,7 +52,7 @@ export type SvgTemplateRendering = {
   /** REQUIRED. A URI pointing to the SVG template. */
   uri: string;
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
-  'uri#integrity'?: string;
+  'uri#integrity'?: IntegrityMetadata;
   /** REQUIRED if more than one SVG template is present. */
   properties?: SvgTemplateProperties;
 };
@@ -136,7 +138,7 @@ export type TypeMetadataFormat = {
   /** OPTIONAL. URI of another type that this one extends. */
   extends?: string;
   /** OPTIONAL. Integrity metadata for the 'extends' field. */
-  'extends#integrity'?: string;
+  'extends#integrity'?: IntegrityMetadata;
   /** OPTIONAL. Array of localized display metadata for the type. */
   display?: Display[];
   /** OPTIONAL. Array of claim metadata. */
