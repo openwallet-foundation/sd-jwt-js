@@ -1,6 +1,6 @@
-import type { DisclosureFrame, SDJWTConfig, Verifier } from '@sd-jwt/types';
-import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 import { SDJwtInstance } from '@sd-jwt/core';
+import type { DisclosureFrame, Verifier } from '@sd-jwt/types';
+import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
 // 1. Define your extended options type
 type TrustListOptions = {
@@ -68,7 +68,7 @@ type TrustListOptions = {
 
   // Create a presentation using the issued credential and the presentation frame
   // return a Encoded SD JWT. Holder send the presentation to the verifier
-  const presentation = await sdjwt.present<typeof claims>(
+  const _presentation = await sdjwt.present<typeof claims>(
     credential,
     presentationFrame,
   );
