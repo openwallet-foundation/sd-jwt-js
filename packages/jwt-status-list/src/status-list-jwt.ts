@@ -31,7 +31,7 @@ export function createHeaderAndPayload(
   payload: JwtPayload,
   header: StatusListJWTHeaderParameters,
 ) {
-  // validate if the required fieds are present based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html#section-5.1  
+  // validate if the required fieds are present based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html#section-5.1
   if (!payload.sub) {
     throw new SLException('sub field is required');
   }
