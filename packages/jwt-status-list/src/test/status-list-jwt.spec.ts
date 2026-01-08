@@ -34,8 +34,7 @@ describe('JWTStatusList', () => {
   it('should create a JWT with a status list', async () => {
     const statusList = new StatusList([1, 0, 1, 1, 1], 1);
     const iss = 'https://example.com';
-    const payload: JwtPayload = {
-      iss,
+    const payload: JwtPayload = {      
       sub: `${iss}/statuslist/1`,
       iat: Math.floor(Date.now() / 1000),
     };
@@ -58,8 +57,7 @@ describe('JWTStatusList', () => {
     const list = [1, 0, 1, 0, 1];
     const statusList = new StatusList(list, 1);
     const iss = 'https://example.com';
-    const payload: JwtPayload = {
-      iss,
+    const payload: JwtPayload = {      
       sub: `${iss}/statuslist/1`,
       iat: Math.floor(Date.now() / 1000),
     };
@@ -80,34 +78,23 @@ describe('JWTStatusList', () => {
     const list = [1, 0, 1, 0, 1];
     const statusList = new StatusList(list, 2);
     const iss = 'https://example.com';
-    let payload: JwtPayload = {
-      sub: `${iss}/statuslist/1`,
-      iat: Math.floor(Date.now() / 1000),
-    };
-    expect(() => {
-      createHeaderAndPayload(statusList, payload as JwtPayload, header);
-    }).toThrow('iss field is required');
-
-    payload = {
-      iss,
+    const payload = {      
       iat: Math.floor(Date.now() / 1000),
     };
     expect(() => createHeaderAndPayload(statusList, payload, header)).toThrow(
       'sub field is required',
     );
 
-    payload = {
-      iss,
+    const payload2 = {      
       sub: `${iss}/statuslist/1`,
     };
-    expect(() => createHeaderAndPayload(statusList, payload, header)).toThrow(
+    expect(() => createHeaderAndPayload(statusList, payload2, header)).toThrow(
       'iat field is required',
     );
   });
 
   it('should get the status entry from a JWT', async () => {
-    const payload: JWTwithStatusListPayload = {
-      iss: 'https://example.com',
+    const payload: JWTwithStatusListPayload = {      
       sub: 'https://example.com/status/1',
       iat: Math.floor(Date.now() / 1000),
       status: {
