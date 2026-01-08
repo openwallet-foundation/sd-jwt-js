@@ -20,4 +20,6 @@ export type SDJWTVCConfig = SDJWTConfig & {
   loadTypeMetadataFormat?: boolean;
   // timeout value in milliseconds when to abort the fetch request. If not provided, it will default to 10000.
   timeout?: number;
+  // maximum depth of extends chain to resolve. If not provided, it will default to 5. Set to -1 to not limit the vct extends depth.
+  maxVctExtendsDepth?: number;
 };
