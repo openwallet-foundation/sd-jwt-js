@@ -136,9 +136,31 @@ export type TypeMetadataFormat = {
   /** OPTIONAL. URI of another type that this one extends. */
   extends?: string;
   /** OPTIONAL. Integrity metadata for the 'extends' field. */
-  'extends#Integrity'?: string;
+  'extends#integrity'?: string;
   /** OPTIONAL. Array of localized display metadata for the type. */
   display?: Display[];
   /** OPTIONAL. Array of claim metadata. */
   claims?: Claim[];
+};
+
+/**
+ * The resolved type metadata. If you just want to use the type metadata, you should use `typeMetadata`.
+ * In case additional processing is needed (e.g. for extensions in type metadata), you can use the `typeMetadataChain`
+ */
+export type ResolvedTypeMetadata = {
+  /**
+   * The merged type metadata based on the resolved `vct` document and all `extends` values.
+   */
+  mergedTypeMetadata: TypeMetadataFormat;
+
+  /**
+   * The original type metadata documents, ordered from the extending type to the last extended type.
+   */
+  typeMetadataChain: [TypeMetadataFormat, ...TypeMetadataFormat[]];
+
+  /**
+   * The vct values present in the type metadata chain. This can be used for matching against e.g.
+   * DCQL queries which can query an underlying type.
+   */
+  vctValues: [string, ...string[]];
 };

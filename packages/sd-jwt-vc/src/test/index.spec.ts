@@ -87,7 +87,7 @@ describe('App', () => {
       expectedPayload,
       disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
     );
-    expect(encodedSdjwt).rejects.toThrowError();
+    await expect(encodedSdjwt).rejects.toThrowError();
   });
 });
 
@@ -149,7 +149,7 @@ describe('Revocation', () => {
     const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
     const encodedSdjwt = await sdjwt.issue(expectedPayload);
     const result = sdjwt.verify(encodedSdjwt);
-    expect(result).rejects.toThrowError('Status is not valid');
+    await expect(result).rejects.toThrowError('Status is not valid');
   });
 
   test('test to fetch the statuslist', async () => {

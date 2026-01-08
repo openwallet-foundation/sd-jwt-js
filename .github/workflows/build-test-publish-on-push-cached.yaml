@@ -105,8 +105,11 @@ jobs:
           node-version: 20
           cache: 'pnpm'
         # we are not using the github action for biome, but the package.json script. this makes sure we are using the same versions.
-      - name: Run Biome      
+      - name: Run Biome
         run: pnpm run biome:ci
+
+      - name: Run test typecheck
+        run: pnpm run types:check:tests
 
   # Only run this job when the push is on main
   publish:

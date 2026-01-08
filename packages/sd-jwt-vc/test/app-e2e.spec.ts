@@ -145,7 +145,9 @@ describe('App', () => {
     });
 
     const requiredClaimKeys = ['firstname', 'id', 'data.ssn'];
-    const verified = await sdjwt.verify(encodedSdjwt, requiredClaimKeys);
+    const verified = await sdjwt.verify(encodedSdjwt, {
+      requiredClaimKeys,
+    });
     expect(verified).toBeDefined();
   });
 
@@ -239,7 +241,7 @@ async function JSONtest(filename: string) {
     payload,
   });
 
-  const presentedSDJwt = await sdjwt.present<typeof claims>(
+  const presentedSDJwt = await sdjwt.present(
     encodedSdjwt,
     test.presentationFrames,
   );
@@ -249,13 +251,15 @@ async function JSONtest(filename: string) {
   const presentationClaims = await sdjwt.getClaims(presentedSDJwt);
 
   expect(presentationClaims).toEqual({
-    ...test.presenatedClaims,
+    ...test.presentedClaims,
     iat,
     iss,
     vct,
   });
 
-  const verified = await sdjwt.verify(encodedSdjwt, test.requiredClaimKeys);
+  const verified = await sdjwt.verify(encodedSdjwt, {
+    requiredClaimKeys: test.requiredClaimKeys,
+  });
 
   expect(verified).toBeDefined();
   expect(verified).toStrictEqual({
@@ -267,9 +271,11 @@ async function JSONtest(filename: string) {
 
 type TestJson = {
   claims: object;
-  disclosureFrame: DisclosureFrame<object>;
-  presentationFrames: PresentationFrame<object>;
-  presenatedClaims: object;
+  // biome-ignore lint/complexity/noBannedTypes: we want an empty object in this case
+  disclosureFrame: DisclosureFrame<{}>;
+  // biome-ignore lint/complexity/noBannedTypes: we want an empty object in this case
+  presentationFrames: PresentationFrame<{}>;
+  presentedClaims: object;
   requiredClaimKeys: string[];
 };
 

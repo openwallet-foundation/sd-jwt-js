@@ -36,7 +36,7 @@
       "test_object": true
     }
   },
-  "presenatedClaims": {
+  "presentedClaims": {
     "value_Data_types": {
       "test_null": null,
       "test_int": 42,

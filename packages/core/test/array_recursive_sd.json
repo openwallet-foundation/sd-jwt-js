@@ -27,7 +27,7 @@
     }
   },
   "presentationFrames": {},
-  "presenatedClaims": {
+  "presentedClaims": {
     "array_with_recursive_sd": ["boring", []],
     "test2": []
   },

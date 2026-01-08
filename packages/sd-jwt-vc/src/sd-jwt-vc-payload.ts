@@ -13,7 +13,7 @@ export interface SdJwtVcPayload extends SdJwtPayload {
   // REQUIRED. The type of the Verifiable Credential, e.g., https://credentials.example.com/identity_credential, as defined in Section 3.2.2.1.1.
   vct: string;
   // OPTIONAL. If passed, the loaded type metadata format has to be validated according to https://www.w3.org/TR/SRI/
-  'vct#Integrity'?: string;
+  'vct#integrity'?: string;
   // OPTIONAL. The information on how to read the status of the Verifiable Credential. See [https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html] for more information.
   status?: SDJWTVCStatusReference;
   // OPTIONAL. The identifier of the Subject of the Verifiable Credential. The Issuer MAY use it to provide the Subject identifier known by the Issuer. There is no requirement for a binding to exist between sub and cnf claims.

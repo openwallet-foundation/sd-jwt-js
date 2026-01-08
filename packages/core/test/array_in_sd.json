@@ -6,7 +6,7 @@
     "_sd": ["sd_array"]
   },
   "presentationFrames": { "sd_array": true },
-  "presenatedClaims": {
+  "presentedClaims": {
     "sd_array": ["32", "23"]
   },
   "requiredClaimKeys": ["sd_array"]
