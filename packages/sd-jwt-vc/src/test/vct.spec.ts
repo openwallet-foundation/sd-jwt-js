@@ -332,6 +332,11 @@ describe('App', () => {
       ...claims,
     };
 
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
     const resolvedTypeMetadata = await sdjwt.getVct(encodedSdjwt);
 
     // Check mergedTypeMetadata - should merge claims from both base and extending types
