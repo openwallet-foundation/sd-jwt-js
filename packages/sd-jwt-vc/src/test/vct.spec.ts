@@ -179,6 +179,13 @@ const restHandlers = [
   http.get('http://example.com/valid-sd-change', () => {
     return HttpResponse.json(validExtendingSdChange);
   }),
+  http.get('http://example.com/invalid', () => {
+    // Return invalid type metadata (missing required 'vct' field)
+    return HttpResponse.json({
+      name: 'InvalidCredentialType',
+      description: 'Missing required vct field',
+    });
+  }),
 ];
 
 //this value could be generated on demand to make it easier when changing the values
@@ -264,26 +271,6 @@ describe('App', () => {
     );
   });
 
-  test('VCT from JWT header Validation', async () => {
-    const expectedPayload: SdJwtVcPayload = {
-      iat,
-      iss,
-      vct,
-      'vct#Integrity': vctIntegrity,
-      ...claims,
-    };
-    const header = {
-      vctm: [Buffer.from(JSON.stringify(exampleVctm)).toString('base64url')],
-    };
-    const encodedSdjwt = await sdjwt.issue(
-      expectedPayload,
-      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
-      { header },
-    );
-
-    await sdjwt.verify(encodedSdjwt);
-  });
-
   test('VCT Validation with timeout', async () => {
     const vct = 'http://example.com/timeout';
     const expectedPayload: SdJwtVcPayload = {
@@ -344,11 +331,6 @@ describe('App', () => {
       vct: 'http://example.com/extending',
       ...claims,
     };
-
-    const encodedSdjwt = await sdjwt.issue(
-      expectedPayload,
-      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
-    );
 
     const resolvedTypeMetadata = await sdjwt.getVct(encodedSdjwt);
 

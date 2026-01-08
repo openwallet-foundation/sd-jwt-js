@@ -40,7 +40,8 @@
   "dependencies": {
     "@sd-jwt/core": "workspace:*",
     "@sd-jwt/jwt-status-list": "workspace:*",
-    "@sd-jwt/utils": "workspace:*"
+    "@sd-jwt/utils": "workspace:*",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@sd-jwt/crypto-nodejs": "workspace:*",

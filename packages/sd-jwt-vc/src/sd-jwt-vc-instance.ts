@@ -6,20 +6,21 @@ import {
   type StatusListJWTPayload,
 } from '@sd-jwt/jwt-status-list';
 import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
-import { base64urlDecode, SDJWTException } from '@sd-jwt/utils';
+import { SDJWTException } from '@sd-jwt/utils';
+import z from 'zod';
 import type {
   SDJWTVCConfig,
   StatusListFetcher,
   StatusValidator,
 } from './sd-jwt-vc-config';
 import type { SdJwtVcPayload } from './sd-jwt-vc-payload';
-import type {
-  Claim,
-  ClaimPath,
-  ResolvedTypeMetadata,
-  TypeMetadataFormat,
+import {
+  type Claim,
+  type ClaimPath,
+  type ResolvedTypeMetadata,
+  type TypeMetadataFormat,
+  TypeMetadataFormatSchema,
 } from './sd-jwt-vc-type-metadata-format';
-import type { VcTFetcher } from './sd-jwt-vc-vct';
 import type { VerificationResult } from './verification-result';
 
 export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
@@ -172,24 +173,24 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     url: string,
     integrity?: string,
   ) {
-    if (integrity) {
-      // validate the integrity of the response according to https://www.w3.org/TR/SRI/
-      const arrayBuffer = await response.arrayBuffer();
-      const alg = integrity.split('-')[0];
-      //TODO: error handling when a hasher is passed that is not supporting the required algorithm according to the spec
-      const hashBuffer = await (this.userConfig.hasher as Hasher)(
-        arrayBuffer,
-        alg,
+    if (!integrity) return;
+
+    // validate the integrity of the response according to https://www.w3.org/TR/SRI/
+    const arrayBuffer = await response.arrayBuffer();
+    const alg = integrity.split('-')[0];
+    //TODO: error handling when a hasher is passed that is not supporting the required algorithm according to the spec
+    const hashBuffer = await (this.userConfig.hasher as Hasher)(
+      arrayBuffer,
+      alg,
+    );
+    const integrityHash = integrity.split('-')[1];
+    const hash = Array.from(new Uint8Array(hashBuffer))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('');
+    if (hash !== integrityHash) {
+      throw new Error(
+        `Integrity check for ${url} failed: is ${hash}, but expected ${integrityHash}`,
       );
-      const integrityHash = integrity.split('-')[1];
-      const hash = Array.from(new Uint8Array(hashBuffer))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('');
-      if (hash !== integrityHash) {
-        throw new Error(
-          `Integrity check for ${url} failed: is ${hash}, but expected ${integrityHash}`,
-        );
-      }
     }
   }
 
@@ -198,7 +199,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
    * @param url
    * @returns
    */
-  private async fetch<T>(url: string, integrity?: string): Promise<T> {
+  private async fetchWithIntegrity(
+    url: string,
+    integrity?: string,
+  ): Promise<unknown> {
     try {
       const response = await fetch(url, {
         signal: AbortSignal.timeout(this.userConfig.timeout ?? 10000),
@@ -210,7 +214,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         );
       }
       await this.validateIntegrity(response.clone(), url, integrity);
-      return response.json() as Promise<T>;
+      const data = await response.json();
+
+      return data;
     } catch (error) {
       if ((error as Error).name === 'TimeoutError') {
         throw new Error(`Request to ${url} timed out`);
@@ -228,7 +234,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   private async fetchVct(
     result: VerificationResult,
   ): Promise<ResolvedTypeMetadata | undefined> {
-    const typeMetadataFormat = await this.fetchSingleVct(result);
+    const typeMetadataFormat = await this.fetchSingleVct(
+      result.payload.vct,
+      result.payload['vct#integrity'],
+    );
 
     if (!typeMetadataFormat) return undefined;
 
@@ -405,12 +414,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     // Mark this VCT as visited
     visitedVcts.add(parentTypeMetadata.extends);
 
-    // Fetch the type metadata
-    const fetcher: VcTFetcher =
-      this.userConfig.vctFetcher ??
-      ((uri, integrity) => this.fetch(uri, integrity));
-
-    const extendedTypeMetadata = await fetcher(
+    const extendedTypeMetadata = await this.fetchSingleVct(
       parentTypeMetadata.extends,
       parentTypeMetadata['extends#integrity'],
     );
@@ -459,59 +463,30 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Fetches VCT Metadata of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
+   * Fetches and verifies the VCT Metadata for a VCT value.
    * @param result
    * @returns
    */
   private async fetchSingleVct(
-    result: VerificationResult,
-  ): Promise<TypeMetadataFormat | undefined> {
-    if (!result.payload.vct) {
-      throw new SDJWTException('vct claim is required');
-    }
-
-    if (result.header?.vctm) {
-      return this.fetchVctFromHeader(result.payload.vct, result);
-    }
-
-    const fetcher: VcTFetcher =
-      this.userConfig.vctFetcher ??
-      ((uri, integrity) => this.fetch(uri, integrity));
-    return fetcher(result.payload.vct, result.payload['vct#integrity']);
-  }
-
-  /**
-   * Fetches VCT Metadata from the header of the SD-JWT-VC. Returns the type metadata format. If the SD-JWT-VC does not contain a vct claim, an error is thrown.
-   * @param result
-   * @param
-   */
-  private async fetchVctFromHeader(
     vct: string,
-    result: VerificationResult,
-  ): Promise<TypeMetadataFormat> {
-    const vctmHeader = result.header?.vctm;
+    integrity?: string,
+  ): Promise<TypeMetadataFormat | undefined> {
+    const fetcher =
+      this.userConfig.vctFetcher ??
+      ((uri, integrity) => this.fetchWithIntegrity(uri, integrity));
 
-    if (!vctmHeader || !Array.isArray(vctmHeader)) {
-      throw new Error('vctm claim in SD JWT header is invalid');
+    // Data may be undefined
+    const data = await fetcher(vct, integrity);
+    if (!data) return undefined;
+
+    const validated = TypeMetadataFormatSchema.safeParse(data);
+    if (!validated.success) {
+      throw new SDJWTException(
+        `Invalid VCT type metadata for vct '${vct}':\n${z.prettifyError(validated.error)}`,
+      );
     }
 
-    const typeMetadataFormat = (vctmHeader as unknown[])
-      .map((vctm) => {
-        if (!(typeof vctm === 'string')) {
-          throw new Error('vctm claim in SD JWT header is invalid');
-        }
-
-        return JSON.parse(base64urlDecode(vctm));
-      })
-      .find((typeMetadataFormat) => {
-        return typeMetadataFormat.vct === vct;
-      });
-
-    if (!typeMetadataFormat) {
-      throw new Error('could not find VCT Metadata in JWT header');
-    }
-
-    return typeMetadataFormat;
+    return validated.data;
   }
 
   /**
