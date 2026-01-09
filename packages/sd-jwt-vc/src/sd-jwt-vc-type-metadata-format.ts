@@ -1,147 +1,175 @@
+import { z } from 'zod';
+
 /**
  * Logo metadata used in rendering a credential.
  */
-export type Logo = {
+export const LogoSchema = z.object({
   /** REQUIRED. A URI pointing to the logo image. */
-  uri: string;
+  uri: z.string(),
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
-  'uri#integrity'?: string;
+  'uri#integrity': z.string().optional(),
   /** OPTIONAL. A string containing alternative text for the logo image. */
-  alt_text?: string;
-};
+  alt_text: z.string().optional(),
+});
+
+export type Logo = z.infer<typeof LogoSchema>;
 
 /**
  * The simple rendering method is intended for applications that do not support SVG.
  */
-export type SimpleRendering = {
+export const SimpleRenderingSchema = z.object({
   /** OPTIONAL. Logo metadata to display for the credential. */
-  logo?: Logo;
+  logo: LogoSchema.optional(),
   /** OPTIONAL. RGB color value for the credential background (e.g., "#FFFFFF"). */
-  background_color?: string;
+  background_color: z.string().optional(),
   /** OPTIONAL. RGB color value for the credential text (e.g., "#000000"). */
-  text_color?: string;
-};
+  text_color: z.string().optional(),
+});
+
+export type SimpleRendering = z.infer<typeof SimpleRenderingSchema>;
 
 /** Enum of valid values for rendering orientation. */
-type Orientation = 'portrait' | 'landscape';
+export const OrientationSchema = z.enum(['portrait', 'landscape']);
 
 /** Enum of valid values for rendering color schemes. */
-type ColorScheme = 'light' | 'dark';
+export const ColorSchemeSchema = z.enum(['light', 'dark']);
 
 /** Enum of valid values for rendering contrast. */
-type Contrast = 'normal' | 'high';
+export const ContrastSchema = z.enum(['normal', 'high']);
 
 /**
  * Properties that describe the display preferences for an SVG template rendering.
  */
-export type SvgTemplateProperties = {
+export const SvgTemplatePropertiesSchema = z.object({
   /** OPTIONAL. Orientation optimized for the template. */
-  orientation?: Orientation;
+  orientation: OrientationSchema.optional(),
   /** OPTIONAL. Color scheme optimized for the template. */
-  color_scheme?: ColorScheme;
+  color_scheme: ColorSchemeSchema.optional(),
   /** OPTIONAL. Contrast level optimized for the template. */
-  contrast?: Contrast;
-};
+  contrast: ContrastSchema.optional(),
+});
+
+export type SvgTemplateProperties = z.infer<typeof SvgTemplatePropertiesSchema>;
 
 /**
  * SVG rendering metadata containing URI and optional integrity and properties.
  */
-export type SvgTemplateRendering = {
+export const SvgTemplateRenderingSchema = z.object({
   /** REQUIRED. A URI pointing to the SVG template. */
-  uri: string;
+  uri: z.string(),
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
-  'uri#integrity'?: string;
+  'uri#integrity': z.string().optional(),
   /** REQUIRED if more than one SVG template is present. */
-  properties?: SvgTemplateProperties;
-};
+  properties: SvgTemplatePropertiesSchema.optional(),
+});
+
+export type SvgTemplateRendering = z.infer<typeof SvgTemplateRenderingSchema>;
 
 /**
  * Rendering metadata, either simple or SVG-based, for a credential.
  */
-export type Rendering = {
+export const RenderingSchema = z.object({
   /** OPTIONAL. Simple rendering metadata. */
-  simple?: SimpleRendering;
+  simple: SimpleRenderingSchema.optional(),
   /** OPTIONAL. Array of SVG template rendering objects. */
-  svg_template?: SvgTemplateRendering[];
-};
+  svg_template: z.array(SvgTemplateRenderingSchema).optional(),
+});
+
+export type Rendering = z.infer<typeof RenderingSchema>;
 
 /**
  * Display metadata associated with a credential type.
  */
-export type Display = {
+export const DisplaySchema = z.object({
   /** REQUIRED. Language tag according to RFC 5646 (e.g., "en", "de"). */
-  lang: string;
+  lang: z.string(),
   /** REQUIRED. Human-readable name for the credential type. */
-  name: string;
+  name: z.string(),
   /** OPTIONAL. Description of the credential type for end users. */
-  description?: string;
+  description: z.string().optional(),
   /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
-  rendering?: Rendering;
-};
+  rendering: RenderingSchema.optional(),
+});
+
+export type Display = z.infer<typeof DisplaySchema>;
 
 /**
  * Claim path within the credential's JSON structure.
  * Example: ["address", "street_address"]
  */
-export type ClaimPath = Array<string | null>;
+export const ClaimPathSchema = z.array(z.string().nullable());
+
+export type ClaimPath = z.infer<typeof ClaimPathSchema>;
 
 /**
  * Display metadata for a specific claim.
  */
-export type ClaimDisplay = {
+export const ClaimDisplaySchema = z.object({
   /** REQUIRED. Language tag according to RFC 5646. */
-  lang: string;
+  lang: z.string(),
   /** REQUIRED. Human-readable label for the claim. */
-  label: string;
+  label: z.string(),
   /** OPTIONAL. Description of the claim for end users. */
-  description?: string;
-};
+  description: z.string().optional(),
+});
+
+export type ClaimDisplay = z.infer<typeof ClaimDisplaySchema>;
 
 /**
  * Indicates whether a claim is selectively disclosable.
  */
-export type ClaimSelectiveDisclosure = 'always' | 'allowed' | 'never';
+export const ClaimSelectiveDisclosureSchema = z.enum([
+  'always',
+  'allowed',
+  'never',
+]);
+
+export type ClaimSelectiveDisclosure = z.infer<
+  typeof ClaimSelectiveDisclosureSchema
+>;
 
 /**
  * Metadata for individual claims in the credential type.
  */
-export type Claim = {
+export const ClaimSchema = z.object({
   /**
    * REQUIRED. Array of one or more paths to the claim in the credential subject.
    * Each path is an array of strings (or null for array elements).
    */
-  path: ClaimPath;
+  path: ClaimPathSchema,
   /** OPTIONAL. Display metadata in multiple languages. */
-  display?: ClaimDisplay[];
+  display: z.array(ClaimDisplaySchema).optional(),
   /** OPTIONAL. Controls whether the claim must, may, or must not be selectively disclosed. */
-  sd?: ClaimSelectiveDisclosure;
+  sd: ClaimSelectiveDisclosureSchema.optional(),
   /**
    * OPTIONAL. Unique string identifier for referencing the claim in an SVG template.
    * Must consist of alphanumeric characters or underscores and must not start with a digit.
    */
-  svg_id?: string;
-};
+  svg_id: z.string().optional(),
+});
+
+export type Claim = z.infer<typeof ClaimSchema>;
 
 /**
  * Type metadata for a specific Verifiable Credential (VC) type.
  * Reference: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-type-metadata-format
  */
-export type TypeMetadataFormat = {
+export const TypeMetadataFormatSchema = z.object({
   /** REQUIRED. A URI uniquely identifying the credential type. */
-  vct: string;
+  vct: z.string(),
   /** OPTIONAL. Human-readable name for developers. */
-  name?: string;
+  name: z.string().optional(),
   /** OPTIONAL. Human-readable description for developers. */
-  description?: string;
+  description: z.string().optional(),
   /** OPTIONAL. URI of another type that this one extends. */
-  extends?: string;
+  extends: z.string().optional(),
   /** OPTIONAL. Integrity metadata for the 'extends' field. */
-  'extends#integrity'?: string;
+  'extends#integrity': z.string().optional(),
   /** OPTIONAL. Array of localized display metadata for the type. */
-  display?: Display[];
+  display: z.array(DisplaySchema).optional(),
   /** OPTIONAL. Array of claim metadata. */
-  claims?: Claim[];
-};
+  claims: z.array(ClaimSchema).optional(),
+});
 
 /**
  * The resolved type metadata. If you just want to use the type metadata, you should use `typeMetadata`.
@@ -164,3 +192,5 @@ export type ResolvedTypeMetadata = {
    */
   vctValues: [string, ...string[]];
 };
+
+export type TypeMetadataFormat = z.infer<typeof TypeMetadataFormatSchema>;
