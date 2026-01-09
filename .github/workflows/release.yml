@@ -164,6 +164,8 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@sd-jwt'
 
       - name: 'Restore build output'
         uses: actions/cache/restore@v4
@@ -178,12 +180,6 @@ jobs:
           git remote set-url origin https://${{github.actor}}:${{secrets.TOKEN}}@github.com/${{ github.repository }}.git
           git config user.name $GH_USER
           git config user.email $GH_EMAIL
-
-      - name: 'Setup npm registry'
-        run: |
-          echo "@sd-jwt:registry=https://registry.npmjs.org/" > .npmrc
-          echo "registry=https://registry.npmjs.org/" >> .npmrc
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
 
       - name: 'Publish latest version'
         run: pnpm publish:latest
