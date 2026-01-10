@@ -39,8 +39,10 @@ jobs:
 
   build:
     # For workflow_dispatch, wait for check-author. Otherwise, run immediately.
-    if: always() && (needs.check-author.result == 'success' || needs.check-author.result == 'skipped')
     needs: [check-author]
+    if: |
+      always() && 
+      (needs.check-author.result == 'success' || needs.check-author.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -64,6 +66,7 @@ jobs:
 
   test:
     needs: build
+    if: always() && needs.build.result == 'success'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -113,6 +116,7 @@ jobs:
 
   lint:
     needs: build
+    if: always() && needs.build.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: pnpm/action-setup@v4
