@@ -223,10 +223,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      # Needed for trusted publishing
-      - name: Update npm
-        run: npm install -g npm@^11
-
       - name: 'Setup Node.js with pnpm cache'
         uses: actions/setup-node@v6
         with:
