@@ -241,7 +241,7 @@ jobs:
 
       - name: 'Setup git coordinates'
         run: |
-          git remote set-url origin https://${{github.actor}}:${{secrets.TOKEN}}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git
           git config user.name $GH_USER
           git config user.email $GH_EMAIL
 
