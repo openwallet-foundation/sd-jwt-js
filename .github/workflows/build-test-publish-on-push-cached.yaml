@@ -143,7 +143,12 @@ jobs:
 
   # Publish unstable version on push to main
   publish-unstable:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      always() &&
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      needs.build.result == 'success' &&
+      needs.test.result == 'success' &&
+      needs.lint.result == 'success'
     permissions:
       contents: write # to write tags
       id-token: write # for npm trusted publishing
@@ -191,7 +196,12 @@ jobs:
 
   # Publish stable version on workflow_dispatch
   publish-stable:
-    if: github.event_name == 'workflow_dispatch'
+    if: |
+      always() &&
+      github.event_name == 'workflow_dispatch' &&
+      needs.build.result == 'success' &&
+      needs.test.result == 'success' &&
+      needs.lint.result == 'success'
     permissions:
       contents: write # to write tags
       id-token: write # for npm trusted publishing
