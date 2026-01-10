@@ -17,3 +17,8 @@ updates:
     allow:
       # Allow updates to devDependencies, runtime dependencies, etc.
       - dependency-type: "all"
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
