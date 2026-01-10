@@ -48,9 +48,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm add -g pnpm
       - name: 'Setup Node.js with pnpm cache'
         uses: actions/setup-node@v6
         with:
@@ -73,9 +70,6 @@ jobs:
         node-version: ['20.x', '22.x', '24.x']
     steps:
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm add -g pnpm
       - name: 'Restore build output'
         uses: actions/cache/restore@v5
         with:
@@ -122,9 +116,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - run: pnpm add -g pnpm
       - name: 'Restore build output'
         uses: actions/cache/restore@v5
         with:
@@ -166,8 +157,6 @@ jobs:
           fetch-depth: 0
           token: ${{secrets.GITHUB_TOKEN }}
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: 'Setup Node.js with pnpm cache'
         uses: actions/setup-node@v6
