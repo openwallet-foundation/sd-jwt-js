@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.17.1...v0.18.0) (2026-01-11)
+
+
+### Features
+
+* add support for ES384 and ES512 in node-crypto and browser-crypto ([#333](https://github.com/openwallet-foundation/sd-jwt-js/issues/333)) ([247dd05](https://github.com/openwallet-foundation/sd-jwt-js/commit/247dd052f4637d2794cf1a58c629b65e79f8d4e4))
+
+
+
+
+
 # [0.17.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.16.0...v0.17.0) (2025-10-23)
 
 **Note:** Version bump only for package @sd-jwt/crypto-browser
