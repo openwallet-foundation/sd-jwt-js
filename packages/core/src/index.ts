@@ -32,15 +32,15 @@ export * from './sdjwt';
 
 export type SdJwtPayload = Record<string, unknown>;
 
-export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
+export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
   //header type
   protected type?: string;
 
   public static readonly DEFAULT_hashAlg = 'sha-256';
 
-  protected userConfig: SDJWTConfig = {};
+  protected userConfig: SDJWTConfig<T> = {};
 
-  constructor(userConfig?: SDJWTConfig) {
+  constructor(userConfig?: SDJWTConfig<T>) {
     if (userConfig) {
       if (
         userConfig.hashAlg &&
@@ -86,11 +86,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     return jwt;
   }
 
-  private async VerifyJwt(jwt: Jwt, options?: VerifierOptions) {
+  private async VerifyJwt(jwt: Jwt, options?: T & VerifierOptions) {
     if (!this.userConfig.verifier) {
       throw new SDJWTException('Verifier not found');
     }
-    return jwt.verify(this.userConfig.verifier, options);
+    return jwt.verify<T>(this.userConfig.verifier, options);
   }
 
   public async issue<Payload extends ExtendedPayload>(
@@ -196,7 +196,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
   // This function is for verifying the SD JWT
   // If requiredClaimKeys is provided, it will check if the required claim keys are presentation in the SD JWT
   // If requireKeyBindings is true, it will check if the key binding JWT is presentation and verify it
-  public async verify(encodedSDJwt: string, options?: VerifierOptions) {
+  public async verify(encodedSDJwt: string, options?: T & VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -280,7 +280,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
    * @param options
    * @returns
    */
-  public async validate(encodedSDJwt: string, options?: VerifierOptions) {
+  public async validate(encodedSDJwt: string, options?: T & VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
