@@ -157,8 +157,8 @@ jobs:
       - test
       - lint
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN }}
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{secrets.TOKEN }}
+      GITHUB_TOKEN: ${{secrets.TOKEN }}
       GH_USER: github-actions
       GH_EMAIL: github-actions@github.com
     runs-on: ubuntu-latest
@@ -166,7 +166,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{secrets.GITHUB_TOKEN }}
+          token: ${{secrets.TOKEN }}
       - uses: pnpm/action-setup@v4
 
       - name: 'Setup Node.js with pnpm cache'
@@ -187,7 +187,7 @@ jobs:
 
       - name: 'Setup git coordinates'
         run: |
-          git remote set-url origin https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://${{github.actor}}:${{secrets.TOKEN}}@github.com/${{ github.repository }}.git
           git config user.name $GH_USER
           git config user.email $GH_EMAIL
 
@@ -210,8 +210,8 @@ jobs:
       - test
       - lint
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN }}
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{secrets.TOKEN }}
+      GITHUB_TOKEN: ${{secrets.TOKEN }}
       GH_USER: github-actions
       GH_EMAIL: github-actions@github.com
     runs-on: ubuntu-latest
@@ -219,7 +219,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{secrets.GITHUB_TOKEN }}
+          token: ${{secrets.TOKEN }}
 
       - uses: pnpm/action-setup@v4
 
@@ -241,7 +241,7 @@ jobs:
 
       - name: 'Setup git coordinates'
         run: |
-          git remote set-url origin https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://${{github.actor}}:${{secrets.TOKEN}}@github.com/${{ github.repository }}.git
           git config user.name $GH_USER
           git config user.email $GH_EMAIL
 
