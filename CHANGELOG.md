@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.17.1...v0.18.0) (2026-01-11)
+
+
+### Bug Fixes
+
+* integrity check ([#339](https://github.com/openwallet-foundation/sd-jwt-js/issues/339)) ([4a4c1b0](https://github.com/openwallet-foundation/sd-jwt-js/commit/4a4c1b0c04615bcf0e455d51cd1b9234cbcd0d78))
+* npm release ([#349](https://github.com/openwallet-foundation/sd-jwt-js/issues/349)) ([7907ad9](https://github.com/openwallet-foundation/sd-jwt-js/commit/7907ad91dc36737d06f5043d5992ebc2acc97b57))
+
+
+### Features
+
+* add support for ES384 and ES512 in node-crypto and browser-crypto ([#333](https://github.com/openwallet-foundation/sd-jwt-js/issues/333)) ([247dd05](https://github.com/openwallet-foundation/sd-jwt-js/commit/247dd052f4637d2794cf1a58c629b65e79f8d4e4))
+* allow undefined type metadata to be returned by resolver ([#338](https://github.com/openwallet-foundation/sd-jwt-js/issues/338)) ([213de7e](https://github.com/openwallet-foundation/sd-jwt-js/commit/213de7e85b9820ca638ba3362fe4deee808e236e))
+* validate sd jwt vc type metadata with zod ([#348](https://github.com/openwallet-foundation/sd-jwt-js/issues/348)) ([23e4beb](https://github.com/openwallet-foundation/sd-jwt-js/commit/23e4beb767451ef975709d01e471285da00f55e9))
+
+
+
+
+
 ## [0.17.1](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.17.0...v0.17.1) (2025-11-18)
 
 **Note:** Version bump only for package @sd-jwt/sd-jwt-vc
