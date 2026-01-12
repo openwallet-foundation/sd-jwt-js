@@ -36,6 +36,11 @@ export type VerifierOptions = {
    * nonce used to verify the key binding jwt to prevent replay attacks.
    */
   keyBindingNonce?: string;
+
+  /**
+   * any other custom options
+   */
+  [key: string]: unknown;
 };
 
 // This class is used to create and verify JWT
@@ -146,7 +151,7 @@ export class Jwt<
    * @param options - Options for verification, such as current date and skew seconds
    * @returns
    */
-  public async verify(verifier: Verifier, options?: VerifierOptions) {
+  public async verify<T>(verifier: Verifier<T>, options?: T & VerifierOptions) {
     const skew = options?.skewSeconds ? options.skewSeconds : 0;
     const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
     if (
@@ -174,7 +179,7 @@ export class Jwt<
     }
     const data = this.getUnsignedToken();
 
-    const verified = await verifier(data, this.signature);
+    const verified = await verifier(data, this.signature, options);
     if (!verified) {
       throw new SDJWTException('Verify Error: Invalid JWT Signature');
     }

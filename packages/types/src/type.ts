@@ -32,14 +32,14 @@ export const IANA_HASH_ALGORITHMS = [
 
 export type HashAlgorithm = (typeof IANA_HASH_ALGORITHMS)[number];
 
-export type SDJWTConfig = {
+export type SDJWTConfig<T = unknown> = {
   omitTyp?: boolean;
   hasher?: Hasher;
   hashAlg?: HashAlgorithm;
   saltGenerator?: SaltGenerator;
   signer?: Signer;
   signAlg?: string;
-  verifier?: Verifier;
+  verifier?: Verifier<T>;
   kbSigner?: Signer;
   kbSignAlg?: string;
   kbVerifier?: KbVerifier;
@@ -96,7 +96,11 @@ export interface JwtPayload {
 export type OrPromise<T> = T | Promise<T>;
 
 export type Signer = (data: string) => OrPromise<string>;
-export type Verifier = (data: string, sig: string) => OrPromise<boolean>;
+export type Verifier<T = unknown> = (
+  data: string,
+  sig: string,
+  options?: T,
+) => OrPromise<boolean>;
 export type KbVerifier = (
   data: string,
   sig: string,
