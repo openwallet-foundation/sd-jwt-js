@@ -140,6 +140,20 @@ const validExtendingSdChange: TypeMetadataFormat = {
   ],
 };
 
+const vctWithCustomProperties: TypeMetadataFormat = {
+  vct: 'http://example.com/custom-properties',
+  name: 'CustomProperties',
+  claims: [
+    {
+      path: ['firstName'],
+      sd: 'always' as const, // Valid: base doesn't have sd or has 'allowed'
+      display: [{ lang: 'en', label: 'First Name' }],
+      anotherCustom: 'property',
+    },
+  ],
+  test: 'something',
+};
+
 const restHandlers = [
   http.get('http://example.com/example', () => {
     const res: TypeMetadataFormat = exampleVctm;
@@ -178,6 +192,9 @@ const restHandlers = [
   }),
   http.get('http://example.com/valid-sd-change', () => {
     return HttpResponse.json(validExtendingSdChange);
+  }),
+  http.get('http://example.com/custom-properties', () => {
+    return HttpResponse.json(vctWithCustomProperties);
   }),
   http.get('http://example.com/invalid', () => {
     // Return invalid type metadata (missing required 'vct' field)
@@ -643,5 +660,25 @@ describe('App', () => {
     // Check typeMetadataChain - should have 3 documents
     expect(resolvedTypeMetadata?.typeMetadataChain).toHaveLength(3);
     expect(resolvedTypeMetadata?.vctValues).toHaveLength(3);
+  });
+
+  test('VCT with custom properties are kept', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct: 'http://example.com/custom-properties',
+      ...claims,
+    };
+
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    const resolvedTypeMetadata = await sdjwt.getVct(encodedSdjwt);
+
+    expect(resolvedTypeMetadata?.mergedTypeMetadata).toEqual(
+      vctWithCustomProperties,
+    );
   });
 });
