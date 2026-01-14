@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/hash",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
