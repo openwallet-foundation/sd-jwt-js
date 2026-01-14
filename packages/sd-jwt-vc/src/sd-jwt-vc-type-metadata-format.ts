@@ -3,7 +3,7 @@ import { z } from 'zod';
 /**
  * Logo metadata used in rendering a credential.
  */
-export const LogoSchema = z.object({
+export const LogoSchema = z.looseObject({
   /** REQUIRED. A URI pointing to the logo image. */
   uri: z.string(),
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
@@ -17,7 +17,7 @@ export type Logo = z.infer<typeof LogoSchema>;
 /**
  * The simple rendering method is intended for applications that do not support SVG.
  */
-export const SimpleRenderingSchema = z.object({
+export const SimpleRenderingSchema = z.looseObject({
   /** OPTIONAL. Logo metadata to display for the credential. */
   logo: LogoSchema.optional(),
   /** OPTIONAL. RGB color value for the credential background (e.g., "#FFFFFF"). */
@@ -40,7 +40,7 @@ export const ContrastSchema = z.enum(['normal', 'high']);
 /**
  * Properties that describe the display preferences for an SVG template rendering.
  */
-export const SvgTemplatePropertiesSchema = z.object({
+export const SvgTemplatePropertiesSchema = z.looseObject({
   /** OPTIONAL. Orientation optimized for the template. */
   orientation: OrientationSchema.optional(),
   /** OPTIONAL. Color scheme optimized for the template. */
@@ -54,7 +54,7 @@ export type SvgTemplateProperties = z.infer<typeof SvgTemplatePropertiesSchema>;
 /**
  * SVG rendering metadata containing URI and optional integrity and properties.
  */
-export const SvgTemplateRenderingSchema = z.object({
+export const SvgTemplateRenderingSchema = z.looseObject({
   /** REQUIRED. A URI pointing to the SVG template. */
   uri: z.string(),
   /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
@@ -68,7 +68,7 @@ export type SvgTemplateRendering = z.infer<typeof SvgTemplateRenderingSchema>;
 /**
  * Rendering metadata, either simple or SVG-based, for a credential.
  */
-export const RenderingSchema = z.object({
+export const RenderingSchema = z.looseObject({
   /** OPTIONAL. Simple rendering metadata. */
   simple: SimpleRenderingSchema.optional(),
   /** OPTIONAL. Array of SVG template rendering objects. */
@@ -80,7 +80,7 @@ export type Rendering = z.infer<typeof RenderingSchema>;
 /**
  * Display metadata associated with a credential type.
  */
-export const DisplaySchema = z.object({
+export const DisplaySchema = z.looseObject({
   /** REQUIRED. Language tag according to RFC 5646 (e.g., "en", "de"). */
   lang: z.string(),
   /** REQUIRED. Human-readable name for the credential type. */
@@ -104,7 +104,7 @@ export type ClaimPath = z.infer<typeof ClaimPathSchema>;
 /**
  * Display metadata for a specific claim.
  */
-export const ClaimDisplaySchema = z.object({
+export const ClaimDisplaySchema = z.looseObject({
   /** REQUIRED. Language tag according to RFC 5646. */
   lang: z.string(),
   /** REQUIRED. Human-readable label for the claim. */
@@ -131,7 +131,7 @@ export type ClaimSelectiveDisclosure = z.infer<
 /**
  * Metadata for individual claims in the credential type.
  */
-export const ClaimSchema = z.object({
+export const ClaimSchema = z.looseObject({
   /**
    * REQUIRED. Array of one or more paths to the claim in the credential subject.
    * Each path is an array of strings (or null for array elements).
@@ -154,7 +154,7 @@ export type Claim = z.infer<typeof ClaimSchema>;
  * Type metadata for a specific Verifiable Credential (VC) type.
  * Reference: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-type-metadata-format
  */
-export const TypeMetadataFormatSchema = z.object({
+export const TypeMetadataFormatSchema = z.looseObject({
   /** REQUIRED. A URI uniquely identifying the credential type. */
   vct: z.string(),
   /** OPTIONAL. Human-readable name for developers. */
