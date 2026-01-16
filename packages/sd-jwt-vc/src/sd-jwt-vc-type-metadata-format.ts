@@ -104,14 +104,33 @@ export type ClaimPath = z.infer<typeof ClaimPathSchema>;
 /**
  * Display metadata for a specific claim.
  */
-export const ClaimDisplaySchema = z.looseObject({
-  /** REQUIRED. Language tag according to RFC 5646. */
-  lang: z.string(),
-  /** REQUIRED. Human-readable label for the claim. */
-  label: z.string(),
-  /** OPTIONAL. Description of the claim for end users. */
-  description: z.string().optional(),
-});
+export const ClaimDisplaySchema = z
+  .looseObject({
+    /**
+     * Language tag according to RFC 5646.
+     * @deprecated - use `locale` instead
+     */
+    lang: z.string().optional(),
+
+    /**
+     * REQUIRED (preferred). Language tag according to RFC 5646.
+     * Alias for `lang` - either `lang` or `locale` must be provided.
+     */
+    locale: z.string().optional(),
+
+    /** REQUIRED. Human-readable label for the claim. */
+    label: z.string(),
+    /** OPTIONAL. Description of the claim for end users. */
+    description: z.string().optional(),
+  })
+  .transform(({ lang, locale, ...rest }) => ({
+    ...rest,
+    locale: locale ?? lang,
+  }))
+  .refine(({ locale }) => locale !== undefined, {
+    message:
+      'Either locale (preferred) or lang (spec name, deprecated) MUST be defined on claim display entry.',
+  });
 
 export type ClaimDisplay = z.infer<typeof ClaimDisplaySchema>;
 
@@ -142,6 +161,11 @@ export const ClaimSchema = z.looseObject({
   /** OPTIONAL. Controls whether the claim must, may, or must not be selectively disclosed. */
   sd: ClaimSelectiveDisclosureSchema.optional(),
   /**
+   * OPTIONAL. A boolean indicating whether the claim must be present in the Unsecured Payload
+   * of the SD-JWT VC. Default is false if not specified.
+   */
+  mandatory: z.boolean().optional(),
+  /**
    * OPTIONAL. Unique string identifier for referencing the claim in an SVG template.
    * Must consist of alphanumeric characters or underscores and must not start with a digit.
    */
@@ -152,7 +176,7 @@ export type Claim = z.infer<typeof ClaimSchema>;
 
 /**
  * Type metadata for a specific Verifiable Credential (VC) type.
- * Reference: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-type-metadata-format
+ * Reference: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-13.html#name-type-metadata-format
  */
 export const TypeMetadataFormatSchema = z.looseObject({
   /** REQUIRED. A URI uniquely identifying the credential type. */

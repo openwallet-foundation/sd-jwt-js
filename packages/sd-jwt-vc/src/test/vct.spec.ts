@@ -22,7 +22,7 @@ const baseVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['firstName'],
-      display: [{ lang: 'en', label: 'First Name' }],
+      display: [{ locale: 'en', label: 'First Name' }],
     },
   ],
   display: [
@@ -42,7 +42,7 @@ const extendingVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['lastName'],
-      display: [{ lang: 'en', label: 'Last Name' }],
+      display: [{ locale: 'en', label: 'Last Name' }],
     },
   ],
   display: [
@@ -67,7 +67,7 @@ const middleVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['age'],
-      display: [{ lang: 'en', label: 'Age' }],
+      display: [{ locale: 'en', label: 'Age' }],
     },
   ],
 };
@@ -80,12 +80,12 @@ const overridingVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['firstName'],
-      display: [{ lang: 'en', label: 'Given Name' }], // Override with different label
+      display: [{ locale: 'en', label: 'Given Name' }], // Override with different label
       sd: 'always' as const,
     },
     {
       path: ['middleName'],
-      display: [{ lang: 'en', label: 'Middle Name' }],
+      display: [{ locale: 'en', label: 'Middle Name' }],
     },
   ],
 };
@@ -109,7 +109,7 @@ const baseWithSdAlways: TypeMetadataFormat = {
     {
       path: ['sensitiveData'],
       sd: 'always' as const,
-      display: [{ lang: 'en', label: 'Sensitive Data' }],
+      display: [{ locale: 'en', label: 'Sensitive Data' }],
     },
   ],
 };
@@ -122,7 +122,7 @@ const invalidExtendingSdChange: TypeMetadataFormat = {
     {
       path: ['sensitiveData'],
       sd: 'never' as const, // Invalid: trying to change from 'always' to 'never'
-      display: [{ lang: 'en', label: 'Sensitive Data' }],
+      display: [{ locale: 'en', label: 'Sensitive Data' }],
     },
   ],
 };
@@ -135,7 +135,7 @@ const validExtendingSdChange: TypeMetadataFormat = {
     {
       path: ['firstName'],
       sd: 'always' as const, // Valid: base doesn't have sd or has 'allowed'
-      display: [{ lang: 'en', label: 'First Name' }],
+      display: [{ locale: 'en', label: 'First Name' }],
     },
   ],
 };
@@ -147,7 +147,7 @@ const vctWithCustomProperties: TypeMetadataFormat = {
     {
       path: ['firstName'],
       sd: 'always' as const, // Valid: base doesn't have sd or has 'allowed'
-      display: [{ lang: 'en', label: 'First Name' }],
+      display: [{ locale: 'en', label: 'First Name' }],
       anotherCustom: 'property',
     },
   ],
