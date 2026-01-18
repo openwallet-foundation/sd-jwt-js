@@ -100,16 +100,35 @@ export type Rendering = z.infer<typeof RenderingSchema>;
 /**
  * Display metadata associated with a credential type.
  */
-export const DisplaySchema = z.looseObject({
-  /** REQUIRED. Language tag according to RFC 5646 (e.g., "en", "de"). */
-  lang: z.string(),
-  /** REQUIRED. Human-readable name for the credential type. */
-  name: z.string(),
-  /** OPTIONAL. Description of the credential type for end users. */
-  description: z.string().optional(),
-  /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
-  rendering: RenderingSchema.optional(),
-});
+export const DisplaySchema = z
+  .looseObject({
+    /**
+     * Language tag according to RFC 5646 (e.g., "en", "de").
+     * @deprecated - use `locale` instead
+     */
+    lang: z.string().optional(),
+
+    /**
+     * REQUIRED (preferred). Language tag according to RFC 5646.
+     * Alias for `lang` - either `lang` or `locale` must be provided.
+     */
+    locale: z.string().optional(),
+
+    /** REQUIRED. Human-readable name for the credential type. */
+    name: z.string(),
+    /** OPTIONAL. Description of the credential type for end users. */
+    description: z.string().optional(),
+    /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
+    rendering: RenderingSchema.optional(),
+  })
+  .transform(({ lang, locale, ...rest }) => ({
+    ...rest,
+    locale: locale ?? lang,
+  }))
+  .refine(({ locale }) => locale !== undefined, {
+    message:
+      'Either locale (preferred) or lang (spec name, deprecated) MUST be defined on claim display entry.',
+  });
 
 export type Display = z.infer<typeof DisplaySchema>;
 
