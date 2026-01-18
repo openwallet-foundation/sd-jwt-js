@@ -27,7 +27,7 @@ const baseVctm: TypeMetadataFormat = {
   ],
   display: [
     {
-      lang: 'en',
+      locale: 'en',
       name: 'Base Credential',
       description: 'Base description',
     },
@@ -47,12 +47,12 @@ const extendingVctm: TypeMetadataFormat = {
   ],
   display: [
     {
-      lang: 'en',
+      locale: 'en',
       name: 'Extended Credential',
       description: 'Extended description',
     },
     {
-      lang: 'de',
+      locale: 'de',
       name: 'Erweiterte Berechtigung',
       description: 'Erweiterte Beschreibung',
     },
@@ -368,12 +368,12 @@ describe('App', () => {
     // Display from extending type completely replaces base display (section 8.2)
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display).toHaveLength(2);
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0]).toEqual({
-      lang: 'en',
+      locale: 'en',
       name: 'Extended Credential',
       description: 'Extended description',
     });
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1]).toEqual({
-      lang: 'de',
+      locale: 'de',
       name: 'Erweiterte Berechtigung',
       description: 'Erweiterte Beschreibung',
     });
@@ -650,10 +650,10 @@ describe('App', () => {
 
     // Check mergedTypeMetadata - since middle doesn't define display, it should inherit from extending which has display
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display).toHaveLength(2);
-    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0].lang).toBe(
+    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0].locale).toBe(
       'en',
     );
-    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1].lang).toBe(
+    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1].locale).toBe(
       'de',
     );
 

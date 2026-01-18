@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const BackgroundImageSchema = z.looseObject({
+  /** REQUIRED. A URI pointing to the background image. */
+  uri: z.string(),
+  /** OPTIONAL. An "integrity metadata" string as described in Section 7. */
+  'uri#integrity': z.string().optional(),
+});
+export type BackgroundImage = z.infer<typeof BackgroundImageSchema>;
+
 /**
  * Logo metadata used in rendering a credential.
  */
@@ -24,6 +32,8 @@ export const SimpleRenderingSchema = z.looseObject({
   background_color: z.string().optional(),
   /** OPTIONAL. RGB color value for the credential text (e.g., "#000000"). */
   text_color: z.string().optional(),
+  /** OPTIONAL. An object containing information about the background image to be displayed for the type. */
+  background_image: BackgroundImageSchema.optional(),
 });
 
 export type SimpleRendering = z.infer<typeof SimpleRenderingSchema>;
@@ -68,28 +78,57 @@ export type SvgTemplateRendering = z.infer<typeof SvgTemplateRenderingSchema>;
 /**
  * Rendering metadata, either simple or SVG-based, for a credential.
  */
-export const RenderingSchema = z.looseObject({
-  /** OPTIONAL. Simple rendering metadata. */
-  simple: SimpleRenderingSchema.optional(),
-  /** OPTIONAL. Array of SVG template rendering objects. */
-  svg_template: z.array(SvgTemplateRenderingSchema).optional(),
-});
+export const RenderingSchema = z
+  .looseObject({
+    /** OPTIONAL. Simple rendering metadata. */
+    simple: SimpleRenderingSchema.optional(),
+    /** OPTIONAL. Array of SVG template rendering objects. */
+    svg_templates: z.array(SvgTemplateRenderingSchema).optional(),
+    /**
+     * OPTIONAL. Array of SVG template rendering objects.
+     * @deprecated use `svg_templates` (plural) instead.
+     */
+    svg_template: z.array(SvgTemplateRenderingSchema).optional(),
+  })
+  .transform(({ svg_template, svg_templates, ...rest }) => ({
+    ...rest,
+    svg_templates: svg_templates ?? svg_template,
+  }));
 
 export type Rendering = z.infer<typeof RenderingSchema>;
 
 /**
  * Display metadata associated with a credential type.
  */
-export const DisplaySchema = z.looseObject({
-  /** REQUIRED. Language tag according to RFC 5646 (e.g., "en", "de"). */
-  lang: z.string(),
-  /** REQUIRED. Human-readable name for the credential type. */
-  name: z.string(),
-  /** OPTIONAL. Description of the credential type for end users. */
-  description: z.string().optional(),
-  /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
-  rendering: RenderingSchema.optional(),
-});
+export const DisplaySchema = z
+  .looseObject({
+    /**
+     * Language tag according to RFC 5646 (e.g., "en", "de").
+     * @deprecated - use `locale` instead
+     */
+    lang: z.string().optional(),
+
+    /**
+     * REQUIRED (preferred). Language tag according to RFC 5646.
+     * Alias for `lang` - either `lang` or `locale` must be provided.
+     */
+    locale: z.string().optional(),
+
+    /** REQUIRED. Human-readable name for the credential type. */
+    name: z.string(),
+    /** OPTIONAL. Description of the credential type for end users. */
+    description: z.string().optional(),
+    /** OPTIONAL. Rendering information (simple or SVG) for the credential. */
+    rendering: RenderingSchema.optional(),
+  })
+  .transform(({ lang, locale, ...rest }) => ({
+    ...rest,
+    locale: locale ?? lang,
+  }))
+  .refine(({ locale }) => locale !== undefined, {
+    message:
+      'Either locale (preferred) or lang (spec name, deprecated) MUST be defined on claim display entry.',
+  });
 
 export type Display = z.infer<typeof DisplaySchema>;
 
