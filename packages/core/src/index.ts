@@ -10,6 +10,9 @@ import {
   type SDJWTCompact,
   type SDJWTConfig,
   type Signer,
+  type SafeVerifyResult,
+  type VerificationError,
+  type VerificationErrorCode,
 } from '@sd-jwt/types';
 import {
   base64urlDecode,
@@ -257,6 +260,199 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     }
 
     return { payload, header, kb };
+  }
+
+  /**
+   * Safe verification that collects all errors instead of failing fast.
+   * Returns a result object with either the verified data or an array of all errors.
+   *
+   * @param encodedSDJwt - The encoded SD-JWT to verify
+   * @param options - Verification options
+   * @returns A SafeVerifyResult containing either success data or collected errors
+   */
+  public async safeVerify(
+    encodedSDJwt: string,
+    options?: VerifierOptions,
+  ): Promise<
+    SafeVerifyResult<{
+      payload: ExtendedPayload;
+      header: Record<string, unknown> | undefined;
+      kb?: { payload: Record<string, unknown>; header: Record<string, unknown> };
+    }>
+  > {
+    const errors: VerificationError[] = [];
+
+    // Helper to add errors
+    const addError = (
+      code: VerificationErrorCode,
+      message: string,
+      details?: unknown,
+    ) => {
+      errors.push({ code, message, details });
+    };
+
+    // Helper to convert exception to error code
+    const exceptionToCode = (error: Error): VerificationErrorCode => {
+      const message = error.message.toLowerCase();
+      if (message.includes('hasher not found')) return 'HASHER_NOT_FOUND';
+      if (message.includes('verifier not found')) return 'VERIFIER_NOT_FOUND';
+      if (message.includes('invalid sd jwt') || message.includes('invalid jwt'))
+        return 'INVALID_SD_JWT';
+      if (message.includes('not yet valid')) return 'JWT_NOT_YET_VALID';
+      if (message.includes('expired')) return 'JWT_EXPIRED';
+      if (message.includes('signature')) return 'INVALID_JWT_SIGNATURE';
+      if (message.includes('missing required claim'))
+        return 'MISSING_REQUIRED_CLAIMS';
+      if (message.includes('key binding jwt not exist'))
+        return 'KEY_BINDING_JWT_MISSING';
+      if (message.includes('key binding verifier not found'))
+        return 'KEY_BINDING_VERIFIER_NOT_FOUND';
+      if (message.includes('sd_hash')) return 'KEY_BINDING_SD_HASH_INVALID';
+      return 'UNKNOWN_ERROR';
+    };
+
+    // Check basic configuration first
+    if (!this.userConfig.hasher) {
+      addError('HASHER_NOT_FOUND', 'Hasher not found');
+    }
+    if (!this.userConfig.verifier) {
+      addError('VERIFIER_NOT_FOUND', 'Verifier not found');
+    }
+
+    // If basic config is missing, return early
+    if (errors.length > 0) {
+      return { success: false, errors };
+    }
+
+    const hasher = this.userConfig.hasher as Hasher;
+
+    // Try to decode and validate the SD-JWT
+    let sdjwt: SDJwt | undefined;
+    let payload: ExtendedPayload | undefined;
+    let header: Record<string, unknown> | undefined;
+
+    try {
+      sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
+      if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+        addError('INVALID_SD_JWT', 'Invalid SD JWT: missing JWT or payload');
+      }
+    } catch (error) {
+      addError(
+        'INVALID_SD_JWT',
+        `Failed to decode SD-JWT: ${(error as Error).message}`,
+        error,
+      );
+    }
+
+    // Validate signature and claims
+    if (sdjwt?.jwt) {
+      try {
+        const result = await this.VerifyJwt(sdjwt.jwt, options);
+        header = result.header;
+        const claims = await sdjwt.getClaims(hasher);
+        payload = claims as ExtendedPayload;
+      } catch (error) {
+        const code = exceptionToCode(error as Error);
+        addError(code, (error as Error).message, error);
+      }
+    }
+
+    // Check required claim keys
+    if (sdjwt && options?.requiredClaimKeys) {
+      try {
+        const keys = await sdjwt.keys(hasher);
+        const missingKeys = options.requiredClaimKeys.filter(
+          (k) => !keys.includes(k),
+        );
+        if (missingKeys.length > 0) {
+          addError(
+            'MISSING_REQUIRED_CLAIMS',
+            `Missing required claim keys: ${missingKeys.join(', ')}`,
+            { missingKeys },
+          );
+        }
+      } catch (error) {
+        addError(
+          'UNKNOWN_ERROR',
+          `Failed to check required claims: ${(error as Error).message}`,
+          error,
+        );
+      }
+    }
+
+    // Verify key binding if requested
+    let kb:
+      | { payload: Record<string, unknown>; header: Record<string, unknown> }
+      | undefined;
+    if (options?.keyBindingNonce && sdjwt) {
+      if (!sdjwt.kbJwt) {
+        addError('KEY_BINDING_JWT_MISSING', 'Key Binding JWT not exist');
+      } else if (!this.userConfig.kbVerifier) {
+        addError(
+          'KEY_BINDING_VERIFIER_NOT_FOUND',
+          'Key Binding Verifier not found',
+        );
+      } else if (payload) {
+        try {
+          const kbResult = await sdjwt.kbJwt.verifyKB({
+            verifier: this.userConfig.kbVerifier,
+            payload: payload as JwtPayload,
+            nonce: options.keyBindingNonce,
+          });
+          if (!kbResult) {
+            addError(
+              'KEY_BINDING_SIGNATURE_INVALID',
+              'Key binding signature is not valid',
+            );
+          } else {
+            kb = kbResult;
+
+            // Verify sd_hash
+            const sdjwtWithoutKb = new SDJwt({
+              jwt: sdjwt.jwt,
+              disclosures: sdjwt.disclosures,
+            });
+            const presentSdJwtWithoutKb = sdjwtWithoutKb.encodeSDJwt();
+            const sdHashStr = await this.calculateSDHash(
+              presentSdJwtWithoutKb,
+              sdjwt,
+              hasher,
+            );
+
+            if (sdHashStr !== kbResult.payload.sd_hash) {
+              addError(
+                'KEY_BINDING_SD_HASH_INVALID',
+                'Invalid sd_hash in Key Binding JWT',
+                {
+                  expected: sdHashStr,
+                  received: kbResult.payload.sd_hash,
+                },
+              );
+            }
+          }
+        } catch (error) {
+          addError(
+            'KEY_BINDING_SIGNATURE_INVALID',
+            `Key binding verification failed: ${(error as Error).message}`,
+            error,
+          );
+        }
+      }
+    }
+
+    // Return result
+    if (errors.length > 0) {
+      return { success: false, errors };
+    }
+
+    return {
+      success: true,
+      data: {
+        payload: payload as ExtendedPayload,
+        header,
+        kb,
+      },
+    };
   }
 
   private async calculateSDHash(

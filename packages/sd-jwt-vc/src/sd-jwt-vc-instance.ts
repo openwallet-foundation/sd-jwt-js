@@ -5,7 +5,14 @@ import {
   type StatusListJWTHeaderParameters,
   type StatusListJWTPayload,
 } from '@sd-jwt/jwt-status-list';
-import type { DisclosureFrame, Hasher, Verifier } from '@sd-jwt/types';
+import type {
+  DisclosureFrame,
+  Hasher,
+  SafeVerifyResult,
+  VerificationError,
+  VerificationErrorCode,
+  Verifier,
+} from '@sd-jwt/types';
 import { SDJWTException } from '@sd-jwt/utils';
 import z from 'zod';
 import type {
@@ -131,6 +138,122 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       result.typeMetadata = resolvedTypeMetadata;
     }
     return result;
+  }
+
+  /**
+   * Safe verification that collects all errors instead of failing fast.
+   * Returns a result object with either the verified data or an array of all errors.
+   * This includes SD-JWT-VC specific validations like status and VCT metadata.
+   *
+   * @param encodedSDJwt - The encoded SD-JWT-VC to verify
+   * @param options - Verification options
+   * @returns A SafeVerifyResult containing either success data or collected errors
+   */
+  async safeVerify(
+    encodedSDJwt: string,
+    options?: VerifierOptions,
+  ): Promise<SafeVerifyResult<VerificationResult>> {
+    const errors: VerificationError[] = [];
+
+    // Helper to add errors
+    const addError = (
+      code: VerificationErrorCode,
+      message: string,
+      details?: unknown,
+    ) => {
+      errors.push({ code, message, details });
+    };
+
+    // First, call the parent's safeVerify to get base verification results
+    const baseResult = await super.safeVerify(encodedSDJwt, options);
+
+    // Collect errors from base verification
+    if (!baseResult.success) {
+      errors.push(...baseResult.errors);
+    }
+
+    // Build partial result for additional verifications
+    let result: VerificationResult | undefined;
+    if (baseResult.success) {
+      result = {
+        payload: baseResult.data.payload as SdJwtVcPayload,
+        header: baseResult.data.header,
+        kb: baseResult.data.kb,
+      };
+    } else {
+      // Try to extract payload even if verification failed for status/vct checks
+      try {
+        const { payload, header } = await SDJwt.extractJwt<
+          Record<string, unknown>,
+          SdJwtVcPayload
+        >(encodedSDJwt);
+        if (payload) {
+          result = {
+            payload,
+            header,
+            kb: undefined,
+          };
+        }
+      } catch {
+        // Cannot extract payload, skip additional checks
+      }
+    }
+
+    // Verify status (if payload is available)
+    if (result) {
+      try {
+        await this.verifyStatus(result, options);
+      } catch (error) {
+        const errorMessage = (error as Error).message;
+        if (errorMessage.includes('Status is not valid')) {
+          addError('STATUS_INVALID', errorMessage, error);
+        } else {
+          addError(
+            'STATUS_VERIFICATION_FAILED',
+            `Status verification failed: ${errorMessage}`,
+            error,
+          );
+        }
+      }
+
+      // Verify VCT metadata (if configured)
+      if (this.userConfig.loadTypeMetadataFormat) {
+        try {
+          const resolvedTypeMetadata = await this.fetchVct(result);
+          if (result) {
+            result.typeMetadata = resolvedTypeMetadata;
+          }
+        } catch (error) {
+          addError(
+            'VCT_VERIFICATION_FAILED',
+            `VCT verification failed: ${(error as Error).message}`,
+            error,
+          );
+        }
+      }
+    }
+
+    // Return result
+    if (errors.length > 0) {
+      return { success: false, errors };
+    }
+
+    if (!result) {
+      return {
+        success: false,
+        errors: [
+          {
+            code: 'INVALID_SD_JWT',
+            message: 'Failed to construct verification result',
+          },
+        ],
+      };
+    }
+
+    return {
+      success: true,
+      data: result,
+    };
   }
 
   /**
