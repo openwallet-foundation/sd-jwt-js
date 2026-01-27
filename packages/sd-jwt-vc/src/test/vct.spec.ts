@@ -22,12 +22,12 @@ const baseVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['firstName'],
-      display: [{ lang: 'en', label: 'First Name' }],
+      display: [{ locale: 'en', label: 'First Name' }],
     },
   ],
   display: [
     {
-      lang: 'en',
+      locale: 'en',
       name: 'Base Credential',
       description: 'Base description',
     },
@@ -42,17 +42,17 @@ const extendingVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['lastName'],
-      display: [{ lang: 'en', label: 'Last Name' }],
+      display: [{ locale: 'en', label: 'Last Name' }],
     },
   ],
   display: [
     {
-      lang: 'en',
+      locale: 'en',
       name: 'Extended Credential',
       description: 'Extended description',
     },
     {
-      lang: 'de',
+      locale: 'de',
       name: 'Erweiterte Berechtigung',
       description: 'Erweiterte Beschreibung',
     },
@@ -67,7 +67,7 @@ const middleVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['age'],
-      display: [{ lang: 'en', label: 'Age' }],
+      display: [{ locale: 'en', label: 'Age' }],
     },
   ],
 };
@@ -80,12 +80,12 @@ const overridingVctm: TypeMetadataFormat = {
   claims: [
     {
       path: ['firstName'],
-      display: [{ lang: 'en', label: 'Given Name' }], // Override with different label
+      display: [{ locale: 'en', label: 'Given Name' }], // Override with different label
       sd: 'always' as const,
     },
     {
       path: ['middleName'],
-      display: [{ lang: 'en', label: 'Middle Name' }],
+      display: [{ locale: 'en', label: 'Middle Name' }],
     },
   ],
 };
@@ -109,7 +109,7 @@ const baseWithSdAlways: TypeMetadataFormat = {
     {
       path: ['sensitiveData'],
       sd: 'always' as const,
-      display: [{ lang: 'en', label: 'Sensitive Data' }],
+      display: [{ locale: 'en', label: 'Sensitive Data' }],
     },
   ],
 };
@@ -122,7 +122,7 @@ const invalidExtendingSdChange: TypeMetadataFormat = {
     {
       path: ['sensitiveData'],
       sd: 'never' as const, // Invalid: trying to change from 'always' to 'never'
-      display: [{ lang: 'en', label: 'Sensitive Data' }],
+      display: [{ locale: 'en', label: 'Sensitive Data' }],
     },
   ],
 };
@@ -135,9 +135,23 @@ const validExtendingSdChange: TypeMetadataFormat = {
     {
       path: ['firstName'],
       sd: 'always' as const, // Valid: base doesn't have sd or has 'allowed'
-      display: [{ lang: 'en', label: 'First Name' }],
+      display: [{ locale: 'en', label: 'First Name' }],
     },
   ],
+};
+
+const vctWithCustomProperties: TypeMetadataFormat = {
+  vct: 'http://example.com/custom-properties',
+  name: 'CustomProperties',
+  claims: [
+    {
+      path: ['firstName'],
+      sd: 'always' as const, // Valid: base doesn't have sd or has 'allowed'
+      display: [{ locale: 'en', label: 'First Name' }],
+      anotherCustom: 'property',
+    },
+  ],
+  test: 'something',
 };
 
 const restHandlers = [
@@ -178,6 +192,9 @@ const restHandlers = [
   }),
   http.get('http://example.com/valid-sd-change', () => {
     return HttpResponse.json(validExtendingSdChange);
+  }),
+  http.get('http://example.com/custom-properties', () => {
+    return HttpResponse.json(vctWithCustomProperties);
   }),
   http.get('http://example.com/invalid', () => {
     // Return invalid type metadata (missing required 'vct' field)
@@ -351,12 +368,12 @@ describe('App', () => {
     // Display from extending type completely replaces base display (section 8.2)
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display).toHaveLength(2);
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0]).toEqual({
-      lang: 'en',
+      locale: 'en',
       name: 'Extended Credential',
       description: 'Extended description',
     });
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1]).toEqual({
-      lang: 'de',
+      locale: 'de',
       name: 'Erweiterte Berechtigung',
       description: 'Erweiterte Beschreibung',
     });
@@ -633,15 +650,35 @@ describe('App', () => {
 
     // Check mergedTypeMetadata - since middle doesn't define display, it should inherit from extending which has display
     expect(resolvedTypeMetadata?.mergedTypeMetadata.display).toHaveLength(2);
-    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0].lang).toBe(
+    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[0].locale).toBe(
       'en',
     );
-    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1].lang).toBe(
+    expect(resolvedTypeMetadata?.mergedTypeMetadata.display?.[1].locale).toBe(
       'de',
     );
 
     // Check typeMetadataChain - should have 3 documents
     expect(resolvedTypeMetadata?.typeMetadataChain).toHaveLength(3);
     expect(resolvedTypeMetadata?.vctValues).toHaveLength(3);
+  });
+
+  test('VCT with custom properties are kept', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct: 'http://example.com/custom-properties',
+      ...claims,
+    };
+
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    const resolvedTypeMetadata = await sdjwt.getVct(encodedSdjwt);
+
+    expect(resolvedTypeMetadata?.mergedTypeMetadata).toEqual(
+      vctWithCustomProperties,
+    );
   });
 });

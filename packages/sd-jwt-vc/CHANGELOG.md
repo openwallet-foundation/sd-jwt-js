@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.19.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.18.1...v0.19.0) (2026-01-23)
+
+
+### Bug Fixes
+
+* missing/updated fields in type metadata ([#359](https://github.com/openwallet-foundation/sd-jwt-js/issues/359)) ([d230a8d](https://github.com/openwallet-foundation/sd-jwt-js/commit/d230a8df2899b342b98a1d72eb606fb31de41924))
+
+
+### Features
+
+* update to locale ([#358](https://github.com/openwallet-foundation/sd-jwt-js/issues/358)) ([114389e](https://github.com/openwallet-foundation/sd-jwt-js/commit/114389ef8e02b4b40d4e16585a4eea0bdb0732bc))
+
+
+
+
+
+## [0.18.1](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.18.0...v0.18.1) (2026-01-14)
+
+
+### Bug Fixes
+
+* keep custom properties on type metadata ([#357](https://github.com/openwallet-foundation/sd-jwt-js/issues/357)) ([2b1f0ba](https://github.com/openwallet-foundation/sd-jwt-js/commit/2b1f0badd7fcc4096e12c38dae227f0ed9d30ec3))
+
+
+
+
+
 # [0.18.0](https://github.com/openwallet-foundation/sd-jwt-js/compare/v0.17.1...v0.18.0) (2026-01-11)
 
 
