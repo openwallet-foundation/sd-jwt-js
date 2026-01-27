@@ -158,17 +158,29 @@ export const ClaimDisplaySchema = z
     locale: z.string().optional(),
 
     /** REQUIRED. Human-readable label for the claim. */
-    label: z.string(),
+    label: z.string().optional(),
+
+    /**
+     * Human-readable label for the claim.
+     * @deprecated - use `label` instead
+     */
+    name: z.string().optional(),
+
     /** OPTIONAL. Description of the claim for end users. */
     description: z.string().optional(),
   })
-  .transform(({ lang, locale, ...rest }) => ({
+  .transform(({ lang, name, label, locale, ...rest }) => ({
     ...rest,
     locale: locale ?? lang,
+    label: label ?? name,
   }))
   .refine(({ locale }) => locale !== undefined, {
     message:
-      'Either locale (preferred) or lang (spec name, deprecated) MUST be defined on claim display entry.',
+      'Either locale (preferred) or lang (deprecated) MUST be defined on claim display entry.',
+  })
+  .refine(({ label }) => label !== undefined, {
+    message:
+      'Either label (preferred) or name (deprecated) MUST be defined on claim display entry.',
   });
 
 export type ClaimDisplay = z.infer<typeof ClaimDisplaySchema>;
