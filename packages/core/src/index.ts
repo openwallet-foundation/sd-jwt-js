@@ -7,10 +7,10 @@ import {
   KB_JWT_TYP,
   type KBOptions,
   type PresentationFrame,
+  type SafeVerifyResult,
   type SDJWTCompact,
   type SDJWTConfig,
   type Signer,
-  type SafeVerifyResult,
   type VerificationError,
   type VerificationErrorCode,
 } from '@sd-jwt/types';

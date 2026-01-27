@@ -674,7 +674,7 @@ describe('index', () => {
   });
 
   test('safeVerify - invalid signature error', async () => {
-    const { signer, verifier } = createSignerVerifier();
+    const { signer } = createSignerVerifier();
     const { verifier: wrongVerifier } = createSignerVerifier(); // Different key pair
 
     const issuer = new SDJwtInstance<SdJwtPayload>({
