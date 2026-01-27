@@ -272,7 +272,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
    */
   public async safeVerify(
     encodedSDJwt: string,
-    options?: VerifierOptions,
+    options?: T & VerifierOptions,
   ): Promise<
     SafeVerifyResult<{
       payload: ExtendedPayload;

@@ -178,7 +178,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       result = {
         payload: baseResult.data.payload as SdJwtVcPayload,
         header: baseResult.data.header,
-        kb: baseResult.data.kb,
+        kb: baseResult.data.kb as VerificationResult['kb'],
       };
     } else {
       // Try to extract payload even if verification failed for status/vct checks
