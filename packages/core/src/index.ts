@@ -277,7 +277,10 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload> {
     SafeVerifyResult<{
       payload: ExtendedPayload;
       header: Record<string, unknown> | undefined;
-      kb?: { payload: Record<string, unknown>; header: Record<string, unknown> };
+      kb?: {
+        payload: Record<string, unknown>;
+        header: Record<string, unknown>;
+      };
     }>
   > {
     const errors: VerificationError[] = [];
