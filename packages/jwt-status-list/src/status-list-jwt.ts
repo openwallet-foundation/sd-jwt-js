@@ -8,6 +8,7 @@ import type {
   StatusListJWTHeaderParameters,
   StatusListJWTPayload,
 } from './types';
+import { JWT_STATUS_LIST_TYPE } from './types';
 
 /**
  * Decode a JWT and return the payload.
@@ -40,7 +41,7 @@ export function createHeaderAndPayload(
   }
   //exp and tll are optional. We will not validate the business logic of the values like exp > iat etc.
 
-  header.typ = 'statuslist+jwt';
+  header.typ = JWT_STATUS_LIST_TYPE;
   payload.status_list = {
     bits: list.getBitsPerStatus(),
     lst: list.compressStatusList(),
