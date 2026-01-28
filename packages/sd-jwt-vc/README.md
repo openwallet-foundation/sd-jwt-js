@@ -109,6 +109,63 @@ The library will load load the type metadata format based on the `vct` value acc
 
 Since at this point the display is not yet implemented, the library will only validate the schema and return the type metadata format. In the future the values of the type metadata can be fetched via a function call.
 
+### Verification
+
+The library provides two verification approaches:
+
+#### Standard Verification (Fail-Fast)
+
+The `verify()` method throws an error immediately when the first validation failure is encountered:
+
+```typescript
+try {
+  const result = await sdjwt.verify(presentation);
+  console.log('Verified payload:', result.payload);
+} catch (error) {
+  console.error('Verification failed:', error.message);
+}
+```
+
+#### Safe Verification (Collect All Errors)
+
+The `safeVerify()` method collects all validation errors instead of failing on the first one. This is useful when you want to show users all issues with a credential at once, including signature, status (revocation), and VCT metadata validation:
+
+```typescript
+import type { SafeVerifyResult, VerificationError } from '@sd-jwt/types';
+
+const result = await sdjwt.safeVerify(presentation);
+
+if (result.success) {
+  // Verification succeeded
+  console.log('Verified payload:', result.payload);
+  console.log('Header:', result.header);
+  if (result.kb) {
+    console.log('Key binding:', result.kb);
+  }
+  if (result.typeMetadata) {
+    console.log('Type metadata:', result.typeMetadata);
+  }
+} else {
+  // Verification failed - inspect all errors
+  for (const error of result.errors) {
+    console.error(`[${error.code}] ${error.message}`);
+    if (error.details) {
+      console.error('Details:', error.details);
+    }
+  }
+}
+```
+
+##### SD-JWT-VC Specific Error Codes
+
+In addition to the [core error codes](../core/README.md#error-codes), `safeVerify()` in SD-JWT-VC can return:
+
+| Code | Description |
+|------|-------------|
+| `STATUS_VERIFICATION_FAILED` | Status list fetch or verification failed |
+| `STATUS_INVALID` | Credential status indicates revocation |
+| `VCT_VERIFICATION_FAILED` | VCT type metadata fetch or validation failed |
+
 ### Dependencies
 
 - @sd-jwt/core

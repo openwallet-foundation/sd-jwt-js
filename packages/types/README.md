@@ -34,6 +34,27 @@ Ensure you have Node.js installed as a prerequisite.
 
 Check out more details in our [documentation](https://github.com/openwallet-foundation/sd-jwt-js/tree/main/docs) or [examples](https://github.com/openwallet-foundation/sd-jwt-js/tree/main/examples)
 
+### Verification Types
+
+The package exports types for safe verification that collects all errors:
+
+```typescript
+import type {
+  SafeVerifyResult,
+  VerificationError,
+  VerificationErrorCode,
+} from '@sd-jwt/types';
+
+// SafeVerifyResult<T> is a discriminated union:
+// - { success: true; data: T } on success
+// - { success: false; errors: VerificationError[] } on failure
+
+// VerificationError contains:
+// - code: VerificationErrorCode (e.g., 'INVALID_JWT_SIGNATURE')
+// - message: string
+// - details?: unknown
+```
+
 ### Dependencies
 
 None

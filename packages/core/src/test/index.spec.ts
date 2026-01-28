@@ -627,4 +627,156 @@ describe('index', () => {
       expect(decode).toBeDefined();
     },
   );
+
+  test('safeVerify - success case', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000),
+      },
+      {
+        _sd: ['foo'],
+      },
+    );
+
+    const result = await sdjwt.safeVerify(credential);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.payload).toBeDefined();
+      expect(result.data.payload.foo).toBe('bar');
+    }
+  });
+
+  test('safeVerify - collect multiple errors', async () => {
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({});
+
+    const result = await sdjwt.safeVerify('invalid.jwt.token');
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      // Should have multiple errors: hasher not found, verifier not found
+      expect(result.errors.length).toBeGreaterThanOrEqual(2);
+      const errorCodes = result.errors.map((e) => e.code);
+      expect(errorCodes).toContain('HASHER_NOT_FOUND');
+      expect(errorCodes).toContain('VERIFIER_NOT_FOUND');
+    }
+  });
+
+  test('safeVerify - invalid signature error', async () => {
+    const { signer } = createSignerVerifier();
+    const { verifier: wrongVerifier } = createSignerVerifier(); // Different key pair
+
+    const issuer = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    const verifierInstance = new SDJwtInstance<SdJwtPayload>({
+      verifier: wrongVerifier,
+      hasher: digest,
+    });
+
+    const credential = await issuer.issue(
+      {
+        foo: 'bar',
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000),
+      },
+      {
+        _sd: ['foo'],
+      },
+    );
+
+    const result = await verifierInstance.safeVerify(credential);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      // The error message from the verifier contains 'signature' which maps to INVALID_JWT_SIGNATURE
+      const hasSignatureError = result.errors.some(
+        (e) =>
+          e.code === 'INVALID_JWT_SIGNATURE' ||
+          e.message.toLowerCase().includes('signature'),
+      );
+      expect(hasSignatureError).toBe(true);
+    }
+  });
+
+  test('safeVerify - expired JWT error', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
+        exp: Math.floor(Date.now() / 1000) - 1800, // Expired 30 min ago
+      },
+      {
+        _sd: ['foo'],
+      },
+    );
+
+    const result = await sdjwt.safeVerify(credential);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.some((e) => e.code === 'JWT_EXPIRED')).toBe(true);
+    }
+  });
+
+  test('safeVerify - missing required claims error', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000),
+      },
+      {
+        _sd: ['foo'],
+      },
+    );
+
+    // Present without disclosing 'foo'
+    const presentation = await sdjwt.present(credential, {});
+
+    const result = await sdjwt.safeVerify(presentation, {
+      requiredClaimKeys: ['foo', 'missing_claim'],
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(
+        result.errors.some((e) => e.code === 'MISSING_REQUIRED_CLAIMS'),
+      ).toBe(true);
+    }
+  });
 });
