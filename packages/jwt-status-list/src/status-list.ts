@@ -80,6 +80,38 @@ export class StatusList {
   }
 
   /**
+   * Compress the status list and return as raw bytes (for CBOR/CWT encoding).
+   * According to the spec, the CWT representation uses raw byte strings, not base64url.
+   * @returns Compressed byte array
+   */
+  compressStatusListToBytes(): Uint8Array {
+    const byteArray = this.encodeStatusList();
+    return deflate(byteArray, { level: 9 });
+  }
+
+  /**
+   * Decompress a raw byte array and return a new StatusList instance.
+   * This is used for CBOR/CWT encoded status lists where the lst is a byte string.
+   * @param compressed Raw compressed byte array
+   * @param bitsPerStatus Bits per status value
+   */
+  static decompressStatusListFromBytes(
+    compressed: Uint8Array,
+    bitsPerStatus: BitsPerStatus,
+  ): StatusList {
+    try {
+      const decompressed = inflate(compressed);
+      const statusList = StatusList.decodeStatusList(
+        decompressed,
+        bitsPerStatus,
+      );
+      return new StatusList(statusList, bitsPerStatus);
+    } catch (err: unknown) {
+      throw new Error(`Decompression failed: ${err}`);
+    }
+  }
+
+  /**
    * Decompress the compressed status list and return a new StatusList instance.
    * @param compressed
    * @param bitsPerStatus

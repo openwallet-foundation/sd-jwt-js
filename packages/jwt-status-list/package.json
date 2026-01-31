@@ -43,6 +43,7 @@
   "dependencies": {
     "@sd-jwt/types": "workspace:*",
     "@sd-jwt/utils": "workspace:*",
+    "cbor-x": "^1.6.0",
     "pako": "^2.1.0"
   },
   "publishConfig": {
