@@ -1,5 +1,5 @@
 import type { SDJWTConfig, Verifier } from '@sd-jwt/types';
-import type { VcTFetcher } from './sd-jwt-vc-vct';
+import type { VCTFetcher } from './sd-jwt-vc-vct';
 
 export type StatusListFetcher = (uri: string) => Promise<string>;
 export type StatusValidator = (status: number) => Promise<void>;
@@ -13,7 +13,7 @@ export type SDJWTVCConfig = SDJWTConfig & {
   // validte the status and decide if the status is valid or not. If not provided, the code will continue if it is 0, otherwise it will throw an error.
   statusValidator?: StatusValidator;
   // a function that fetches the type metadata format from the uri. If not provided, the library will assume that the response is a TypeMetadataFormat. Caching has to be implemented in this function. If the integrity value is passed, it to be validated according to https://www.w3.org/TR/SRI/
-  vctFetcher?: VcTFetcher;
+  vctFetcher?: VCTFetcher;
   // a function that verifies the status of the JWT. If not provided, the library will assume that the status is valid if it is 0.
   statusVerifier?: Verifier;
   // if set to true, it will load the metadata format based on the vct value. If not provided, it will default to false.
