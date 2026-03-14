@@ -6,6 +6,7 @@ import {
 } from '@owf/token-status-list';
 import {
   type DisclosureFrame,
+  ensureError,
   Jwt,
   type SafeVerifyResult,
   SDJWTException,
@@ -14,7 +15,6 @@ import {
   type VerificationError,
   type VerificationErrorCode,
   type VerifierOptions,
-  ensureError,
 } from '@sd-jwt/core';
 import z from 'zod';
 import type {
@@ -642,9 +642,12 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           StatusListJWTPayload
         >(statusListJWT);
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
+        if (!this.userConfig.verifier || !this.userConfig.statusVerifier) {
+          throw new SDJWTException('Verifier not found for status list JWT');
+        }
         await slJWT
           .verify(
-            this.userConfig.statusVerifier ?? this.userConfig.verifier!,
+            this.userConfig.statusVerifier ?? this.userConfig.verifier,
             options,
           )
           .catch((err: SLException) => {

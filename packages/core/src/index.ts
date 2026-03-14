@@ -332,8 +332,12 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       return { success: false, errors };
     }
 
+    if (!this.userConfig.hasher) {
+      throw new SDJWTException('Hasher not found');
+    }
+
     // hasher and verifier are guaranteed to be defined here
-    const hasher = this.userConfig.hasher!;
+    const hasher = this.userConfig.hasher;
 
     // Try to decode and validate the SD-JWT
     let sdjwt: SDJwt | undefined;
