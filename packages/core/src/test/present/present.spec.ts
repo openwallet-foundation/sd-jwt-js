@@ -1,7 +1,6 @@
 import { hasher as digest } from '@owf/crypto';
-import { decodeSdJwt, decodeSdJwtSync } from '../../decode';
-import type { PresentationFrame } from '../../types';
 import { describe, expect, test } from 'vitest';
+import { decodeSdJwt, decodeSdJwtSync } from '../../decode';
 import {
   present,
   presentableKeys,
@@ -11,6 +10,7 @@ import {
   selectDisclosures,
   transformPresentationFrame,
 } from '../../present';
+import type { PresentationFrame } from '../../types';
 
 describe('Present tests', () => {
   test('presentableKeys', async () => {

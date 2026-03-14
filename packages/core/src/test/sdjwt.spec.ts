@@ -1,11 +1,11 @@
 import Crypto from 'node:crypto';
 import { generateSalt, hasher } from '@owf/crypto';
-import { createHashMapping, unpack } from '../decode';
-import type { DisclosureFrame, Signer } from '../types';
-import { Disclosure } from '../utils';
 import { describe, expect, test } from 'vitest';
+import { createHashMapping, unpack } from '../decode';
 import { Jwt } from '../jwt';
 import { listKeys, pack, SDJwt } from '../sdjwt';
+import type { DisclosureFrame, Signer } from '../types';
+import { Disclosure } from '../utils';
 
 const hash = { alg: 'SHA256', hasher };
 

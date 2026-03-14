@@ -1,4 +1,9 @@
 import { getSDAlgAndPayload } from './decode';
+import { FlattenJSON } from './flattenJSON';
+import { GeneralJSON } from './generalJSON';
+import { Jwt, type VerifierOptions } from './jwt';
+import { KBJwt } from './kbjwt';
+import { pack, SDJwt } from './sdjwt';
 import {
   type DisclosureFrame,
   type Hasher,
@@ -20,24 +25,18 @@ import {
   SDJWTException,
   uint8ArrayToBase64Url,
 } from './utils';
-import { FlattenJSON } from './flattenJSON';
-import { GeneralJSON } from './generalJSON';
-import { Jwt, type VerifierOptions } from './jwt';
-import { KBJwt } from './kbjwt';
-import { pack, SDJwt } from './sdjwt';
 
-// Re-export all types, utils, decode, and present functionality
-export * from './types';
-export * from './utils';
 export * from './decode';
-export * from './present';
-
 export * from './decoy';
 export * from './flattenJSON';
 export * from './generalJSON';
 export * from './jwt';
 export * from './kbjwt';
+export * from './present';
 export * from './sdjwt';
+// Re-export all types, utils, decode, and present functionality
+export * from './types';
+export * from './utils';
 
 export type SdJwtPayload = Record<string, unknown>;
 

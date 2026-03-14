@@ -4,6 +4,7 @@
   "scripts": {
     "build": "lerna run build --stream",
     "lint": "biome check .",
+    "lint:fix": "biome check . --fix",
     "format": "biome format . --write",
     "biome:ci": "biome ci .",
     "test": "vitest run --coverage.enabled=true --coverage.include=packages/*",

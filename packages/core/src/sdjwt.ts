@@ -1,4 +1,7 @@
 import { createHashMapping, getSDAlgAndPayload, unpack } from './decode';
+import { createDecoy } from './decoy';
+import { Jwt } from './jwt';
+import { KBJwt } from './kbjwt';
 import { transformPresentationFrame } from './present';
 import {
   type DisclosureFrame,
@@ -15,9 +18,6 @@ import {
   type SDJWTCompact,
 } from './types';
 import { Disclosure, SDJWTException } from './utils';
-import { createDecoy } from './decoy';
-import { Jwt } from './jwt';
-import { KBJwt } from './kbjwt';
 
 export type SDJwtData<
   Header extends Record<string, unknown>,

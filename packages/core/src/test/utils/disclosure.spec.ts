@@ -1,7 +1,7 @@
 import { generateSalt, hasher } from '@owf/crypto';
 import { describe, expect, test } from 'vitest';
-import { Disclosure } from '../../utils/disclosure';
 import { base64urlEncode, type SDJWTException } from '../../utils';
+import { Disclosure } from '../../utils/disclosure';
 
 const hash = { alg: 'SHA256', hasher };
 

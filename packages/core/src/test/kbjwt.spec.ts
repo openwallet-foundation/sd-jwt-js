@@ -1,4 +1,7 @@
 import Crypto, { type KeyLike } from 'node:crypto';
+import { exportJWK, importJWK, type JWK } from 'jose';
+import { describe, expect, test } from 'vitest';
+import { KBJwt } from '../kbjwt';
 import {
   type JwtPayload,
   KB_JWT_TYP,
@@ -6,9 +9,6 @@ import {
   type Signer,
 } from '../types';
 import type { SDJWTException } from '../utils';
-import { exportJWK, importJWK, type JWK } from 'jose';
-import { describe, expect, test } from 'vitest';
-import { KBJwt } from '../kbjwt';
 
 describe('KB JWT', () => {
   test('create', async () => {

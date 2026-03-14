@@ -1,3 +1,4 @@
+import { Jwt } from './jwt';
 import {
   type JwtPayload,
   KB_JWT_TYP,
@@ -6,7 +7,6 @@ import {
   type kbPayload,
 } from './types';
 import { SDJWTException } from './utils';
-import { Jwt } from './jwt';
 
 export class KBJwt<
   Header extends kbHeader = kbHeader,

@@ -91,6 +91,16 @@ pnpm test
 
 We use [Vitest](https://vitest.dev/) and [CodeCov](https://app.codecov.io/gh/openwallet-foundation/sd-jwt-js) for coverage.
 
+### Linting & Formatting
+
+```bash
+pnpm run lint          # check for issues
+pnpm run lint:fix      # auto-fix issues
+pnpm run format        # format all files
+```
+
+We use [Biome](https://biomejs.dev/) for linting and formatting.
+
 ## Security
 
 - [x] [Mandatory Signing of the Issuer-signed JWT](https://www.rfc-editor.org/rfc/rfc9901.html#name-mandatory-signing-of-the-is)

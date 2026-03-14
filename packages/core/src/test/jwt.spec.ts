@@ -1,8 +1,8 @@
 import Crypto from 'node:crypto';
-import type { Signer, Verifier } from '../types';
-import { base64urlEncode, SDJWTException } from '../utils';
 import { describe, expect, test } from 'vitest';
 import { Jwt } from '../jwt';
+import type { Signer, Verifier } from '../types';
+import { base64urlEncode, SDJWTException } from '../utils';
 
 describe('JWT', () => {
   test('create', async () => {
