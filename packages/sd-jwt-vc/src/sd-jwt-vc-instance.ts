@@ -308,10 +308,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
-    const hashBuffer = await this.userConfig.hasher(
-      arrayBuffer,
-      alg,
-    );
+    const hashBuffer = await this.userConfig.hasher(arrayBuffer, alg);
     const integrityHash = integrity.split('-')[1];
     const hash = Array.from(new Uint8Array(hashBuffer))
       .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -647,8 +644,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         // check if the status list has a valid signature. The presence of the verifier is checked in the parent class.
         await slJWT
           .verify(
-            this.userConfig.statusVerifier ??
-              this.userConfig.verifier!,
+            this.userConfig.statusVerifier ?? this.userConfig.verifier!,
             options,
           )
           .catch((err: SLException) => {

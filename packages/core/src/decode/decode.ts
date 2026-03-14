@@ -236,12 +236,7 @@ const unpackObjInternal = (
       ) {
         const newKey = prefix ? `${prefix}.${key}` : key;
         const { unpackedObj, disclosureKeymap: disclosureKeys } =
-          unpackObjInternal(
-            record[key],
-            map,
-            newKey,
-            seenDigests,
-          );
+          unpackObjInternal(record[key], map, newKey, seenDigests);
         record[key] = unpackedObj;
         Object.assign(keys, disclosureKeys);
       }
