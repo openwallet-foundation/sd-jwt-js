@@ -14,3 +14,12 @@ export class SDJWTException extends Error {
     }`;
   }
 }
+
+/**
+ * Narrows an unknown caught value to an Error instance.
+ */
+export function ensureError(value: unknown): Error {
+  if (value instanceof Error) return value;
+  if (typeof value === 'string') return new Error(value);
+  return new Error(String(value));
+}

@@ -126,23 +126,28 @@ export const decodeSdJwtSync = (
 
 // Get the claims from jwt and disclosures
 // The digested values are matched with the disclosures and the claims are extracted
-export const getClaims = async <T>(
+export const getClaims = async <T = Record<string, unknown>>(
   rawPayload: Record<string, unknown>,
   disclosures: Array<Disclosure>,
   hasher: Hasher,
 ): Promise<T> => {
   const { unpackedObj } = await unpack(rawPayload, disclosures, hasher);
+  // The caller supplies T to match their expected shape
   return unpackedObj as T;
 };
 
-export const getClaimsSync = <T>(
+export const getClaimsSync = <T = Record<string, unknown>>(
   rawPayload: Record<string, unknown>,
   disclosures: Array<Disclosure>,
   hasher: HasherSync,
 ): T => {
   const { unpackedObj } = unpackSync(rawPayload, disclosures, hasher);
+  // The caller supplies T to match their expected shape
   return unpackedObj as T;
 };
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
 
 const unpackArray = (
   arr: Array<unknown>,
@@ -153,9 +158,9 @@ const unpackArray = (
   const keys: Record<string, string> = {};
   const unpackedArray: unknown[] = [];
   arr.forEach((item, idx) => {
-    if (typeof item === 'object' && item !== null) {
-      const hash = (item as Record<string, string>)[SD_LIST_KEY];
-      if (hash) {
+    if (isRecord(item)) {
+      const hash = item[SD_LIST_KEY];
+      if (typeof hash === 'string') {
         // RFC 9901 Section 7.1 step 4: reject duplicate digests
         if (seenDigests) {
           if (seenDigests.has(hash)) {
@@ -182,6 +187,12 @@ const unpackArray = (
         unpackedArray.push(unpackedObj);
         Object.assign(keys, disclosureKeys);
       }
+    } else if (Array.isArray(item)) {
+      const newKey = prefix ? `${prefix}.${idx}` : `${idx}`;
+      const { unpackedObj, disclosureKeymap: disclosureKeys } =
+        unpackObjInternal(item, map, newKey, seenDigests);
+      unpackedArray.push(unpackedObj);
+      Object.assign(keys, disclosureKeys);
     } else {
       unpackedArray.push(item);
     }
@@ -216,26 +227,27 @@ const unpackObjInternal = (
       return unpackArray(obj, map, prefix, seenDigests);
     }
 
-    for (const key in obj) {
+    const record = obj as Record<string, unknown>;
+    for (const key in record) {
       if (
         key !== SD_DIGEST &&
         key !== SD_LIST_KEY &&
-        typeof (obj as Record<string, unknown>)[key] === 'object'
+        typeof record[key] === 'object'
       ) {
         const newKey = prefix ? `${prefix}.${key}` : key;
         const { unpackedObj, disclosureKeymap: disclosureKeys } =
           unpackObjInternal(
-            (obj as Record<string, unknown>)[key],
+            record[key],
             map,
             newKey,
             seenDigests,
           );
-        (obj as Record<string, unknown>)[key] = unpackedObj;
+        record[key] = unpackedObj;
         Object.assign(keys, disclosureKeys);
       }
     }
 
-    const { _sd, ...payload } = obj as Record<string, unknown> & {
+    const { _sd, ...payload } = record as Record<string, unknown> & {
       _sd?: Array<string>;
     };
     const claims: Record<string, unknown> = {};

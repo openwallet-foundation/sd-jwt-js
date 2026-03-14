@@ -28,7 +28,7 @@ export class Disclosure<T = unknown> {
     }
     if (data.length === 3) {
       this.salt = data[0];
-      this.key = data[1] as string;
+      this.key = data[1];
       this.value = data[2];
       return;
     }

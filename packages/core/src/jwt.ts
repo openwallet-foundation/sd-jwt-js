@@ -154,23 +154,18 @@ export class Jwt<
   public async verify<T>(verifier: Verifier<T>, options?: T & VerifierOptions) {
     const skew = options?.skewSeconds ? options.skewSeconds : 0;
     const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
-    if (
-      this.payload?.iat &&
-      (this.payload.iat as number) - skew > currentDate
-    ) {
+    const iat = this.payload?.iat;
+    const nbf = this.payload?.nbf;
+    const exp = this.payload?.exp;
+
+    if (typeof iat === 'number' && iat - skew > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
 
-    if (
-      this.payload?.nbf &&
-      (this.payload.nbf as number) - skew > currentDate
-    ) {
+    if (typeof nbf === 'number' && nbf - skew > currentDate) {
       throw new SDJWTException('Verify Error: JWT is not yet valid');
     }
-    if (
-      this.payload?.exp &&
-      (this.payload.exp as number) + skew < currentDate
-    ) {
+    if (typeof exp === 'number' && exp + skew < currentDate) {
       throw new SDJWTException('Verify Error: JWT is expired');
     }
 

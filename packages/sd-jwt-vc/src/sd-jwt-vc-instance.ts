@@ -6,7 +6,6 @@ import {
 } from '@owf/token-status-list';
 import {
   type DisclosureFrame,
-  type Hasher,
   Jwt,
   type SafeVerifyResult,
   SDJWTException,
@@ -14,8 +13,8 @@ import {
   SDJwtInstance,
   type VerificationError,
   type VerificationErrorCode,
-  type Verifier,
   type VerifierOptions,
+  ensureError,
 } from '@sd-jwt/core';
 import z from 'zod';
 import type {
@@ -63,9 +62,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     ) {
       const reservedNames = ['iss', 'nbf', 'exp', 'cnf', 'vct', 'status'];
       // check if there is any reserved names in the disclosureFrame._sd array
-      const reservedNamesInDisclosureFrame = (
-        disclosureFrame._sd as string[]
-      ).filter((key) => reservedNames.includes(key));
+      const reservedNamesInDisclosureFrame = disclosureFrame._sd.filter((key) =>
+        reservedNames.includes(String(key)),
+      );
       if (reservedNamesInDisclosureFrame.length > 0) {
         throw new SDJWTException('Cannot disclose protected field');
       }
@@ -206,8 +205,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     if (result) {
       try {
         await this.verifyStatus(result, options);
-      } catch (error) {
-        const errorMessage = (error as Error).message;
+      } catch (e) {
+        const error = ensureError(e);
+        const errorMessage = error.message;
         if (errorMessage.includes('Status is not valid')) {
           addError('STATUS_INVALID', errorMessage, error);
         } else {
@@ -226,11 +226,11 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
           if (result) {
             result.typeMetadata = resolvedTypeMetadata;
           }
-        } catch (error) {
+        } catch (e) {
           addError(
             'VCT_VERIFICATION_FAILED',
-            `VCT verification failed: ${(error as Error).message}`,
-            error,
+            `VCT verification failed: ${ensureError(e).message}`,
+            e,
           );
         }
       }
@@ -305,7 +305,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     const arrayBuffer = await response.arrayBuffer();
     const alg = integrity.split('-')[0];
     //TODO: error handling when a hasher is passed that is not supporting the required algorithm according to the spec
-    const hashBuffer = await (this.userConfig.hasher as Hasher)(
+    if (!this.userConfig.hasher) {
+      throw new SDJWTException('Hasher not found');
+    }
+    const hashBuffer = await this.userConfig.hasher(
       arrayBuffer,
       alg,
     );
@@ -343,8 +346,9 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       const data = await response.json();
 
       return data;
-    } catch (error) {
-      if ((error as Error).name === 'TimeoutError') {
+    } catch (e) {
+      const error = ensureError(e);
+      if (error.name === 'TimeoutError') {
         throw new Error(`Request to ${url} timed out`);
       }
       throw error;
@@ -644,7 +648,7 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
         await slJWT
           .verify(
             this.userConfig.statusVerifier ??
-              (this.userConfig.verifier as Verifier),
+              this.userConfig.verifier!,
             options,
           )
           .catch((err: SLException) => {
