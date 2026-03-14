@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/core",
-  "version": "0.19.0",
+  "version": "0.0.0",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -37,13 +37,10 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@sd-jwt/crypto-nodejs": "workspace:*"
+    "@owf/crypto": "^0.1.0-alpha-20260312123226"
   },
   "dependencies": {
-    "@sd-jwt/decode": "workspace:*",
-    "@sd-jwt/present": "workspace:*",
-    "@sd-jwt/types": "workspace:*",
-    "@sd-jwt/utils": "workspace:*"
+    "@owf/identity-common": "^0.1.0-alpha-20260312123226"
   },
   "publishConfig": {
     "access": "public"

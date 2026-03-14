@@ -1,8 +1,8 @@
 import Crypto from 'node:crypto';
-import { generateSalt, digest as hasher } from '@sd-jwt/crypto-nodejs';
-import { createHashMapping, unpack } from '@sd-jwt/decode';
-import type { DisclosureFrame, Signer } from '@sd-jwt/types';
-import { Disclosure } from '@sd-jwt/utils';
+import { generateSalt, hasher } from '@owf/crypto';
+import { createHashMapping, unpack } from '../decode';
+import type { DisclosureFrame, Signer } from '../types';
+import { Disclosure } from '../utils';
 import { describe, expect, test } from 'vitest';
 import { Jwt } from '../jwt';
 import { listKeys, pack, SDJwt } from '../sdjwt';

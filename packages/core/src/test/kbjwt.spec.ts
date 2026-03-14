@@ -4,8 +4,8 @@ import {
   KB_JWT_TYP,
   type KbVerifier,
   type Signer,
-} from '@sd-jwt/types';
-import type { SDJWTException } from '@sd-jwt/utils';
+} from '../types';
+import type { SDJWTException } from '../utils';
 import { exportJWK, importJWK, type JWK } from 'jose';
 import { describe, expect, test } from 'vitest';
 import { KBJwt } from '../kbjwt';

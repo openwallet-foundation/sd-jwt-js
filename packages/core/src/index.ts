@@ -1,4 +1,4 @@
-import { getSDAlgAndPayload } from '@sd-jwt/decode';
+import { getSDAlgAndPayload } from './decode';
 import {
   type DisclosureFrame,
   type Hasher,
@@ -13,18 +13,24 @@ import {
   type Signer,
   type VerificationError,
   type VerificationErrorCode,
-} from '@sd-jwt/types';
+} from './types';
 import {
   base64urlDecode,
   base64urlEncode,
   SDJWTException,
   uint8ArrayToBase64Url,
-} from '@sd-jwt/utils';
+} from './utils';
 import { FlattenJSON } from './flattenJSON';
 import { GeneralJSON } from './generalJSON';
 import { Jwt, type VerifierOptions } from './jwt';
 import { KBJwt } from './kbjwt';
 import { pack, SDJwt } from './sdjwt';
+
+// Re-export all types, utils, decode, and present functionality
+export * from './types';
+export * from './utils';
+export * from './decode';
+export * from './present';
 
 export * from './decoy';
 export * from './flattenJSON';

@@ -1,6 +1,6 @@
-import { decodeJwt } from '@sd-jwt/decode';
-import type { Base64urlString, Signer, Verifier } from '@sd-jwt/types';
-import { base64urlEncode, SDJWTException } from '@sd-jwt/utils';
+import { decodeJwt } from './decode';
+import type { Base64urlString, Signer, Verifier } from './types';
+import { base64urlEncode, SDJWTException } from './utils';
 
 export type JwtData<
   Header extends Record<string, unknown>,

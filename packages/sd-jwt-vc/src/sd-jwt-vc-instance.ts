@@ -1,19 +1,22 @@
-import { Jwt, SDJwt, SDJwtInstance, type VerifierOptions } from '@sd-jwt/core';
+import {
+  Jwt,
+  SDJwt,
+  SDJwtInstance,
+  type VerifierOptions,
+  type DisclosureFrame,
+  type Hasher,
+  type SafeVerifyResult,
+  type VerificationError,
+  type VerificationErrorCode,
+  type Verifier,
+  SDJWTException,
+} from '@sd-jwt/core';
 import {
   getListFromStatusListJWT,
   SLException,
   type StatusListJWTHeaderParameters,
   type StatusListJWTPayload,
-} from '@sd-jwt/jwt-status-list';
-import type {
-  DisclosureFrame,
-  Hasher,
-  SafeVerifyResult,
-  VerificationError,
-  VerificationErrorCode,
-  Verifier,
-} from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
+} from '@owf/token-status-list';
 import z from 'zod';
 import type {
   SDJWTVCConfig,

@@ -9,7 +9,9 @@
 
 ### About
 
-Core library for selective disclosure JWTs
+Core library for [Selective Disclosure for JWTs (SD-JWT) — RFC 9901](https://www.rfc-editor.org/rfc/rfc9901.html).
+
+This package provides types, utilities, encoding/decoding, presentation, and the main `SDJwtInstance` class — everything needed to issue, present, and verify SD-JWTs.
 
 Check the detail description in our github [repo](https://github.com/openwallet-foundation/sd-jwt-js).
 
@@ -37,10 +39,7 @@ If you want to use the pure sd-jwt class or implement your own sd-jwt credential
 
 ### Dependencies
 
-- @sd-jwt/decode
-- @sd-jwt/present
-- @sd-jwt/types
-- @sd-jwt/utils
+- [@owf/identity-common](https://www.npmjs.com/package/@owf/identity-common)
 
 ### Verification
 
@@ -64,7 +63,7 @@ try {
 The `safeVerify()` method collects all validation errors instead of failing on the first one. This is useful when you want to show users all issues with a credential at once:
 
 ```typescript
-import type { SafeVerifyResult, VerificationError } from '@sd-jwt/types';
+import type { SafeVerifyResult, VerificationError } from '@sd-jwt/core';
 
 const result = await sdjwt.safeVerify(credential);
 
@@ -105,4 +104,3 @@ The `safeVerify()` method returns errors with the following codes:
 | `KEY_BINDING_SIGNATURE_INVALID` | Key binding signature verification failed |
 | `KEY_BINDING_SD_HASH_INVALID` | Key binding `sd_hash` does not match |
 | `UNKNOWN_ERROR` | An unexpected error occurred |
-

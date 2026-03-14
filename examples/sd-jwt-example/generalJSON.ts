@@ -3,7 +3,7 @@ import {
   SDJwtGeneralJSONInstance,
   SDJwtInstance,
 } from '@sd-jwt/core';
-import type { DisclosureFrame } from '@sd-jwt/types';
+import type { DisclosureFrame } from '@sd-jwt/core';
 import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
 (async () => {

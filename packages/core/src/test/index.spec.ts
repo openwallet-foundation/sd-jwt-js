@@ -1,6 +1,6 @@
 import Crypto, { type KeyLike } from 'node:crypto';
-import { digest, ES256, generateSalt } from '@sd-jwt/crypto-nodejs';
-import type { JwtPayload, KbVerifier, Signer, Verifier } from '@sd-jwt/types';
+import { hasher as digest, ES256, generateSalt } from '@owf/crypto';
+import type { JwtPayload, KbVerifier, Signer, Verifier } from '../types';
 import { exportJWK, importJWK, type JWK } from 'jose';
 import { describe, expect, test } from 'vitest';
 import { SDJwtInstance, type SdJwtPayload } from '../index';

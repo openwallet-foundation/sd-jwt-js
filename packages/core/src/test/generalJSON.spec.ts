@@ -1,5 +1,5 @@
 import Crypto from 'node:crypto';
-import type { Signer, Verifier } from '@sd-jwt/types';
+import type { Signer, Verifier } from '../types';
 import { describe, expect, test } from 'vitest';
 import { GeneralJSON } from '..';
 

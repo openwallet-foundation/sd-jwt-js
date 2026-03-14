@@ -4,8 +4,8 @@ import {
   type KbVerifier,
   type kbHeader,
   type kbPayload,
-} from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
+} from './types';
+import { SDJWTException } from './utils';
 import { Jwt } from './jwt';
 
 export class KBJwt<

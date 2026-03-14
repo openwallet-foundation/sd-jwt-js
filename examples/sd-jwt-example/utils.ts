@@ -1,4 +1,4 @@
-import { digest, ES256, generateSalt } from '@sd-jwt/crypto-nodejs';
+import { digest, ES256, generateSalt } from '@owf/crypto';
 export { digest, generateSalt, ES256 };
 
 export const createSignerVerifier = async () => {

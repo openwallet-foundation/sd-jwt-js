@@ -1,7 +1,7 @@
 import Crypto from 'node:crypto';
 import { afterEach } from 'node:test';
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import type { DisclosureFrame, Signer, Verifier } from '@sd-jwt/types';
+import { hasher as digest, generateSalt } from '@owf/crypto';
+import type { DisclosureFrame, Signer, Verifier } from '@sd-jwt/core';
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, beforeAll, describe, expect, test, vitest } from 'vitest';
