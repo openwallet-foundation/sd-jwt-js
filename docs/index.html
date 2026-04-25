@@ -3,42 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SD JWT is a TypeScript library implementing the IETF SD-JWT specification for selective disclosure of JWT claims, enhancing privacy and security in digital communications." />
-    <meta name="keywords" content="SD JWT, TypeScript, JWT, JSON Web Token, selective disclosure, IETF, authentication, Node.js, React Native, security, privacy, data transmission" />
+    <meta name="description" content="SD-JWT is a TypeScript library implementing the IETF SD-JWT specification (RFC 9901) for selective disclosure of JWT claims, enhancing privacy and security in digital communications." />
+    <meta name="keywords" content="SD-JWT, TypeScript, JWT, JSON Web Token, selective disclosure, RFC 9901, authentication, Node.js, React Native, security, privacy" />
     <meta name="author" content="OpenWallet Foundation" />
-    <meta property="og:title" content="SD JWT - TypeScript JWT Library" />
+    <meta property="og:title" content="SD-JWT - TypeScript JWT Library" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://sdjwt.js.org" />
     <meta property="og:image" content="https://avatars.githubusercontent.com/u/114502864?s=200&v=4" />
-    <meta property="og:description" content="SD JWT is a TypeScript library implementing the IETF SD-JWT specification for selective disclosure of JWT claims, enhancing privacy and security in digital communications." />
-    <meta property="og:site_name" content="SD JWT - TypeScript JWT Library" />
+    <meta property="og:description" content="SD-JWT is a TypeScript library implementing the IETF SD-JWT specification (RFC 9901) for selective disclosure of JWT claims, enhancing privacy and security in digital communications." />
+    <meta property="og:site_name" content="SD-JWT - TypeScript JWT Library" />
     <meta property="og:locale" content="en_US" />
     <link rel="canonical" href="https://sdjwt.js.org" />
-    <title>SD JWT - TypeScript SD JWT Library</title>
-    <link
-      href="https://unpkg.com/tailwindcss@^2.0/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      .badge {
-        display: inline-block;
-        padding: 0.25em 0.4em;
-        font-size: 75%;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: 0.375rem;
-        background-color: #f3f4f6;
-        color: #374151;
-      }
-    </style>
+    <title>SD-JWT - TypeScript SD-JWT Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
   <body class="bg-gray-100 text-gray-900">
     <div class="container mx-auto px-6 py-8">
-      <h1 class="text-6xl font-bold mb-4">SD JWT</h1>
+      <h1 class="text-6xl font-bold mb-4">SD-JWT</h1>
       <div class="mb-6">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg"
@@ -46,77 +28,62 @@
           class="inline mr-2"
           width="30"
         />
-        <span class="badge">Node.js</span>
-        <span class="badge">Web</span>
-        <span class="badge">React Native</span>
+        <span class="inline-block px-2 py-1 text-xs font-bold bg-gray-200 text-gray-700 rounded-md">Node.js</span>
+        <span class="inline-block px-2 py-1 text-xs font-bold bg-gray-200 text-gray-700 rounded-md">Web</span>
+        <span class="inline-block px-2 py-1 text-xs font-bold bg-gray-200 text-gray-700 rounded-md">React Native</span>
       </div>
-      <h2 class="text-2xl font-bold mb-4">What is SD JWT?</h2>
+      <h2 class="text-2xl font-bold mb-4">What is SD-JWT?</h2>
       <p class="mb-4">
-        "Selective Disclosure for JWT" offers a cutting-edge approach to
-        handling JSON Web Tokens (JWT) in a way that enhances user privacy and
-        data security. In today's digital landscape, the demand for efficient
-        yet secure data transmission is paramount. This project addresses that
-        need by enabling selective disclosure of JWT claims, ensuring that only
-        necessary information is shared.
-      </p>
-      <p class="mb-4">
-        This is the reference implmentation of
+        Selective Disclosure for JWTs enables holders of JSON Web Tokens to
+        reveal only a subset of the claims contained in the token, rather than
+        disclosing everything. This library is a framework-agnostic, production-ready
+        TypeScript implementation of
         <a
-          href="https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt/"
+          href="https://www.rfc-editor.org/rfc/rfc9901.html"
           class="text-blue-700 hover:underline"
           target="_blank"
-          >IETF SD-JWT specification</a>
-        written in TypeScript. It aims to provide a production-ready, robust and
-        secure way to handle JWTs with selective disclosure capabilities. Easily
-        integrate JWT authentication into your Node.js, web, and React Native
-        projects.
+          >RFC 9901</a>.
       </p>
       <p class="mb-8">
         <a
-          href="./sdjwt.html"
-          class="bg-black text-white font-bold py-2 px-6 rounded hover:bg-gray-700 transition-colors duration-150 ease-in-out"
-          >> See the details</a
-        >
-        <a
           href="https://sdjwt.co"
           class="bg-blue-600 text-white font-bold py-2 px-6 rounded hover:bg-blue-800 transition-colors duration-150 ease-in-out"
-          >> Try it Online</a
+          >Try it Online</a
         >
       </p>
       <h2 class="text-2xl font-bold mb-4">What is SD-JWT VC?</h2>
       <p class="mb-4">
-        SD-JWT VC describes data formats as well as validation and processing rules to 
-        express Verifiable Credentials with JSON payloads with and without 
-        selective disclosure based on the SD-JWT. You can check the details in <a
-          href="https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/"
+        SD-JWT VC defines data formats and processing rules for expressing
+        Verifiable Credentials with JSON payloads using selective disclosure
+        based on SD-JWT. See the
+        <a
+          href="https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/15/"
           class="text-blue-700 hover:underline"
           target="_blank"
-        >IETF SD-JWT VC specification</a>
+        >IETF SD-JWT VC specification</a>.
       </p>
       <p class="mb-4">
-        Note: We are provide both SD-JWT and SD-JWT VC. The library can be used to create sd-jwt based credentials. 
-        To be compliant with the `sd-jwt-vc` standard, you can use the `@sd-jwt/sd-jwt-vc` that is implementing this spec.
+        This project provides both <code class="bg-gray-200 px-1 rounded">@sd-jwt/core</code> (pure SD-JWT) and
+        <code class="bg-gray-200 px-1 rounded">@sd-jwt/sd-jwt-vc</code> (SD-JWT VC compliant credentials).
       </p>
       <h2 class="text-2xl font-bold mb-4">Specification Compliance</h2>
       <div class="mb-4">
         <ul class="list-disc pl-5 space-y-2">
-          <li>SD-JWT: <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-selective-disclosure-jwt" target="_blank"><b>draft-ietf-oauth-selective-disclosure-jwt-17</b></a></li>
-          <li>SD-JWT VC: <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/" target="_blank"><b>draft-ietf-oauth-sd-jwt-vc-08</b></a></li>
-          <li>Token Status List: <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/" target="_blank"><b>draft-ietf-oauth-status-list-05</b></a></li>
+          <li>SD-JWT: <a href="https://www.rfc-editor.org/rfc/rfc9901.html" target="_blank" class="text-blue-700 hover:underline"><b>RFC 9901</b></a></li>
+          <li>SD-JWT VC: <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/15/" target="_blank" class="text-blue-700 hover:underline"><b>draft-ietf-oauth-sd-jwt-vc-15</b></a></li>
         </ul>
       </div>
       <h2 class="text-2xl font-bold mb-4">Installation</h2>
-      <p class="mb-4">
-        <div class="bg-gray-800 text-blue-200 font-mono text-sm p-4 rounded-lg overflow-x-auto my-6">
-          <pre>$ npm install @sd-jwt/sd-jwt-vc</pre>
-        </div>
-      </p>
+      <div class="bg-gray-800 text-blue-200 font-mono text-sm p-4 rounded-lg overflow-x-auto my-6">
+        <pre>$ npm install @sd-jwt/core
+$ npm install @sd-jwt/sd-jwt-vc</pre>
+      </div>
       <div class="flex justify-center items-center gap-4 pb-6">
         <a
-          href="https://github.com/openwallet-foundation/sd-jwt-js/tree/main/docs"
+          href="https://github.com/openwallet-foundation/sd-jwt-js"
           class="bg-black text-white font-bold py-2 px-6 rounded hover:bg-gray-700 transition-colors duration-150 ease-in-out"
           target="_blank"
-          >Documentation</a
+          >GitHub</a
         >
         |
         <a
@@ -126,31 +93,19 @@
           >Examples</a
         >
         |
-        <a 
-          href="https://github.com/openwallet-foundation/sd-jwt-js" 
+        <a
+          href="https://www.npmjs.com/package/@sd-jwt/core"
           class="text-blue-700 hover:underline"
           target="_blank"
-          >GitHub</a>
+          >npm</a>
       </div>
-      <h2 class="text-2xl font-bold mb-4">Architecture & Core Concept</h2>
-      <img
-        src="https://raw.githubusercontent.com/openwallet-foundation/sd-jwt-js/main/images/diagram.png"
-        class="img-responsive img-centered width-100 height-100"
-        alt="SD JWT diagram"
-      />
-      <p class="mb-4">
-        SD JWT is a TypeScript library that provides a simple, yet powerful API
-        for working with SD JWT. It is designed to be easy to use
-        and flexible, allowing you to issue, present, and verify SD JWT credentials with ease.
-      </p>
       <div class="mt-8">
         <h2 class="text-2xl font-bold mb-4">Key Features</h2>
         <ul class="list-disc pl-5 space-y-2">
-            <li><strong>Framework Agnostic:</strong> Universally compatible with various JavaScript frameworks. Easily integrates with React, React Native, and others without significant code alterations.</li>
-            <li><strong>Data Minimization and Efficiency:</strong> Minimizes JWT payload size for efficient QR code generation, ensuring scannability.</li>
-            <li><strong>Modular Design:</strong> Features a modular architecture for easy integration of selective disclosure capabilities, updates, and maintenance.</li>
-            <li><strong>Security-First:</strong> Adheres to security best practices, ensuring data integrity and secure token handling.</li>
-            <li><strong>Scalability and Performance:</strong> Efficient and performant under various loads, suitable for small to large-scale applications.</li>
+            <li><strong>Framework Agnostic:</strong> Works with Node.js, browsers, React Native, and any JavaScript runtime.</li>
+            <li><strong>QR Code Optimised:</strong> Compact JWT payloads for efficient QR code generation.</li>
+            <li><strong>Security-First:</strong> Full RFC 9901 compliance including duplicate digest rejection, unreferenced disclosure detection, and claim name collision checks.</li>
+            <li><strong>Bring Your Own Crypto:</strong> Pluggable signer, verifier, and hasher interfaces &mdash; no crypto lock-in.</li>
         </ul>
       </div>
     </div>

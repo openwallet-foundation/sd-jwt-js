@@ -11,8 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sd-jwt/crypto-nodejs": "workspace:*",
-    "@sd-jwt/decode": "workspace:*",
-    "@sd-jwt/types": "workspace:*"
+    "@owf/crypto": "^0.1.0-alpha-20260312123226",
+    "@sd-jwt/core": "workspace:*"
   }
 }

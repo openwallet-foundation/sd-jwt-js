@@ -1,4 +1,4 @@
-import type { SDJWTConfig, Verifier } from '@sd-jwt/types';
+import type { SDJWTConfig, Verifier } from '@sd-jwt/core';
 import type { VCTFetcher } from './sd-jwt-vc-vct';
 
 export type StatusListFetcher = (uri: string) => Promise<string>;

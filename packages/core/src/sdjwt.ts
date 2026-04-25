@@ -1,5 +1,8 @@
-import { createHashMapping, getSDAlgAndPayload, unpack } from '@sd-jwt/decode';
-import { transformPresentationFrame } from '@sd-jwt/present';
+import { createHashMapping, getSDAlgAndPayload, unpack } from './decode';
+import { createDecoy } from './decoy';
+import { Jwt } from './jwt';
+import { KBJwt } from './kbjwt';
+import { transformPresentationFrame } from './present';
 import {
   type DisclosureFrame,
   type Hasher,
@@ -13,11 +16,8 @@ import {
   SD_LIST_KEY,
   SD_SEPARATOR,
   type SDJWTCompact,
-} from '@sd-jwt/types';
-import { Disclosure, SDJWTException } from '@sd-jwt/utils';
-import { createDecoy } from './decoy';
-import { Jwt } from './jwt';
-import { KBJwt } from './kbjwt';
+} from './types';
+import { Disclosure, SDJWTException } from './utils';
 
 export type SDJwtData<
   Header extends Record<string, unknown>,
@@ -81,7 +81,7 @@ export class SDJwt<
     const { _sd_alg } = getSDAlgAndPayload(jwt.payload);
 
     const disclosures = await Promise.all(
-      (encodedDisclosures as Array<string>).map((ed) =>
+      encodedDisclosures.map((ed) =>
         Disclosure.fromEncode(ed, { alg: _sd_alg, hasher }),
       ),
     );
@@ -221,8 +221,9 @@ export const listKeys = (obj: Record<string, unknown>, prefix = '') => {
     const newKey = prefix ? `${prefix}.${key}` : key;
     keys.push(newKey);
 
-    if (obj[key] && typeof obj[key] === 'object' && obj[key] !== null) {
-      keys.push(...listKeys(obj[key] as Record<string, unknown>, newKey));
+    const value = obj[key];
+    if (value && typeof value === 'object') {
+      keys.push(...listKeys(value as Record<string, unknown>, newKey));
     }
   }
   return keys;

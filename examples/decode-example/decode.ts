@@ -1,5 +1,5 @@
-import { digest } from '@sd-jwt/crypto-nodejs';
-import { decodeSdJwt, getClaims } from '@sd-jwt/decode';
+import { digest } from '@owf/crypto';
+import { decodeSdJwt, getClaims } from '@sd-jwt/core';
 
 (async () => {
   const sdjwt =

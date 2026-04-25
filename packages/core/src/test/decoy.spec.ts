@@ -1,7 +1,7 @@
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
-import { base64urlEncode } from '@sd-jwt/utils';
+import { hasher as digest, generateSalt } from '@owf/crypto';
 import { describe, expect, test } from 'vitest';
 import { createDecoy } from '../decoy';
+import { base64urlEncode } from '../utils';
 
 const hash = {
   hasher: digest,
