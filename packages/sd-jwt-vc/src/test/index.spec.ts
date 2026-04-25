@@ -1,16 +1,16 @@
 import Crypto from 'node:crypto';
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
+import { hasher as digest, generateSalt } from '@owf/crypto';
 import {
   createHeaderAndPayload,
   StatusList,
   type StatusListJWTHeaderParameters,
-} from '@sd-jwt/jwt-status-list';
+} from '@owf/token-status-list';
 import type {
   DisclosureFrame,
   JwtPayload,
   Signer,
   Verifier,
-} from '@sd-jwt/types';
+} from '@sd-jwt/core';
 import { SignJWT } from 'jose';
 import { describe, expect, test } from 'vitest';
 import { SDJwtVcInstance } from '..';

@@ -1,8 +1,8 @@
 import Crypto from 'node:crypto';
-import type { Signer, Verifier } from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
 import { describe, expect, test } from 'vitest';
 import { Jwt } from '../jwt';
+import type { Signer, Verifier } from '../types';
+import { base64urlEncode, SDJWTException } from '../utils';
 
 describe('JWT', () => {
   test('create', async () => {
@@ -16,17 +16,11 @@ describe('JWT', () => {
   });
 
   test('returns decoded JWT when correct JWT string is provided', () => {
-    // Two objects are created separately, the first: { alg: 'HS256', typ: 'JWT' } represents a JWT Header and the second: { sub: '1234567890', name: 'John Doe' } represents a JWT Payload.
-    // These objects are turned into strings with JSON.stringify. The resulting strings are encoded with base64 encoding using Buffer.from(string).toString('base64').
-    // These base64 encoded strings are concatenated with a period (.) between them, following the structure of a JWT, which is composed of three Base64-URL strings separated by dots (header.payload.signature).
-    // A 'signature' string is added at the end to represent a JWT signature.
-    // So, the jwt variable ends up being a string with the format of a base64Url encoded Header, a period, a base64Url encoded Payload, another period, and a 'signature' string.
-    // It's important to note that the 'signature' here is just a placeholder string and not an actual cryptographic signature generated from the header and payload data.
-    const jwt = `${Buffer.from(
+    const jwt = `${base64urlEncode(
       JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
-    ).toString('base64')}.${Buffer.from(
+    )}.${base64urlEncode(
       JSON.stringify({ sub: '1234567890', name: 'John Doe' }),
-    ).toString('base64')}.signature`;
+    )}.signature`;
     const result = Jwt.decodeJWT(jwt);
     expect(result).toEqual({
       header: { alg: 'HS256', typ: 'JWT' },
@@ -41,9 +35,9 @@ describe('JWT', () => {
   });
 
   test('throws an error when JWT parts are missing', () => {
-    const jwt = `${Buffer.from(
+    const jwt = `${base64urlEncode(
       JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
-    ).toString('base64')}`;
+    )}`;
     expect(() => Jwt.decodeJWT(jwt)).toThrow('Invalid JWT as input');
   });
 

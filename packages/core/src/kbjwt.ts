@@ -1,12 +1,11 @@
+import { Jwt } from './jwt';
 import {
-  type JwtPayload,
   KB_JWT_TYP,
   type KbVerifier,
   type kbHeader,
   type kbPayload,
-} from '@sd-jwt/types';
-import { SDJWTException } from '@sd-jwt/utils';
-import { Jwt } from './jwt';
+} from './types';
+import { SDJWTException } from './utils';
 
 export class KBJwt<
   Header extends kbHeader = kbHeader,
@@ -16,7 +15,7 @@ export class KBJwt<
   // the type unknown is not good, but we don't know at this point how to get the public key of the signer, this is defined in the kbVerifier
   public async verifyKB(values: {
     verifier: KbVerifier;
-    payload: JwtPayload;
+    payload: Record<string, unknown>;
     nonce: string;
   }) {
     if (!this.header || !this.payload || !this.signature) {
@@ -34,7 +33,7 @@ export class KBJwt<
       // this is for backward compatibility with version 06
       !(
         this.payload.sd_hash ||
-        (this.payload as Record<string, unknown> | undefined)?._sd_hash
+        ('_sd_hash' in this.payload && this.payload._sd_hash)
       )
     ) {
       throw new SDJWTException('Invalid Key Binding Jwt');

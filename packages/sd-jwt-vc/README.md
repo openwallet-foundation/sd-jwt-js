@@ -1,5 +1,5 @@
 ![License](https://img.shields.io/github/license/openwallet-foundation/sd-jwt-js.svg)
-![NPM](https://img.shields.io/npm/v/%40sd-jwt%2Fcore)
+![NPM](https://img.shields.io/npm/v/%40sd-jwt%2Fsd-jwt-vc)
 ![Release](https://img.shields.io/github/v/release/openwallet-foundation/sd-jwt-js)
 ![Stars](https://img.shields.io/github/stars/openwallet-foundation/sd-jwt-js)
 
@@ -9,7 +9,7 @@
 
 ### About
 
-SD-JWT-VC format based on the core functions
+Implementation of [SD-JWT-based Verifiable Credentials (SD-JWT VC) — draft-ietf-oauth-sd-jwt-vc-15](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-15.html), built on top of `@sd-jwt/core` ([RFC 9901](https://www.rfc-editor.org/rfc/rfc9901.html)).
 
 Check the detail description in our github [repo](https://github.com/openwallet-foundation/sd-jwt-js).
 
@@ -34,8 +34,8 @@ Ensure you have Node.js installed as a prerequisite.
 
 Here's a basic example of how to use this library:
 
-```jsx
-import { DisclosureFrame } from '@sd-jwt/sd-jwt-vc';
+```typescript
+import type { DisclosureFrame } from '@sd-jwt/core';
 
 // identifier of the issuer
 const iss = 'University';
@@ -85,7 +85,7 @@ Check out more details in our [documentation](https://github.com/openwallet-foun
 
 ### Revocation
 
-To add revocation capabilities, you can use the `@sd-jwt/jwt-status-list` library to create a JWT Status List and include it in the SD-JWT-VC.
+To add revocation capabilities, you can use the `@owf/token-status-list` library to create a JWT Status List and include it in the SD-JWT-VC.
 
 You can pass a dedicated `statusVerifier` function in the configuration to verify the signature of the payload of the JWT of the statuslist. If no function is provided, it will fallback to the verifier that is also used for the sd-jwt-vc.
 
@@ -105,7 +105,7 @@ const sdjwt = new SDJwtVcInstance({
 });
 ```
 
-The library will load load the type metadata format based on the `vct` value according to the [SD-JWT-VC specification](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#name-sd-jwt-vc-type-metadata) and validate this schema.
+The library will load the type metadata format based on the `vct` value according to the [SD-JWT-VC specification](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-15.html#name-sd-jwt-vc-type-metadata) and validate this schema.
 
 Since at this point the display is not yet implemented, the library will only validate the schema and return the type metadata format. In the future the values of the type metadata can be fetched via a function call.
 
@@ -131,7 +131,7 @@ try {
 The `safeVerify()` method collects all validation errors instead of failing on the first one. This is useful when you want to show users all issues with a credential at once, including signature, status (revocation), and VCT metadata validation:
 
 ```typescript
-import type { SafeVerifyResult, VerificationError } from '@sd-jwt/types';
+import type { SafeVerifyResult, VerificationError } from '@sd-jwt/core';
 
 const result = await sdjwt.safeVerify(presentation);
 
@@ -168,7 +168,6 @@ In addition to the [core error codes](../core/README.md#error-codes), `safeVerif
 
 ### Dependencies
 
-- @sd-jwt/core
-- @sd-jwt/types
-- @sd-jwt/utils
-- @sd-jwt/jwt-status-list
+- [@sd-jwt/core](https://www.npmjs.com/package/@sd-jwt/core)
+- [@owf/token-status-list](https://www.npmjs.com/package/@owf/token-status-list)
+- [zod](https://www.npmjs.com/package/zod)

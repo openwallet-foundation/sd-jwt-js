@@ -1,13 +1,13 @@
 import Crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { digest, generateSalt } from '@sd-jwt/crypto-nodejs';
+import { hasher as digest, generateSalt } from '@owf/crypto';
 import type {
   DisclosureFrame,
   PresentationFrame,
   Signer,
   Verifier,
-} from '@sd-jwt/types';
+} from '@sd-jwt/core';
 import { describe, expect, test } from 'vitest';
 import { SDJwtVcInstance } from '../src/index';
 

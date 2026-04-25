@@ -1,5 +1,5 @@
+import type { DisclosureFrame, Verifier } from '@sd-jwt/core';
 import { SDJwtInstance } from '@sd-jwt/core';
-import type { DisclosureFrame, Verifier } from '@sd-jwt/types';
 import { createSignerVerifier, digest, ES256, generateSalt } from './utils';
 
 // 1. Define your extended options type

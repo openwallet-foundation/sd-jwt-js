@@ -1,9 +1,13 @@
-import { getSDAlgAndPayload } from '@sd-jwt/decode';
+import { getSDAlgAndPayload } from './decode';
+import { FlattenJSON } from './flattenJSON';
+import { GeneralJSON } from './generalJSON';
+import { Jwt, type VerifierOptions } from './jwt';
+import { KBJwt } from './kbjwt';
+import { pack, SDJwt } from './sdjwt';
 import {
   type DisclosureFrame,
   type Hasher,
   IANA_HASH_ALGORITHMS,
-  type JwtPayload,
   KB_JWT_TYP,
   type KBOptions,
   type PresentationFrame,
@@ -13,25 +17,26 @@ import {
   type Signer,
   type VerificationError,
   type VerificationErrorCode,
-} from '@sd-jwt/types';
+} from './types';
 import {
   base64urlDecode,
   base64urlEncode,
+  ensureError,
   SDJWTException,
   uint8ArrayToBase64Url,
-} from '@sd-jwt/utils';
-import { FlattenJSON } from './flattenJSON';
-import { GeneralJSON } from './generalJSON';
-import { Jwt, type VerifierOptions } from './jwt';
-import { KBJwt } from './kbjwt';
-import { pack, SDJwt } from './sdjwt';
+} from './utils';
 
+export * from './decode';
 export * from './decoy';
 export * from './flattenJSON';
 export * from './generalJSON';
 export * from './jwt';
 export * from './kbjwt';
+export * from './present';
 export * from './sdjwt';
+// Re-export all types, utils, decode, and present functionality
+export * from './types';
+export * from './utils';
 
 export type SdJwtPayload = Record<string, unknown>;
 
@@ -235,7 +240,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     }
     const kb = await sdjwt.kbJwt.verifyKB({
       verifier: this.userConfig.kbVerifier,
-      payload: payload as JwtPayload,
+      payload,
       nonce: options.keyBindingNonce,
     });
     if (!kb) {
@@ -327,7 +332,12 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       return { success: false, errors };
     }
 
-    const hasher = this.userConfig.hasher as Hasher;
+    if (!this.userConfig.hasher) {
+      throw new SDJWTException('Hasher not found');
+    }
+
+    // hasher and verifier are guaranteed to be defined here
+    const hasher = this.userConfig.hasher;
 
     // Try to decode and validate the SD-JWT
     let sdjwt: SDJwt | undefined;
@@ -339,10 +349,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       if (!sdjwt.jwt || !sdjwt.jwt.payload) {
         addError('INVALID_SD_JWT', 'Invalid SD JWT: missing JWT or payload');
       }
-    } catch (error) {
+    } catch (e) {
+      const error = ensureError(e);
       addError(
         'INVALID_SD_JWT',
-        `Failed to decode SD-JWT: ${(error as Error).message}`,
+        `Failed to decode SD-JWT: ${error.message}`,
         error,
       );
     }
@@ -354,9 +365,10 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
         header = result.header;
         const claims = await sdjwt.getClaims(hasher);
         payload = claims as ExtendedPayload;
-      } catch (error) {
-        const code = exceptionToCode(error as Error);
-        addError(code, (error as Error).message, error);
+      } catch (e) {
+        const error = ensureError(e);
+        const code = exceptionToCode(error);
+        addError(code, error.message, error);
       }
     }
 
@@ -374,10 +386,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
             { missingKeys },
           );
         }
-      } catch (error) {
+      } catch (e) {
+        const error = ensureError(e);
         addError(
           'UNKNOWN_ERROR',
-          `Failed to check required claims: ${(error as Error).message}`,
+          `Failed to check required claims: ${error.message}`,
           error,
         );
       }
@@ -399,7 +412,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
         try {
           const kbResult = await sdjwt.kbJwt.verifyKB({
             verifier: this.userConfig.kbVerifier,
-            payload: payload as JwtPayload,
+            payload,
             nonce: options.keyBindingNonce,
           });
           if (!kbResult) {
@@ -433,10 +446,11 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
               );
             }
           }
-        } catch (error) {
+        } catch (e) {
+          const error = ensureError(e);
           addError(
             'KEY_BINDING_SIGNATURE_INVALID',
-            `Key binding verification failed: ${(error as Error).message}`,
+            `Key binding verification failed: ${error.message}`,
             error,
           );
         }
@@ -491,7 +505,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     }
 
     const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, options);
-    const claims = await sdjwt.getClaims(hasher);
+    const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
     return { payload: claims, header: verifiedPayloads.header };
   }
 
@@ -758,8 +772,8 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     }
     const kb = await sdjwt.kbJwt.verifyKB({
       verifier: this.userConfig.kbVerifier,
-      payload: payload as JwtPayload,
-      nonce: options.keyBindingNonce as string,
+      payload,
+      nonce: options.keyBindingNonce,
     });
     if (!kb) {
       throw new Error('signature is not valid');
@@ -835,7 +849,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    const claims = await sdjwt.getClaims(hasher);
+    const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
     return { payload: claims, headers: results.map((r) => r.header) };
   }
 

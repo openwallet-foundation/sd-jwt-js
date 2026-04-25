@@ -1,14 +1,14 @@
 import Crypto, { type KeyLike } from 'node:crypto';
+import { exportJWK, importJWK, type JWK } from 'jose';
+import { describe, expect, test } from 'vitest';
+import { KBJwt } from '../kbjwt';
 import {
   type JwtPayload,
   KB_JWT_TYP,
   type KbVerifier,
   type Signer,
-} from '@sd-jwt/types';
-import type { SDJWTException } from '@sd-jwt/utils';
-import { exportJWK, importJWK, type JWK } from 'jose';
-import { describe, expect, test } from 'vitest';
-import { KBJwt } from '../kbjwt';
+} from '../types';
+import type { SDJWTException } from '../utils';
 
 describe('KB JWT', () => {
   test('create', async () => {
