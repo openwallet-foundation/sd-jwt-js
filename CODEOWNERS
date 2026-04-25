@@ -2,4 +2,5 @@
 # @zustkeeper: Byungjoo Kim, Hopae Inc.
 # @lukasjhan: Lukas.J.Han, Hopae Inc. 
 
-* @lukasjhan @aceshim @zustkeeper @berendsliedrecht @cre8 @TimoGlastra
+# This file is used to define code owners for the repository.
+*	@openwallet-foundation/sd-jwt-js-maintainers
