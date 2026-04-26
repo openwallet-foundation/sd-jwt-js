@@ -17,25 +17,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Check if user is in CODEOWNERS
+      - name: Check if user is a repo maintainer
         id: check_user
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          CODEOWNERS_PATH="CODEOWNERS"
-          if [ ! -f "$CODEOWNERS_PATH" ]; then
-              echo "CODEOWNERS file not found."
-              exit 1
-          fi
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
 
-          # Extract GitHub usernames from CODEOWNERS file (assumes usernames, not emails or teams)
-          USERS=$(grep '@' $CODEOWNERS_PATH | sed -E 's/.*@([^ ]+).*/\1/' | sed 's/://g' | tr '\n' ' ')
+          PERMISSION=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${REPO}/collaborators/${ACTOR}/permission" \
+            --jq '.permission' 2>/dev/null || echo "")
 
-          # Check if the actor is in the list of users
-          if [[ ! " $USERS " =~ " ${{ github.actor }} " ]]; then
-              echo "Error: Actor ${{ github.actor }} is not listed in CODEOWNERS."
+          case "$PERMISSION" in
+            admin|maintain)
+              echo "Actor ${ACTOR} has '${PERMISSION}' permission on ${REPO}."
+              ;;
+            *)
+              echo "Error: Actor ${ACTOR} does not have maintainer/admin permission on ${REPO} (got: '${PERMISSION}')."
               exit 1
-          else
-              echo "Actor ${{ github.actor }} is listed in CODEOWNERS."
-          fi
+              ;;
+          esac
 
   build:
     # For workflow_dispatch, wait for check-author. Otherwise, run immediately.
