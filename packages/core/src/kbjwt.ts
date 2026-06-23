@@ -1,4 +1,4 @@
-import { Jwt } from './jwt';
+import { Jwt, type VerifierOptions } from './jwt';
 import {
   KB_JWT_TYP,
   type KbVerifier,
@@ -17,6 +17,11 @@ export class KBJwt<
     verifier: KbVerifier;
     payload: Record<string, unknown>;
     nonce: string;
+    /**
+     * Options forwarded to the common JWT verification, e.g. currentDate and
+     * skewSeconds used to validate the iat, nbf and exp claims.
+     */
+    options?: VerifierOptions;
   }) {
     if (!this.header || !this.payload || !this.signature) {
       throw new SDJWTException('Verify Error: Invalid JWT');
@@ -39,18 +44,18 @@ export class KBJwt<
       throw new SDJWTException('Invalid Key Binding Jwt');
     }
 
-    const data = this.getUnsignedToken();
-    const verified = await values.verifier(
-      data,
-      this.signature,
-      values.payload,
-    );
-    if (!verified) {
-      throw new SDJWTException('Verify Error: Invalid JWT Signature');
-    }
     if (this.payload.nonce !== values.nonce) {
       throw new SDJWTException('Verify Error: Invalid Nonce');
     }
+
+    // Delegate signature verification and common JWT claim validation
+    // (iat, nbf, exp) to the shared Jwt.verify implementation. The kbVerifier
+    // needs the kb+jwt payload (e.g. the holder's cnf key) which the base
+    // verifier receives via the options argument.
+    await this.verify(
+      (data, sig) => values.verifier(data, sig, values.payload),
+      values.options,
+    );
 
     return { payload: this.payload, header: this.header };
   }
