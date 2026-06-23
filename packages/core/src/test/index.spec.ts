@@ -303,10 +303,11 @@ describe('index', () => {
       kbSignAlg: 'EdDSA',
     });
 
+    const now = Math.floor(Date.now() / 1000);
     const credential = await sdjwt.issue(
       {
         foo: 'bar',
-        iat: Math.floor(Date.now() / 1000),
+        iat: now,
         cnf: { jwk: await exportJWK(publicKey) },
       },
       { _sd: ['foo'] },
@@ -319,10 +320,10 @@ describe('index', () => {
         kb: {
           payload: {
             aud: '1',
-            iat: 1,
+            iat: now - 7200,
             nonce: '342',
-            // kb+jwt expired one hour before the current date used below
-            exp: 1000,
+            // kb+jwt expired one hour ago
+            exp: now - 3600,
           } as never,
         },
       },
@@ -332,7 +333,6 @@ describe('index', () => {
       sdjwt.verify(presentation, {
         requiredClaimKeys: ['foo'],
         keyBindingNonce: '342',
-        currentDate: 5000,
       }),
     ).rejects.toThrow('Verify Error: JWT is expired');
   });

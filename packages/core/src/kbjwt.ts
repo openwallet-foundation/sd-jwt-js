@@ -50,8 +50,8 @@ export class KBJwt<
 
     // Delegate signature verification and common JWT claim validation
     // (iat, nbf, exp) to the shared Jwt.verify implementation. The kbVerifier
-    // needs the kb+jwt payload (e.g. the holder's cnf key) which the base
-    // verifier receives via the options argument.
+    // needs the kb+jwt payload (e.g. the holder's cnf key), so we wrap it to
+    // forward values.payload instead of the base verifier's options argument.
     await this.verify(
       (data, sig) => values.verifier(data, sig, values.payload),
       values.options,
