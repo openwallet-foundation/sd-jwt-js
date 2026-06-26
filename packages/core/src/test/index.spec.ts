@@ -100,6 +100,32 @@ describe('index', () => {
     expect(credential).toBeDefined();
   });
 
+  test('issue rejects reserved disclosure frame keys', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    await expect(
+      sdjwt.issue(
+        {
+          foo: 'bar',
+          _sd: 'reserved',
+          iss: 'Issuer',
+          iat: Math.floor(Date.now() / 1000),
+          vct: '',
+        },
+        {
+          _sd: ['foo'],
+        },
+      ),
+    ).rejects.toThrow('Reserved field name "_sd" is not allowed');
+  });
+
   test('verify failed', async () => {
     const { signer } = createSignerVerifier();
     const { publicKey } = Crypto.generateKeyPairSync('ed25519');
@@ -288,6 +314,38 @@ describe('index', () => {
     } catch (e) {
       expect(e).toBeDefined();
     }
+  });
+
+  test('decode rejects invalid _sd_alg values', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
+
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000),
+        vct: '',
+      },
+      {
+        _sd: ['foo'],
+      },
+    );
+
+    const parts = credential.split('.');
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+    payload._sd_alg = 'SHA-256';
+    parts[1] = Buffer.from(JSON.stringify(payload)).toString('base64url');
+
+    await expect(sdjwt.decode(parts.join('.'))).rejects.toThrow(
+      'Invalid _sd_alg: SHA-256',
+    );
   });
 
   test('SaltGenerator not found', async () => {

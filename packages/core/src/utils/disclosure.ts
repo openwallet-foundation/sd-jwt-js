@@ -1,10 +1,7 @@
 import type { DisclosureData, HasherAndAlg, HasherAndAlgSync } from '../types';
-import {
-  base64urlDecode,
-  base64urlEncode,
-  uint8ArrayToBase64Url,
-} from './base64url';
+import { base64urlEncode, uint8ArrayToBase64Url } from './base64url';
 import { SDJWTException } from './error';
+import { decodeBase64urlJsonStrict } from './strict-json';
 
 export class Disclosure<T = unknown> {
   public salt: string;
@@ -42,7 +39,10 @@ export class Disclosure<T = unknown> {
     const { hasher, alg } = hash;
     const digest = await hasher(s, alg);
     const digestStr = uint8ArrayToBase64Url(digest);
-    const item = JSON.parse(base64urlDecode(s)) as DisclosureData<T>;
+    const item = decodeBase64urlJsonStrict<DisclosureData<T>>(
+      s,
+      'Invalid disclosure data',
+    );
     return Disclosure.fromArray<T>(item, { digest: digestStr, encoded: s });
   }
 
@@ -50,7 +50,10 @@ export class Disclosure<T = unknown> {
     const { hasher, alg } = hash;
     const digest = hasher(s, alg);
     const digestStr = uint8ArrayToBase64Url(digest);
-    const item = JSON.parse(base64urlDecode(s)) as DisclosureData<T>;
+    const item = decodeBase64urlJsonStrict<DisclosureData<T>>(
+      s,
+      'Invalid disclosure data',
+    );
     return Disclosure.fromArray<T>(item, { digest: digestStr, encoded: s });
   }
 

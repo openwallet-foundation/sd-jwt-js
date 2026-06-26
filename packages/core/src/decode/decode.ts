@@ -1,12 +1,15 @@
-import type { HasherAndAlgSync, HasherSync } from '../types';
 import {
   type Hasher,
   type HasherAndAlg,
+  type HasherAndAlgSync,
+  type HasherSync,
+  IANA_HASH_ALGORITHMS,
   SD_DIGEST,
   SD_LIST_KEY,
   SD_SEPARATOR,
 } from '../types';
-import { base64urlDecode, Disclosure, SDJWTException } from '../utils';
+import { Disclosure, SDJWTException } from '../utils';
+import { decodeBase64urlJsonStrict } from '../utils/strict-json';
 
 export const decodeJwt = <
   H extends Record<string, unknown>,
@@ -20,8 +23,8 @@ export const decodeJwt = <
   }
 
   return {
-    header: JSON.parse(base64urlDecode(header)),
-    payload: JSON.parse(base64urlDecode(payload)),
+    header: decodeBase64urlJsonStrict(header, 'Invalid JWT as input'),
+    payload: decodeBase64urlJsonStrict(payload, 'Invalid JWT as input'),
     signature: signature,
   };
 };
@@ -318,6 +321,13 @@ export const getSDAlgAndPayload = (SdJwtPayload: Record<string, unknown>) => {
   if (typeof _sd_alg !== 'string') {
     // This is for compatibility
     return { _sd_alg: 'sha-256', payload };
+  }
+  if (
+    !IANA_HASH_ALGORITHMS.includes(
+      _sd_alg as (typeof IANA_HASH_ALGORITHMS)[number],
+    )
+  ) {
+    throw new SDJWTException(`Invalid _sd_alg: ${_sd_alg}`);
   }
   return { _sd_alg, payload };
 };
