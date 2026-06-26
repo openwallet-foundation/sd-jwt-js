@@ -123,6 +123,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     }
 
     this.validateReservedFields<Payload>(payload);
+    this.validateDisclosureFrame<Payload>(disclosureFrame);
 
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
@@ -182,6 +183,12 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     };
 
     visit(payload);
+  }
+
+  protected validateDisclosureFrame<T extends ExtendedPayload>(
+    _disclosureFrame?: DisclosureFrame<T>,
+  ) {
+    return;
   }
 
   public async present<T extends Record<string, unknown>>(
@@ -647,6 +654,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     }
 
     this.validateReservedFields<Payload>(payload);
+    this.validateDisclosureFrame<Payload>(disclosureFrame);
 
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
@@ -718,6 +726,12 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     };
 
     visit(payload);
+  }
+
+  protected validateDisclosureFrame<T extends ExtendedPayload>(
+    _disclosureFrame?: DisclosureFrame<T>,
+  ) {
+    return;
   }
 
   public async present<T extends Record<string, unknown>>(

@@ -5,6 +5,7 @@ import {
   type StatusListJWTPayload,
 } from '@owf/token-status-list';
 import {
+  type DisclosureFrame,
   ensureError,
   Jwt,
   type SafeVerifyResult,
@@ -47,16 +48,22 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Validates if the payload contains any reserved fields. If so it will throw an error.
-   * @param payload
+   * Validates if the disclosure frame attempts to selectively disclose protected SD-JWT-VC claims.
+   * @param disclosureFrame
    */
-  protected validateReservedFields(payload: SdJwtVcPayload): void {
-    super.validateReservedFields(payload);
-
-    // Validate protected top-level claims according to SD-JWT-VC profile.
-    const reservedNames = ['iss', 'nbf', 'exp', 'cnf', 'vct', 'status'];
-    for (const key of reservedNames) {
-      if (payload[key] !== undefined) {
+  protected validateDisclosureFrame(
+    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
+  ): void {
+    if (
+      disclosureFrame?._sd &&
+      Array.isArray(disclosureFrame._sd) &&
+      disclosureFrame._sd.length > 0
+    ) {
+      const reservedNames = ['iss', 'nbf', 'exp', 'cnf', 'vct', 'status'];
+      const reservedNamesInDisclosureFrame = disclosureFrame._sd.filter((key) =>
+        reservedNames.includes(String(key)),
+      );
+      if (reservedNamesInDisclosureFrame.length > 0) {
         throw new SDJWTException('Cannot disclose protected field');
       }
     }
