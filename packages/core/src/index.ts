@@ -259,6 +259,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       verifier: this.userConfig.kbVerifier,
       payload,
       nonce: options.keyBindingNonce,
+      options,
     });
     if (!kb) {
       throw new Error('signature is not valid');
@@ -431,6 +432,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
             verifier: this.userConfig.kbVerifier,
             payload,
             nonce: options.keyBindingNonce,
+            options,
           });
           if (!kbResult) {
             addError(
@@ -808,6 +810,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       verifier: this.userConfig.kbVerifier,
       payload,
       nonce: options.keyBindingNonce,
+      options,
     });
     if (!kb) {
       throw new Error('signature is not valid');
