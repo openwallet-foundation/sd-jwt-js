@@ -668,4 +668,8 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
       }
     }
   }
+
+  public config(newConfig: SDJWTVCConfig) {
+    super.config(newConfig);
+  }
 }
