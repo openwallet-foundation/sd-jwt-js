@@ -269,6 +269,140 @@ describe('index', () => {
     expect(results).toBeDefined();
   });
 
+  test('verify rejects an expired kbJwt during full verification', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+
+    const kbVerifier: KbVerifier = async (
+      data: string,
+      sig: string,
+      payload: JwtPayload,
+    ) => {
+      if (!payload.cnf) throw Error('key binding not supported');
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        (await importJWK(payload.cnf.jwk as JWK, 'EdDSA')) as KeyLike,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const kbSigner = (data: string) => {
+      const sig = Crypto.sign(null, Buffer.from(data), privateKey);
+      return Buffer.from(sig).toString('base64url');
+    };
+
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+      kbSigner,
+      kbVerifier,
+      kbSignAlg: 'EdDSA',
+    });
+
+    const now = Math.floor(Date.now() / 1000);
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iat: now,
+        cnf: { jwk: await exportJWK(publicKey) },
+      },
+      { _sd: ['foo'] },
+    );
+
+    const presentation = await sdjwt.present(
+      credential,
+      { foo: true },
+      {
+        kb: {
+          payload: {
+            aud: '1',
+            iat: now - 7200,
+            nonce: '342',
+            // kb+jwt expired one hour ago
+            exp: now - 3600,
+          } as never,
+        },
+      },
+    );
+
+    await expect(
+      sdjwt.verify(presentation, {
+        requiredClaimKeys: ['foo'],
+        keyBindingNonce: '342',
+      }),
+    ).rejects.toThrow('Verify Error: JWT is expired');
+  });
+
+  test('verify accepts a kbJwt with a future exp during full verification', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
+
+    const kbVerifier: KbVerifier = async (
+      data: string,
+      sig: string,
+      payload: JwtPayload,
+    ) => {
+      if (!payload.cnf) throw Error('key binding not supported');
+      return Crypto.verify(
+        null,
+        Buffer.from(data),
+        (await importJWK(payload.cnf.jwk as JWK, 'EdDSA')) as KeyLike,
+        Buffer.from(sig, 'base64url'),
+      );
+    };
+
+    const kbSigner = (data: string) => {
+      const sig = Crypto.sign(null, Buffer.from(data), privateKey);
+      return Buffer.from(sig).toString('base64url');
+    };
+
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+      kbSigner,
+      kbVerifier,
+      kbSignAlg: 'EdDSA',
+    });
+
+    const now = Math.floor(Date.now() / 1000);
+    const credential = await sdjwt.issue(
+      {
+        foo: 'bar',
+        iat: now,
+        cnf: { jwk: await exportJWK(publicKey) },
+      },
+      { _sd: ['foo'] },
+    );
+
+    const presentation = await sdjwt.present(
+      credential,
+      { foo: true },
+      {
+        kb: {
+          payload: {
+            aud: '1',
+            iat: now,
+            nonce: '342',
+            exp: now + 3600,
+          } as never,
+        },
+      },
+    );
+
+    const results = await sdjwt.verify(presentation, {
+      requiredClaimKeys: ['foo'],
+      keyBindingNonce: '342',
+    });
+    expect(results.kb).toBeDefined();
+  });
+
   test('Hasher not found', async () => {
     const sdjwt = new SDJwtInstance<SdJwtPayload>({});
     try {
