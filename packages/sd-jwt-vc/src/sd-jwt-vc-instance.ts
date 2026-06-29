@@ -623,6 +623,10 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
     result: VerificationResult,
     options?: VerifierOptions,
   ): Promise<void> {
+    if (options?.disableStatusVerification) {
+      return;
+    }
+
     if (result.payload.status) {
       //checks if a status field is present in the payload based on https://www.ietf.org/archive/id/draft-ietf-oauth-status-list-02.html
       if (result.payload.status.status_list) {
