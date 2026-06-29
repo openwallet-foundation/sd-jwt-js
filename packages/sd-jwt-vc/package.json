@@ -1,6 +1,6 @@
 {
   "name": "@sd-jwt/sd-jwt-vc",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "sd-jwt draft 7 implementation in typescript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -38,8 +38,8 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@sd-jwt/core": "workspace:*",
     "@owf/token-status-list": "^0.1.0-alpha-20260312123226",
+    "@sd-jwt/core": "workspace:*",
     "zod": "^4.3.5"
   },
   "devDependencies": {
