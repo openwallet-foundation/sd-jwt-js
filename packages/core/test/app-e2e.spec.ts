@@ -135,6 +135,37 @@ describe('App', () => {
     expect(verified).toBeDefined();
   });
 
+  test('rejects tampered disclosure bytes', async () => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      hashAlg: 'sha-256',
+      saltGenerator: generateSalt,
+    });
+
+    const claims = {
+      firstname: 'John',
+      lastname: 'Doe',
+    };
+    const disclosureFrame: DisclosureFrame<typeof claims> = {
+      _sd: ['firstname', 'lastname'],
+    };
+
+    const encodedSdjwt = await sdjwt.issue(claims, disclosureFrame);
+    const parts = encodedSdjwt.split('~');
+    const disclosureBytes = Buffer.from(parts[1], 'base64url');
+    disclosureBytes[2] = 0xf2;
+    parts[1] = Buffer.from(disclosureBytes).toString('base64url');
+    const tamperedSdjwt = parts.join('~');
+
+    await expect(sdjwt.verify(tamperedSdjwt)).rejects.toThrow(
+      'Invalid disclosure data',
+    );
+  });
+
   test('From JSON (complex)', async () => {
     await JSONtest('./complex.json');
   });

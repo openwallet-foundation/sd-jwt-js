@@ -48,20 +48,18 @@ export class SDJwtVcInstance extends SDJwtInstance<SdJwtVcPayload> {
   }
 
   /**
-   * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
+   * Validates if the disclosure frame attempts to selectively disclose protected SD-JWT-VC claims.
    * @param disclosureFrame
    */
-  protected validateReservedFields(
-    disclosureFrame: DisclosureFrame<SdJwtVcPayload>,
+  protected validateDisclosureFrame(
+    disclosureFrame?: DisclosureFrame<SdJwtVcPayload>,
   ): void {
-    //validate disclosureFrame according to https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-08.html#section-3.2.2.2
     if (
       disclosureFrame?._sd &&
       Array.isArray(disclosureFrame._sd) &&
       disclosureFrame._sd.length > 0
     ) {
       const reservedNames = ['iss', 'nbf', 'exp', 'cnf', 'vct', 'status'];
-      // check if there is any reserved names in the disclosureFrame._sd array
       const reservedNamesInDisclosureFrame = disclosureFrame._sd.filter((key) =>
         reservedNames.includes(String(key)),
       );

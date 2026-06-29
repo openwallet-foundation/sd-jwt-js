@@ -12,6 +12,8 @@ import {
   type KBOptions,
   type PresentationFrame,
   type SafeVerifyResult,
+  SD_DECOY,
+  SD_DIGEST,
   type SDJWTCompact,
   type SDJWTConfig,
   type Signer,
@@ -19,12 +21,12 @@ import {
   type VerificationErrorCode,
 } from './types';
 import {
-  base64urlDecode,
   base64urlEncode,
   ensureError,
   SDJWTException,
   uint8ArrayToBase64Url,
 } from './utils';
+import { decodeBase64urlJsonStrict } from './utils/strict-json';
 
 export * from './decode';
 export * from './decoy';
@@ -120,9 +122,8 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       throw new SDJWTException('sign alogrithm not specified');
     }
 
-    if (disclosureFrame) {
-      this.validateReservedFields<Payload>(disclosureFrame);
-    }
+    this.validateReservedFields<Payload>(payload);
+    this.validateDisclosureFrame<Payload>(disclosureFrame);
 
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
@@ -157,12 +158,35 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
   }
 
   /**
-   * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
-   * @param disclosureFrame
+   * Validates if the payload contains any reserved claim names. If so it will throw an error.
+   * @param payload
    * @returns
    */
-  protected validateReservedFields<T extends ExtendedPayload>(
-    _disclosureFrame: DisclosureFrame<T>,
+  protected validateReservedFields<T extends ExtendedPayload>(payload: T) {
+    const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
+
+    const visit = (node: unknown) => {
+      if (!node || typeof node !== 'object') {
+        return;
+      }
+
+      for (const [key, value] of Object.entries(
+        node as Record<string, unknown>,
+      )) {
+        if (reservedFields.has(key)) {
+          throw new SDJWTException(
+            `Reserved field name "${key}" is not allowed`,
+          );
+        }
+        visit(value);
+      }
+    };
+
+    visit(payload);
+  }
+
+  protected validateDisclosureFrame<T extends ExtendedPayload>(
+    _disclosureFrame?: DisclosureFrame<T>,
   ) {
     return;
   }
@@ -629,9 +653,8 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       throw new SDJWTException('SaltGenerator not found');
     }
 
-    if (disclosureFrame) {
-      this.validateReservedFields<Payload>(disclosureFrame);
-    }
+    this.validateReservedFields<Payload>(payload);
+    this.validateDisclosureFrame<Payload>(disclosureFrame);
 
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
@@ -643,11 +666,14 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       this.userConfig.saltGenerator,
     );
 
-    const encodedDisclosures = disclosures.map((d) => d.encode());
     const encodedSDJwtPayload = this.encodeObj({
       ...packedClaims,
       _sd_alg: disclosureFrame ? hashAlg : undefined,
     });
+
+    const encodedDisclosures = disclosures.map((disclosure) =>
+      disclosure.encode(),
+    );
 
     const signatures = await Promise.all(
       options.sigs.map(async (s) => {
@@ -660,7 +686,6 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
 
         return {
           protected: encodedProtectedHeader,
-          kid,
           signature,
         };
       }),
@@ -676,12 +701,35 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
   }
 
   /**
-   * Validates if the disclosureFrame contains any reserved fields. If so it will throw an error.
-   * @param disclosureFrame
+   * Validates if the payload contains any reserved claim names. If so it will throw an error.
+   * @param payload
    * @returns
    */
-  protected validateReservedFields<T extends ExtendedPayload>(
-    _disclosureFrame: DisclosureFrame<T>,
+  protected validateReservedFields<T extends ExtendedPayload>(payload: T) {
+    const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
+
+    const visit = (node: unknown) => {
+      if (!node || typeof node !== 'object') {
+        return;
+      }
+
+      for (const [key, value] of Object.entries(
+        node as Record<string, unknown>,
+      )) {
+        if (reservedFields.has(key)) {
+          throw new SDJWTException(
+            `Reserved field name "${key}" is not allowed`,
+          );
+        }
+        visit(value);
+      }
+    };
+
+    visit(payload);
+  }
+
+  protected validateDisclosureFrame<T extends ExtendedPayload>(
+    _disclosureFrame?: DisclosureFrame<T>,
   ) {
     return;
   }
@@ -836,7 +884,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
           `${encodedHeader}.${payload}`,
           signature,
         );
-        const header = JSON.parse(base64urlDecode(encodedHeader));
+        const header = decodeBase64urlJsonStrict(encodedHeader, 'Invalid JWT');
         return { verified, header };
       }),
     );
