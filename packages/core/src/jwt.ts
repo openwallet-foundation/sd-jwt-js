@@ -38,6 +38,13 @@ export type VerifierOptions = {
   keyBindingNonce?: string;
 
   /**
+   * disable the verification of the status claim in the payload.
+   *
+   * @default false
+   */
+  disableStatusVerification?: boolean;
+
+  /**
    * any other custom options
    */
   [key: string]: unknown;

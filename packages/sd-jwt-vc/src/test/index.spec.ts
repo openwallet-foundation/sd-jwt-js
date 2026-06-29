@@ -120,7 +120,7 @@ describe('Revocation', () => {
     },
   });
 
-  test('Test with a non revcoked credential', async () => {
+  test('Test with a non revoked credential', async () => {
     const claims = {
       firstname: 'John',
       status: {
@@ -150,6 +150,24 @@ describe('Revocation', () => {
     const encodedSdjwt = await sdjwt.issue(expectedPayload);
     const result = sdjwt.verify(encodedSdjwt);
     await expect(result).rejects.toThrowError('Status is not valid');
+  });
+
+  test('Test with a revoked credential but status verification disabled', async () => {
+    const claims = {
+      firstname: 'John',
+      status: {
+        status_list: {
+          uri: 'https://example.com/status-list',
+          idx: 1,
+        },
+      },
+    };
+    const expectedPayload: SdJwtVcPayload = { iat, iss, vct, ...claims };
+    const encodedSdjwt = await sdjwt.issue(expectedPayload);
+    const result = await sdjwt.verify(encodedSdjwt, {
+      disableStatusVerification: true,
+    });
+    expect(result).toBeDefined();
   });
 
   test('test to fetch the statuslist', async () => {
