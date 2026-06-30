@@ -236,7 +236,7 @@ describe('index', () => {
         // use the key from the cnf
         publicKey = payload.cnf.jwk;
       } else {
-        throw Error('key binding not supported');
+        throw new Error('key binding not supported');
       }
       // get the key of the holder to verify the signature
       return Crypto.verify(
@@ -304,7 +304,7 @@ describe('index', () => {
       sig: string,
       payload: JwtPayload,
     ) => {
-      if (!payload.cnf) throw Error('key binding not supported');
+      if (!payload.cnf) throw new Error('key binding not supported');
       return Crypto.verify(
         null,
         Buffer.from(data),
@@ -372,7 +372,7 @@ describe('index', () => {
       sig: string,
       payload: JwtPayload,
     ) => {
-      if (!payload.cnf) throw Error('key binding not supported');
+      if (!payload.cnf) throw new Error('key binding not supported');
       return Crypto.verify(
         null,
         Buffer.from(data),
@@ -474,11 +474,11 @@ describe('index', () => {
 
     const parts = credential.split('.');
     const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
-    payload._sd_alg = 'SHA-256';
+    payload._sd_alg = 'invalid-algorithm';
     parts[1] = Buffer.from(JSON.stringify(payload)).toString('base64url');
 
     await expect(sdjwt.decode(parts.join('.'))).rejects.toThrow(
-      'Invalid _sd_alg: SHA-256',
+      'Invalid _sd_alg: invalid-algorithm',
     );
   });
 
