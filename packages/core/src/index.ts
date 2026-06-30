@@ -62,9 +62,7 @@ function validateReservedFieldsInternal(
       node as Record<string, unknown>,
     )) {
       if (reservedFields.has(key)) {
-        throw new SDJWTException(
-          `Reserved field name "${key}" is not allowed`,
-        );
+        throw new SDJWTException(`Reserved field name "${key}" is not allowed`);
       }
       visit(value);
     }
