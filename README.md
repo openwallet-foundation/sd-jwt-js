@@ -8,7 +8,10 @@
 
 A framework-agnostic, production-ready implementation of [Selective Disclosure for JWTs (SD-JWT)](https://www.rfc-editor.org/rfc/rfc9901.html) in TypeScript. Works with Node.js, React, React Native, and browser environments. Optimised for compact QR code payloads.
 
-> **Note:** This repository has been restructured to focus exclusively on SD-JWT and SD-JWT-VC. The previous utility packages (`@sd-jwt/types`, `@sd-jwt/utils`, `@sd-jwt/decode`, `@sd-jwt/present`, `@sd-jwt/hash`, `@sd-jwt/crypto-nodejs`, `@sd-jwt/crypto-browser`) have been consolidated into `@sd-jwt/core`. The Token Status List package (`@sd-jwt/jwt-status-list`) has been moved to the [identity-common-ts](https://github.com/openwallet-foundation/identity-common-ts) project as `@owf/token-status-list`.
+> **Note:** This repository has been restructured to focus exclusively on SD-JWT and SD-JWT-VC.
+> - `@sd-jwt/types`, `@sd-jwt/utils`, `@sd-jwt/decode`, `@sd-jwt/present` have been consolidated into `@sd-jwt/core`
+> - `@sd-jwt/hash`, `@sd-jwt/crypto-nodejs`, `@sd-jwt/crypto-browser` have been consolidated into `@owf/crypto` in the [identity-common-ts](https://github.com/openwallet-foundation/identity-common-ts) project
+> - `@sd-jwt/jwt-status-list`) has been moved to the [identity-common-ts](https://github.com/openwallet-foundation/identity-common-ts) project as `@owf/token-status-list`.
 
 Compliant with:
 
