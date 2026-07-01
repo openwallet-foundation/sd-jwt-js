@@ -42,6 +42,35 @@ export * from './utils';
 
 export type SdJwtPayload = Record<string, unknown>;
 
+/**
+ * Internal utility function to validate that a payload does not contain reserved field names.
+ * Recursively checks all nested objects for reserved field names: _sd, _sd_alg, _sd_decoy
+ * @param payload - The payload to validate
+ * @throws SDJWTException if any reserved field names are found
+ */
+function validateReservedFieldsInternal(
+  payload: Record<string, unknown>,
+): void {
+  const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
+
+  const visit = (node: unknown) => {
+    if (!node || typeof node !== 'object') {
+      return;
+    }
+
+    for (const [key, value] of Object.entries(
+      node as Record<string, unknown>,
+    )) {
+      if (reservedFields.has(key)) {
+        throw new SDJWTException(`Reserved field name "${key}" is not allowed`);
+      }
+      visit(value);
+    }
+  };
+
+  visit(payload);
+}
+
 export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
   //header type
   protected type?: string;
@@ -163,26 +192,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
    * @returns
    */
   protected validateReservedFields<T extends ExtendedPayload>(payload: T) {
-    const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
-
-    const visit = (node: unknown) => {
-      if (!node || typeof node !== 'object') {
-        return;
-      }
-
-      for (const [key, value] of Object.entries(
-        node as Record<string, unknown>,
-      )) {
-        if (reservedFields.has(key)) {
-          throw new SDJWTException(
-            `Reserved field name "${key}" is not allowed`,
-          );
-        }
-        visit(value);
-      }
-    };
-
-    visit(payload);
+    validateReservedFieldsInternal(payload as Record<string, unknown>);
   }
 
   protected validateDisclosureFrame<T extends ExtendedPayload>(
@@ -532,6 +542,8 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
 
     const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, options);
     const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
+    // Validate that unpacked claims do not contain reserved field names
+    validateReservedFieldsInternal(claims);
     return { payload: claims, header: verifiedPayloads.header };
   }
 
@@ -706,26 +718,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
    * @returns
    */
   protected validateReservedFields<T extends ExtendedPayload>(payload: T) {
-    const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
-
-    const visit = (node: unknown) => {
-      if (!node || typeof node !== 'object') {
-        return;
-      }
-
-      for (const [key, value] of Object.entries(
-        node as Record<string, unknown>,
-      )) {
-        if (reservedFields.has(key)) {
-          throw new SDJWTException(
-            `Reserved field name "${key}" is not allowed`,
-          );
-        }
-        visit(value);
-      }
-    };
-
-    visit(payload);
+    validateReservedFieldsInternal(payload as Record<string, unknown>);
   }
 
   protected validateDisclosureFrame<T extends ExtendedPayload>(
@@ -901,6 +894,8 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     }
 
     const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
+    // Validate that unpacked claims do not contain reserved field names
+    validateReservedFieldsInternal(claims);
     return { payload: claims, headers: results.map((r) => r.header) };
   }
 

@@ -322,14 +322,16 @@ export const getSDAlgAndPayload = (SdJwtPayload: Record<string, unknown>) => {
     // This is for compatibility
     return { _sd_alg: 'sha-256', payload };
   }
+  // Normalize to lowercase for case-insensitive IANA registry validation
+  const normalizedAlg = _sd_alg.toLowerCase();
   if (
     !IANA_HASH_ALGORITHMS.includes(
-      _sd_alg as (typeof IANA_HASH_ALGORITHMS)[number],
+      normalizedAlg as (typeof IANA_HASH_ALGORITHMS)[number],
     )
   ) {
     throw new SDJWTException(`Invalid _sd_alg: ${_sd_alg}`);
   }
-  return { _sd_alg, payload };
+  return { _sd_alg: normalizedAlg, payload };
 };
 
 // Match the digests of the disclosures with the claims and extract the claims
