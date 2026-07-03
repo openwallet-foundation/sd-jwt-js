@@ -38,14 +38,14 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@owf/token-status-list": "^0.1.0-alpha-20260312123226",
+    "@owf/token-status-list": "^0.3.1",
     "@sd-jwt/core": "workspace:*",
-    "zod": "^4.3.5"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@owf/crypto": "^0.1.0-alpha-20260312123226",
-    "jose": "^6.1.2",
-    "msw": "^2.12.3"
+    "@owf/crypto": "^0.3.1",
+    "jose": "^6.2.3",
+    "msw": "^2.14.6"
   },
   "publishConfig": {
     "access": "public"
