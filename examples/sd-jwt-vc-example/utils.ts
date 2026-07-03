@@ -1,5 +1,6 @@
 import { digest, ES256, generateSalt } from '@owf/crypto';
-export { digest, generateSalt, ES256 };
+
+export { digest, ES256, generateSalt };
 
 export const createSignerVerifier = async () => {
   const { privateKey, publicKey } = await ES256.generateKeyPair();
