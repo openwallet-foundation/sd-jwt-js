@@ -4,6 +4,7 @@
     "noEmit": true,
     "rootDir": ".",
     // For tests we rely on vitest, so we configure it flexibly
+    "types": ["node", "vitest/globals"],
     "module": "preserve",
     "target": "es2022",
     "moduleResolution": "bundler"
