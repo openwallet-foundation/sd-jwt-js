@@ -5,6 +5,7 @@ import { KBJwt } from './kbjwt';
 import { transformPresentationFrame } from './present';
 import {
   type DisclosureFrame,
+  encodePathSegment,
   type Hasher,
   type HasherAndAlg,
   type kbHeader,
@@ -18,6 +19,28 @@ import {
   type SDJWTCompact,
 } from './types';
 import { Disclosure, SDJWTException } from './utils';
+
+const createDisclosureSalt = async (
+  saltGenerator: SaltGenerator,
+  seenSalts: Set<string>,
+) => {
+  const salt = await saltGenerator(16);
+  if (typeof salt !== 'string') {
+    throw new SDJWTException('SaltGenerator must return a string');
+  }
+  if (seenSalts.has(salt)) {
+    throw new SDJWTException('Duplicate disclosure salt detected');
+  }
+  seenSalts.add(salt);
+  return salt;
+};
+
+const addDisclosureDigest = (digest: string, seenDigests: Set<string>) => {
+  if (seenDigests.has(digest)) {
+    throw new SDJWTException('Duplicate disclosure digest detected');
+  }
+  seenDigests.add(digest);
+};
 
 export type SDJwtData<
   Header extends Record<string, unknown>,
@@ -60,17 +83,13 @@ export class SDJwt<
     kbJwt?: KBJwt<KBHeader, KBPayload>;
   }> {
     const [encodedJwt, ...encodedDisclosures] = sdjwt.split(SD_SEPARATOR);
+    if (encodedDisclosures.length === 0) {
+      throw new SDJWTException('Invalid SD-JWT: missing SD-JWT separator');
+    }
     const jwt = Jwt.fromEncode<Header, Payload>(encodedJwt);
 
     if (!jwt.payload) {
       throw new Error('Payload is undefined on the JWT. Invalid state reached');
-    }
-
-    if (encodedDisclosures.length === 0) {
-      return {
-        jwt,
-        disclosures: [],
-      };
     }
 
     const encodedKeyBindingJwt = encodedDisclosures.pop();
@@ -218,7 +237,8 @@ export const listKeys = (obj: Record<string, unknown>, prefix = '') => {
   const keys: string[] = [];
   for (const key in obj) {
     if (obj[key] === undefined) continue;
-    const newKey = prefix ? `${prefix}.${key}` : key;
+    const escapedKey = encodePathSegment(key);
+    const newKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
     keys.push(newKey);
 
     const value = obj[key];
@@ -234,6 +254,8 @@ export const pack = async <T extends Record<string, unknown>>(
   disclosureFrame: DisclosureFrame<T> | undefined,
   hash: HasherAndAlg,
   saltGenerator: SaltGenerator,
+  seenSalts = new Set<string>(),
+  seenDigests = new Set<string>(),
 ): Promise<{
   packedClaims: Record<string, unknown> | Array<Record<string, unknown>>;
   disclosures: Array<Disclosure>;
@@ -261,6 +283,8 @@ export const pack = async <T extends Record<string, unknown>>(
           disclosureFrame[idx],
           hash,
           saltGenerator,
+          seenSalts,
+          seenDigests,
         );
         recursivePackedClaims[idx] = packed.packedClaims;
         disclosures.push(...packed.disclosures);
@@ -290,9 +314,10 @@ export const pack = async <T extends Record<string, unknown>>(
        */
       // @ts-expect-error
       if (sd.includes(i)) {
-        const salt = await saltGenerator(16);
+        const salt = await createDisclosureSalt(saltGenerator, seenSalts);
         const disclosure = new Disclosure([salt, claim]);
         const digest = await disclosure.digest(hash);
+        addDisclosureDigest(digest, seenDigests);
         packedClaims.push({ [SD_LIST_KEY]: digest });
         disclosures.push(disclosure);
       } else {
@@ -301,6 +326,7 @@ export const pack = async <T extends Record<string, unknown>>(
     }
     for (let j = 0; j < decoyCount; j++) {
       const decoyDigest = await createDecoy(hash, saltGenerator);
+      addDisclosureDigest(decoyDigest, seenDigests);
       packedClaims.push({ [SD_LIST_KEY]: decoyDigest });
     }
     return { packedClaims, disclosures };
@@ -318,6 +344,8 @@ export const pack = async <T extends Record<string, unknown>>(
         disclosureFrame[key],
         hash,
         saltGenerator,
+        seenSalts,
+        seenDigests,
       );
       recursivePackedClaims[key] = packed.packedClaims;
       disclosures.push(...packed.disclosures);
@@ -331,9 +359,10 @@ export const pack = async <T extends Record<string, unknown>>(
       ? recursivePackedClaims[key]
       : claims[key];
     if (sd.includes(key)) {
-      const salt = await saltGenerator(16);
+      const salt = await createDisclosureSalt(saltGenerator, seenSalts);
       const disclosure = new Disclosure([salt, key, claim]);
       const digest = await disclosure.digest(hash);
+      addDisclosureDigest(digest, seenDigests);
 
       _sd.push(digest);
       disclosures.push(disclosure);
@@ -344,6 +373,7 @@ export const pack = async <T extends Record<string, unknown>>(
 
   for (let j = 0; j < decoyCount; j++) {
     const decoyDigest = await createDecoy(hash, saltGenerator);
+    addDisclosureDigest(decoyDigest, seenDigests);
     _sd.push(decoyDigest);
   }
 

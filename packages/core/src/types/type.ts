@@ -9,6 +9,12 @@ export type Base64urlString = string;
 
 export type DisclosureData<T> = [string, string, T] | [string, T];
 
+export const encodePathSegment = (segment: string) =>
+  segment.replace(/~/g, '~0').replace(/\./g, '~1');
+
+export const encodePath = (segments: string[]) =>
+  segments.map(encodePathSegment).join('.');
+
 // based on https://www.iana.org/assignments/named-information/named-information.xhtml
 export const IANA_HASH_ALGORITHMS = [
   'sha-256',
@@ -32,10 +38,25 @@ export const IANA_HASH_ALGORITHMS = [
 
 export type HashAlgorithm = (typeof IANA_HASH_ALGORITHMS)[number];
 
+export const DEFAULT_SECURE_HASH_ALGORITHMS = [
+  'sha-256',
+  'sha-384',
+  'sha-512',
+  'sha3-256',
+  'sha3-384',
+  'sha3-512',
+  'blake2s-256',
+  'blake2b-256',
+  'blake2b-512',
+  'k12-256',
+  'k12-512',
+] as const satisfies ReadonlyArray<HashAlgorithm>;
+
 export type SDJWTConfig<T = unknown> = {
   omitTyp?: boolean;
   hasher?: Hasher;
   hashAlg?: HashAlgorithm;
+  allowedDisclosureHashAlgorithms?: ReadonlyArray<HashAlgorithm>;
   saltGenerator?: SaltGenerator;
   signer?: Signer;
   signAlg?: string;
