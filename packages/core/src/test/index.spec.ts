@@ -3,8 +3,8 @@ import { hasher as digest, ES256, generateSalt } from '@owf/crypto';
 import { exportJWK, importJWK, type JWK } from 'jose';
 import { describe, expect, test } from 'vitest';
 import { SDJwtInstance, type SdJwtPayload } from '../index';
-import { Disclosure } from '../utils';
 import type { JwtPayload, KbVerifier, Signer, Verifier } from '../types';
+import { Disclosure } from '../utils';
 
 // Extract the major version as a number
 const nodeVersionMajor = Number.parseInt(
