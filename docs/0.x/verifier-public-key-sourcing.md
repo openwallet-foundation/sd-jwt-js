@@ -27,8 +27,8 @@ The verifier's job, in each case, is:
 
 Conceptually, every approach below maps to the same chain:
 
-```
-JWT header values → resolution / extraction → candidate key → trust-anchor check → signature verification
+```text
+JWT header values -> resolution / extraction -> candidate key -> trust-anchor check -> signature verification
 ```
 
 What differs between approaches is the *resolution / extraction* step and the shape of the *trust-anchor check*.
@@ -40,26 +40,26 @@ The JWT identifies its issuer through the `iss` claim. RFC 7519 defines `iss` as
 ```json
 {
   "alg": "ES256",
-  "typ": "vc+sd-jwt",
+  "typ": "dc+sd-jwt",
   "kid": "issuer-key-2026-01"
 }
 ```
 
-**What the issuer must expose**
+### JWKS issuer requirements
 
 - The `iss` claim in the JWT payload, matching a URL the issuer controls.
-- A JWKS document published at a well-known path derived from `iss`, per the URL resolution rules in the current SD-JWT-VC draft (section "JWT VC Issuer Metadata"). The JWKS lists active signing keys with a `kid` for each.
+- A JWT VC Issuer Metadata document at the well-known path derived from `iss`, per the URL resolution rules in the current SD-JWT-VC draft (section "JWT VC Issuer Metadata"). That metadata contains either `jwks_uri` or embedded `jwks`, and the referenced or embedded JWKS lists active signing keys with a `kid` for each.
 - Previously active signing keys need to remain published in the JWKS as long as any non-expired credentials were signed with them; otherwise their signatures become unverifiable.
 - Optional: an HTTP `Cache-Control` header, and a key-rotation policy consistent with the caching window.
 
-**What the verifier needs to implement**
+### JWKS verifier requirements
 
 - Trust-anchor list: the set of `iss` URL prefixes the verifier is willing to honor.
-- HTTP client fetching the well-known JWKS endpoint and parsing the JWKS document.
+- HTTP client fetching the JWT VC Issuer Metadata endpoint, validating that the returned `issuer` is identical to the JWT `iss`, and parsing either embedded `jwks` or the JWKS fetched from `jwks_uri`.
 - JWK selection by `kid` header, or by `alg` + iteration if `kid` is absent.
 - Signature verification against the selected JWK.
 
-**Operational notes**
+### JWKS operational notes
 
 - Requires network access at verification time unless the JWKS is cached.
 - The verifier may cache the JWKS with a TTL; the cache should expect multiple keys to coexist during rotation windows.
@@ -72,25 +72,26 @@ The issuer embeds the full X.509 certificate chain inside the JWT header. The ve
 ```json
 {
   "alg": "ES256",
-  "typ": "vc+sd-jwt",
+  "typ": "dc+sd-jwt",
   "x5c": ["MIIB...leaf", "MIIB...intermediate"]
 }
 ```
 
-**What the issuer must expose**
+### Embedded X.509 issuer requirements
 
 - An `x5c` array in the JWT header containing the issuer's leaf certificate first, then each intermediate, in chain order.
 - Optionally `x5t` / `x5t#S256` header fingerprints.
 - Out-of-band distribution of the issuer's root or intermediate certificate(s), e.g. via a trust list, a governmental or federation registry, or direct configuration, so verifiers can provision trust anchors.
 
-**What the verifier needs to implement**
+### Embedded X.509 verifier requirements
 
 - Trust-anchor store: root and intermediate certificates the verifier considers authoritative.
 - Chain validation, applied to each certificate in the chain: signature against the parent, validity period, Extended Key Usage constraints, basic constraints, path-length constraints.
+- SD-JWT-VC issuer binding: ensure the `iss` value matches a `uniformResourceIdentifier` Subject Alternative Name entry in the leaf certificate, or that the domain name in `iss` matches a `dNSName` Subject Alternative Name entry in the leaf certificate.
 - Revocation checking for each certificate in the chain (CRL distribution point or OCSP), not just the leaf. The configured trust anchor itself follows its own out-of-band lifecycle.
 - Public key extraction from the leaf certificate after chain validation passes.
 
-**Operational notes**
+### Embedded X.509 operational notes
 
 - The signing material travels with every token — no fetch needed for the keys themselves — but revocation lookups (CRL or OCSP) typically still require network access at verification time, with stapling or caching as latency mitigations.
 - Larger JWTs compared to identifier-based approaches (the certificates travel with every token, instead of just an identifier or URL).
@@ -105,13 +106,13 @@ Instead of embedding the chain, the JWT header carries a URL pointing to a PEM-e
 ```json
 {
   "alg": "ES256",
-  "typ": "vc+sd-jwt",
+  "typ": "dc+sd-jwt",
   "x5u": "https://issuer.example.com/certs/issuer-2026.pem",
   "x5t#S256": "Xr8k9m...base64url(SHA-256 of leaf cert DER)..."
 }
 ```
 
-**What the issuer must expose**
+### Referenced X.509 issuer requirements
 
 - An `x5u` header in the JWT, an HTTPS URL pointing to the PEM-encoded certificate or chain. Per RFC 7515 §4.1.5, the leaf certificate (whose key signs the JWS) MUST be the first certificate in the concatenation.
 - The endpoint MUST be served over TLS, with a server identity that the verifier can validate (RFC 7515 §4.1.5 references RFC 6125 for the identity check).
@@ -119,18 +120,19 @@ Instead of embedding the chain, the JWT header carries a URL pointing to a PEM-e
 - Optionally `x5t#S256` (base64url-encoded SHA-256 of the leaf certificate DER) in the header, allowing the verifier to pin the fetched certificate to a specific thumbprint.
 - Out-of-band trust anchor distribution, as in Approach 2.
 
-**What the verifier needs to implement**
+### Referenced X.509 verifier requirements
 
 - HTTPS fetch of the `x5u` URL with TLS server-identity validation (RFC 6125), and parsing of the PEM-encoded certificate or chain.
 - If `x5t#S256` is present: SHA-256 over the DER form of the fetched leaf certificate, compared to the header value; reject on mismatch.
 - Chain validation, including revocation checking for each certificate in the chain, as in Approach 2.
 - Public key extraction from the validated leaf certificate.
 
-**Operational notes**
+### Referenced X.509 operational notes
 
 - Smaller JWTs than `x5c` (only the URL travels with the token), at the cost of an HTTPS dependency at verification time.
 - The hosted certificate should be cacheable so verifiers can apply HTTP cache semantics. `x5t#S256`, when present, is an orthogonal integrity check: it allows the verifier to detect substitution at the URL but does not replace caching.
 - Trust does not flow from the URL itself: serving HTTPS does not make the certificate authoritative. The trust anchor check is the same as for `x5c`.
+- Current SD-JWT-VC validation rules explicitly profile `x5c`; `x5u` should be used only when an ecosystem profile or deployment policy allows JOSE certificate references.
 
 > **Note on a related but distinct mechanism.** OID4VP §5.9.3 (referenced by HAIP §5.2.3) defines a `client_id_prefix: x509_hash` Client Identifier Prefix in the signed *authorization request* (JAR) layer. That mechanism authenticates the *verifier* to the *wallet* in the presentation protocol, not the *issuer* of an SD-JWT-VC to a *verifier*. It is a different layer of the protocol stack and is out of scope for this document on issuer key sourcing.
 
@@ -141,24 +143,24 @@ The issuer identifies itself through a Decentralized Identifier (`did:*`). The v
 ```json
 {
   "alg": "ES256",
-  "typ": "vc+sd-jwt",
+  "typ": "dc+sd-jwt",
   "kid": "did:web:issuer.example.com#key-2026-01"
 }
 ```
 
-**What the issuer must expose**
+### DID issuer requirements
 
-- An `iss` claim containing a DID, or a `kid` header that is itself a DID URL (as in the example above), resolvable via the appropriate DID method.
+- An `iss` claim containing a DID resolvable via the appropriate DID method. If `kid` is present, it must be a relative or absolute DID URL of the DID in `iss` and identify the verification method used for the signature.
 - A DID Document listing one or more verification methods (`JsonWebKey2020`, `EcdsaSecp256k1VerificationKey2019`, etc.) with stable `id` values the issuer can reference via `kid`.
 
-**What the verifier needs to implement**
+### DID verifier requirements
 
 - A DID resolver supporting the DID method(s) used by trusted issuers.
 - Trust policy expressed in DID-native terms (trusted DID prefixes, delegation graph, controller relationships).
 - Verification method selection by `kid` pointing into the DID Document.
 - Signature verification with the resolved public key.
 
-**Operational notes**
+### DID operational notes
 
 - Trust semantics differ from the X.509 PKI world: revocation is handled through DID Document updates (or per-method flags), not CRL/OCSP.
 - Trust models vary substantially across DID methods (`did:web` relies on DNS, `did:key` has no external root, `did:ebsi` uses a governmental trust list, etc.). Method-specific resolution, verification, and revocation details belong in the corresponding DID method specifications and in deployment-profile documentation; they are out of scope here.
@@ -167,22 +169,26 @@ The issuer identifies itself through a Decentralized Identifier (`did:*`). The v
 
 These apply regardless of the sourcing scheme above.
 
-**JWKS and certificate caching**
+### JWKS and certificate caching
 
 Cache the resolved keyset or certificate with a TTL. Respect any `Cache-Control` or `Expires` the issuer publishes. On cache miss or signature failure, re-fetching once before surfacing an error limits the blast radius when the issuer rotates keys without explicit coordination.
 
-**Key rotation**
+### Key rotation
 
 Expect multiple active keys to coexist during a rotation window. Verify against the `kid` (or other identifier) referenced in the JWT; do not assume a single current key. Cache old keys until their removal is signaled — by absence from the published keyset (Approaches 1 and 4) or by certificate revocation via CRL/OCSP (Approaches 2 and 3).
 
-**Clock skew**
+### Clock skew
 
 JWTs include `iat` and sometimes `exp` / `nbf`. Certificates include `notBefore` / `notAfter`. Allow a small skew window (for example 60-300 seconds) to tolerate clock drift between issuer and verifier.
 
-**Rate limiting**
+### Rate limiting
 
 Fetching JWKS or `x5u` resources per presentation concentrates load on the issuer endpoint. Production verifiers typically introduce a caching layer and exponential backoff on fetch errors, so that a transient issuer outage does not cascade into a verification outage at scale.
 
-**Trust anchor bootstrapping**
+### SSRF and fetch bounds
+
+Treat issuer-controlled URLs such as JWT VC Issuer Metadata, `jwks_uri`, and `x5u` as untrusted input. Use HTTPS only, reject internal or private-network targets, bound response size and request time, and validate the response format before processing it.
+
+### Trust anchor bootstrapping
 
 All four approaches ultimately reduce to "do I trust this key?". Document the source of truth for your trust anchors — a hand-curated list, a published trust list (e.g. national or federation lists), or a policy file — and the rotation procedure when anchors are added or removed.
