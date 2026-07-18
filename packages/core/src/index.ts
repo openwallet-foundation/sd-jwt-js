@@ -1,10 +1,11 @@
 import { getSDAlgAndPayload } from './decode';
 import { FlattenJSON } from './flattenJSON';
 import { GeneralJSON } from './generalJSON';
-import { Jwt, type VerifierOptions } from './jwt';
+import { Jwt, type VerifierOptions, validateJwtPayload } from './jwt';
 import { KBJwt } from './kbjwt';
 import { pack, SDJwt } from './sdjwt';
 import {
+  DEFAULT_SECURE_HASH_ALGORITHMS,
   type DisclosureFrame,
   type Hasher,
   IANA_HASH_ALGORITHMS,
@@ -87,6 +88,17 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
           `Invalid hash algorithm: ${userConfig.hashAlg}`,
         );
       }
+      const allowedDisclosureHashAlgorithms =
+        userConfig.allowedDisclosureHashAlgorithms ??
+        DEFAULT_SECURE_HASH_ALGORITHMS;
+      if (
+        userConfig.hashAlg &&
+        !allowedDisclosureHashAlgorithms.includes(userConfig.hashAlg)
+      ) {
+        throw new SDJWTException(
+          `Disallowed hash algorithm: ${userConfig.hashAlg}`,
+        );
+      }
       this.userConfig = userConfig;
     }
   }
@@ -148,12 +160,21 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     if (!this.userConfig.signAlg) {
       throw new SDJWTException('sign alogrithm not specified');
     }
+    if (this.userConfig.signAlg === 'none') {
+      throw new SDJWTException('sign algorithm "none" is not allowed');
+    }
 
     this.validateReservedFields<Payload>(payload);
     this.validateDisclosureFrame<Payload>(disclosureFrame);
 
     const hasher = this.userConfig.hasher;
     const hashAlg = this.userConfig.hashAlg ?? SDJwtInstance.DEFAULT_hashAlg;
+    const allowedDisclosureHashAlgorithms =
+      this.userConfig.allowedDisclosureHashAlgorithms ??
+      DEFAULT_SECURE_HASH_ALGORITHMS;
+    if (!allowedDisclosureHashAlgorithms.includes(hashAlg)) {
+      throw new SDJWTException(`Disallowed hash algorithm: ${hashAlg}`);
+    }
 
     const { packedClaims, disclosures } = await pack(
       payload,
@@ -212,6 +233,9 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     const hasher = this.userConfig.hasher;
 
     const sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
+    if (sdjwt.kbJwt) {
+      throw new SDJWTException('Holder cannot present an SD-JWT with KB-JWT');
+    }
 
     if (!sdjwt.jwt?.payload) throw new SDJWTException('Payload not found');
     const presentSdJwtWithoutKb = await sdjwt.present(
@@ -394,10 +418,14 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     // Validate signature and claims
     if (sdjwt?.jwt) {
       try {
-        const result = await this.VerifyJwt(sdjwt.jwt, options);
+        const result = await this.VerifyJwt(sdjwt.jwt, {
+          ...options,
+          skipJwtClaimValidation: true,
+        } as T & VerifierOptions);
         header = result.header;
         const claims = await sdjwt.getClaims(hasher);
         payload = claims as ExtendedPayload;
+        validateJwtPayload(payload, options);
       } catch (e) {
         const error = ensureError(e);
         const code = exceptionToCode(error);
@@ -538,10 +566,14 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
       throw new SDJWTException('Invalid SD JWT');
     }
 
-    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, options);
+    const verifiedPayloads = await this.VerifyJwt(sdjwt.jwt, {
+      ...options,
+      skipJwtClaimValidation: true,
+    } as T & VerifierOptions);
     const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
     // Validate that unpacked claims do not contain reserved field names
     validateReservedFieldsInternal(claims);
+    validateJwtPayload(claims, options);
     return { payload: claims, header: verifiedPayloads.header };
   }
 
@@ -609,6 +641,17 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
       ) {
         throw new SDJWTException(
           `Invalid hash algorithm: ${userConfig.hashAlg}`,
+        );
+      }
+      const allowedDisclosureHashAlgorithms =
+        userConfig.allowedDisclosureHashAlgorithms ??
+        DEFAULT_SECURE_HASH_ALGORITHMS;
+      if (
+        userConfig.hashAlg &&
+        !allowedDisclosureHashAlgorithms.includes(userConfig.hashAlg)
+      ) {
+        throw new SDJWTException(
+          `Disallowed hash algorithm: ${userConfig.hashAlg}`,
         );
       }
       this.userConfig = userConfig;
@@ -738,6 +781,9 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     const hasher = this.userConfig.hasher;
     const encodedSDJwt = generalJSON.toEncoded(0);
     const sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
+    if (sdjwt.kbJwt) {
+      throw new SDJWTException('Holder cannot present an SD-JWT with KB-JWT');
+    }
 
     if (!sdjwt.jwt?.payload) throw new SDJWTException('Payload not found');
     const disclosures = await sdjwt.getPresentDisclosures(
@@ -781,7 +827,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     }
     const hasher = this.userConfig.hasher;
 
-    const { payload, headers } = await this.validate(generalJSON);
+    const { payload, headers } = await this.validate(generalJSON, options);
 
     const encodedSDJwt = generalJSON.toEncoded(0);
     const sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
@@ -856,7 +902,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
 
   // This function is for validating the SD JWT
   // Just checking signature and return its the claims
-  public async validate(generalJSON: GeneralJSON) {
+  public async validate(generalJSON: GeneralJSON, options?: VerifierOptions) {
     if (!this.userConfig.hasher) {
       throw new SDJWTException('Hasher not found');
     }
@@ -874,8 +920,23 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
         const verified = await verifier(
           `${encodedHeader}.${payload}`,
           signature,
+          { ...options, skipJwtClaimValidation: true },
         );
-        const header = decodeBase64urlJsonStrict(encodedHeader, 'Invalid JWT');
+        const header = decodeBase64urlJsonStrict<Record<string, unknown>>(
+          encodedHeader,
+          'Invalid JWT',
+        );
+        if (typeof header.alg !== 'string' || header.alg === 'none') {
+          throw new SDJWTException('Verify Error: alg "none" is not allowed');
+        }
+        if (
+          options?.allowedIssuerAlgorithms &&
+          !options.allowedIssuerAlgorithms.includes(header.alg)
+        ) {
+          throw new SDJWTException(
+            `Verify Error: Disallowed alg ${header.alg}`,
+          );
+        }
         return { verified, header };
       }),
     );
@@ -894,6 +955,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     const claims = await sdjwt.getClaims<ExtendedPayload>(hasher);
     // Validate that unpacked claims do not contain reserved field names
     validateReservedFieldsInternal(claims);
+    validateJwtPayload(claims, options);
     return { payload: claims, headers: results.map((r) => r.header) };
   }
 

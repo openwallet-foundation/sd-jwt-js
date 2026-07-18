@@ -20,6 +20,7 @@ export type GeneralJSONSerialized = {
       disclosures?: Array<string>;
       kid?: string;
       kb_jwt?: string;
+      [key: string]: unknown;
     };
     protected: string;
     signature: string;
@@ -67,6 +68,14 @@ export class GeneralJSON {
   public static fromSerialized(json: GeneralJSONSerialized) {
     if (!json.signatures[0]) {
       throw new SDJWTException('Invalid JSON');
+    }
+    for (let index = 1; index < json.signatures.length; index++) {
+      const header = json.signatures[index].header;
+      if (header && ('disclosures' in header || 'kb_jwt' in header)) {
+        throw new SDJWTException(
+          'disclosures and kb_jwt MUST only appear in the first unprotected header',
+        );
+      }
     }
     const disclosures = json.signatures[0].header?.disclosures ?? [];
     const kb_jwt = json.signatures[0].header?.kb_jwt;

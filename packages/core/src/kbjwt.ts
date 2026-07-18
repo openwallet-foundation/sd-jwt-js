@@ -28,24 +28,44 @@ export class KBJwt<
     }
 
     if (
-      !this.header.alg ||
+      typeof this.header.alg !== 'string' ||
       this.header.alg === 'none' ||
-      !this.header.typ ||
+      typeof this.header.typ !== 'string' ||
       this.header.typ !== KB_JWT_TYP ||
-      !this.payload.iat ||
-      !this.payload.aud ||
-      !this.payload.nonce ||
-      // this is for backward compatibility with version 06
-      !(
-        this.payload.sd_hash ||
-        ('_sd_hash' in this.payload && this.payload._sd_hash)
-      )
+      typeof this.payload.iat !== 'number' ||
+      typeof this.payload.aud !== 'string' ||
+      typeof this.payload.nonce !== 'string' ||
+      typeof this.payload.sd_hash !== 'string' ||
+      this.payload.sd_hash.length === 0
     ) {
       throw new SDJWTException('Invalid Key Binding Jwt');
     }
 
     if (this.payload.nonce !== values.nonce) {
       throw new SDJWTException('Verify Error: Invalid Nonce');
+    }
+
+    if (values.options?.expectedKeyBindingAudience !== undefined) {
+      const expectedAudiences = Array.isArray(
+        values.options.expectedKeyBindingAudience,
+      )
+        ? values.options.expectedKeyBindingAudience
+        : [values.options.expectedKeyBindingAudience];
+      if (!expectedAudiences.includes(this.payload.aud)) {
+        throw new SDJWTException('Verify Error: Invalid Key Binding audience');
+      }
+    }
+
+    if (values.options?.keyBindingMaxAgeSeconds !== undefined) {
+      const currentDate =
+        values.options.currentDate ?? Math.floor(Date.now() / 1000);
+      const skew = values.options.skewSeconds ?? 0;
+      if (
+        this.payload.iat + values.options.keyBindingMaxAgeSeconds + skew <
+        currentDate
+      ) {
+        throw new SDJWTException('Verify Error: Key Binding JWT is too old');
+      }
     }
 
     // Delegate signature verification and common JWT claim validation

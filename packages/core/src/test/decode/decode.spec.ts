@@ -39,12 +39,11 @@ describe('decode tests', () => {
     expect(kbJwt).toBeUndefined();
   });
 
-  test('split sdjwt without disclosures', () => {
+  test('split rejects bare jwt without SD-JWT separator', () => {
     const sdjwt = 'h.p.s';
-    const { jwt, disclosures, kbJwt } = splitSdJwt(sdjwt);
-    expect(jwt).toBe('h.p.s');
-    expect(disclosures).toStrictEqual([]);
-    expect(kbJwt).toBeUndefined();
+    expect(() => splitSdJwt(sdjwt)).toThrow(
+      'Invalid SD-JWT: missing SD-JWT separator',
+    );
   });
 
   test('split sdjwt with kbjwt', () => {
@@ -65,14 +64,12 @@ describe('decode tests', () => {
     expect(decodedSdJwt.jwt).toBeDefined();
   });
 
-  test('decode jwt', async () => {
+  test('decode rejects bare jwt without SD-JWT separator', async () => {
     const jwt =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJsYXN0bmFtZSI6IkRvZSIsInNzbiI6IjEyMy00NS02Nzg5IiwiX3NkIjpbIk4yUXhZV1UxTlRnME1qQmpOR1JpWVRCaU1tRmtaamN5WXpSbFpXUmhaRGd5WkRCbE1qaGhZVGcwTnpJMU9XSXpZek5qWkdNNE1qZG1NVGN6TmpZd05RIiwiWlRSalkyUTVOemRoWkRVM05tWTFZV0UyTmpka01XVmpNRE16WXpOak5qQmtNak5pT0dZelpHSTBOelV4TURsak9EWTRNREEzWm1JeFpUY3daREZqTmciXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.mX14Sw86xy8NFQta7tCfNmhVCqzfaJ_K3VEIhTjbLDY';
-    const decodedSdJwt = await decodeSdJwt(jwt, digest);
-    expect(decodedSdJwt).toBeDefined();
-    expect(decodedSdJwt.kbJwt).toBeUndefined();
-    expect(decodedSdJwt.disclosures.length).toEqual(0);
-    expect(decodedSdJwt.jwt).toBeDefined();
+    await expect(decodeSdJwt(jwt, digest)).rejects.toThrow(
+      'Invalid SD-JWT: missing SD-JWT separator',
+    );
   });
 
   test('decode sdjwt sync', () => {
@@ -85,14 +82,12 @@ describe('decode tests', () => {
     expect(decodedSdJwt.jwt).toBeDefined();
   });
 
-  test('decode jwt sync', () => {
+  test('decode sync rejects bare jwt without SD-JWT separator', () => {
     const jwt =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6InNkK2p3dCJ9.eyJsYXN0bmFtZSI6IkRvZSIsInNzbiI6IjEyMy00NS02Nzg5IiwiX3NkIjpbIk4yUXhZV1UxTlRnME1qQmpOR1JpWVRCaU1tRmtaamN5WXpSbFpXUmhaRGd5WkRCbE1qaGhZVGcwTnpJMU9XSXpZek5qWkdNNE1qZG1NVGN6TmpZd05RIiwiWlRSalkyUTVOemRoWkRVM05tWTFZV0UyTmpka01XVmpNRE16WXpOak5qQmtNak5pT0dZelpHSTBOelV4TURsak9EWTRNREEzWm1JeFpUY3daREZqTmciXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.mX14Sw86xy8NFQta7tCfNmhVCqzfaJ_K3VEIhTjbLDY';
-    const decodedSdJwt = decodeSdJwtSync(jwt, digest);
-    expect(decodedSdJwt).toBeDefined();
-    expect(decodedSdJwt.kbJwt).toBeUndefined();
-    expect(decodedSdJwt.disclosures.length).toEqual(0);
-    expect(decodedSdJwt.jwt).toBeDefined();
+    expect(() => decodeSdJwtSync(jwt, digest)).toThrow(
+      'Invalid SD-JWT: missing SD-JWT separator',
+    );
   });
 
   test('decode sdjwt sync (with KB)', () => {

@@ -498,7 +498,7 @@ describe('KB JWT', () => {
     expect(verified.payload.exp).toBe(1000);
   });
 
-  test('compatibility test for version 06', async () => {
+  test('rejects draft-era _sd_hash without sd_hash', async () => {
     const { privateKey, publicKey } = Crypto.generateKeyPairSync('ed25519');
     const testSigner: Signer = async (data: string) => {
       const sig = Crypto.sign(null, Buffer.from(data), privateKey);
@@ -544,22 +544,12 @@ describe('KB JWT', () => {
 
     const encodedKbJwt = await kbJwt.sign(testSigner);
     const decoded = KBJwt.fromKBEncode(encodedKbJwt);
-    const verified = await decoded.verifyKB({
-      verifier: testVerifier,
-      payload,
-      nonce: 'nonce',
-    });
-    expect(verified).toStrictEqual({
-      header: {
-        typ: KB_JWT_TYP,
-        alg: 'EdDSA',
-      },
-      payload: {
-        iat: 1,
-        aud: 'aud',
+    await expect(
+      decoded.verifyKB({
+        verifier: testVerifier,
+        payload,
         nonce: 'nonce',
-        _sd_hash: 'hash',
-      },
-    });
+      }),
+    ).rejects.toThrow('Invalid Key Binding Jwt');
   });
 });

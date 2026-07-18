@@ -1,7 +1,7 @@
 {
   "name": "@sd-jwt/core",
   "version": "0.20.0",
-  "description": "sd-jwt draft 7 implementation in typescript",
+  "description": "SD-JWT RFC 9901 implementation in TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

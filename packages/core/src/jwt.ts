@@ -33,9 +33,35 @@ export type VerifierOptions = {
   requiredClaimKeys?: string[];
 
   /**
+   * Expected audience for the processed SD-JWT payload.
+   */
+  expectedAudience?: string | string[];
+
+  /**
+   * Allowed JOSE algorithms for issuer-signed JWTs. `none` is always rejected.
+   */
+  allowedIssuerAlgorithms?: string[];
+
+  /**
    * nonce used to verify the key binding jwt to prevent replay attacks.
    */
   keyBindingNonce?: string;
+
+  /**
+   * Expected audience for the Key Binding JWT.
+   */
+  expectedKeyBindingAudience?: string | string[];
+
+  /**
+   * Maximum acceptable age of the Key Binding JWT, in seconds.
+   */
+  keyBindingMaxAgeSeconds?: number;
+
+  /**
+   * Internal option used by SD-JWT validation to defer claim checks until after
+   * disclosures are processed.
+   */
+  skipJwtClaimValidation?: boolean;
 
   /**
    * disable the verification of the status claim in the payload.
@@ -48,6 +74,75 @@ export type VerifierOptions = {
    * any other custom options
    */
   [key: string]: unknown;
+};
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string');
+
+const validateNumericDate = (
+  payload: Record<string, unknown>,
+  claim: 'iat' | 'nbf' | 'exp',
+) => {
+  const value = payload[claim];
+  if (value === undefined) return undefined;
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw new SDJWTException(`Verify Error: JWT ${claim} must be a number`);
+  }
+  return value;
+};
+
+const getAudiences = (audience: unknown): string[] | undefined => {
+  if (typeof audience === 'string') return [audience];
+  if (isStringArray(audience)) return audience;
+  return undefined;
+};
+
+const validateAudience = (
+  payload: Record<string, unknown>,
+  expectedAudience: string | string[] | undefined,
+) => {
+  if (expectedAudience === undefined) return;
+
+  const expectedAudiences = Array.isArray(expectedAudience)
+    ? expectedAudience
+    : [expectedAudience];
+  const audiences = getAudiences(payload.aud);
+
+  if (
+    !audiences ||
+    !expectedAudiences.some((expected) => audiences.includes(expected))
+  ) {
+    throw new SDJWTException('Verify Error: Invalid audience');
+  }
+};
+
+export const validateJwtPayload = (
+  payload: Record<string, unknown> | undefined,
+  options?: VerifierOptions,
+) => {
+  if (!payload) {
+    throw new SDJWTException('Verify Error: JWT payload is missing');
+  }
+
+  const skew = options?.skewSeconds ? options.skewSeconds : 0;
+  const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
+  const iat = validateNumericDate(payload, 'iat');
+  const nbf = validateNumericDate(payload, 'nbf');
+  const exp = validateNumericDate(payload, 'exp');
+
+  if (iat !== undefined && iat - skew > currentDate) {
+    throw new SDJWTException('Verify Error: JWT is not yet valid');
+  }
+
+  if (nbf !== undefined && nbf - skew > currentDate) {
+    throw new SDJWTException('Verify Error: JWT is not yet valid');
+  }
+
+  if (exp !== undefined && exp + skew <= currentDate) {
+    throw new SDJWTException('Verify Error: JWT is expired');
+  }
+
+  validateAudience(payload, options?.expectedAudience);
 };
 
 // This class is used to create and verify JWT
@@ -127,6 +222,9 @@ export class Jwt<
   }
 
   public async sign(signer: Signer) {
+    if (!this.header || this.header.alg === 'none') {
+      throw new SDJWTException('Sign Error: alg "none" is not allowed');
+    }
     const data = this.getUnsignedToken();
     this.signature = await signer(data);
 
@@ -159,21 +257,19 @@ export class Jwt<
    * @returns
    */
   public async verify<T>(verifier: Verifier<T>, options?: T & VerifierOptions) {
-    const skew = options?.skewSeconds ? options.skewSeconds : 0;
-    const currentDate = options?.currentDate ?? Math.floor(Date.now() / 1000);
-    const iat = this.payload?.iat;
-    const nbf = this.payload?.nbf;
-    const exp = this.payload?.exp;
-
-    if (typeof iat === 'number' && iat - skew > currentDate) {
-      throw new SDJWTException('Verify Error: JWT is not yet valid');
+    const alg = this.header?.alg;
+    if (typeof alg !== 'string' || alg === 'none') {
+      throw new SDJWTException('Verify Error: alg "none" is not allowed');
+    }
+    if (
+      options?.allowedIssuerAlgorithms &&
+      !options.allowedIssuerAlgorithms.includes(alg)
+    ) {
+      throw new SDJWTException(`Verify Error: Disallowed alg ${alg}`);
     }
 
-    if (typeof nbf === 'number' && nbf - skew > currentDate) {
-      throw new SDJWTException('Verify Error: JWT is not yet valid');
-    }
-    if (typeof exp === 'number' && exp + skew < currentDate) {
-      throw new SDJWTException('Verify Error: JWT is expired');
+    if (!options?.skipJwtClaimValidation) {
+      validateJwtPayload(this.payload, options);
     }
 
     if (!this.signature) {

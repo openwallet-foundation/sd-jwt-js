@@ -1,4 +1,7 @@
 import {
+  DEFAULT_SECURE_HASH_ALGORITHMS,
+  encodePathSegment,
+  type HashAlgorithm,
   type Hasher,
   type HasherAndAlg,
   type HasherAndAlgSync,
@@ -39,12 +42,7 @@ export const splitSdJwt = (
 ): { jwt: string; disclosures: string[]; kbJwt?: string } => {
   const [encodedJwt, ...encodedDisclosures] = sdjwt.split(SD_SEPARATOR);
   if (encodedDisclosures.length === 0) {
-    // if input is just jwt, then return here.
-    // This is for compatibility with jwt
-    return {
-      jwt: encodedJwt,
-      disclosures: [],
-    };
+    throw new SDJWTException('Invalid SD-JWT: missing SD-JWT separator');
   }
 
   const encodedKeyBindingJwt = encodedDisclosures.pop();
@@ -65,12 +63,7 @@ export const decodeSdJwt = async (
   const jwt = decodeJwt(encodedJwt);
 
   if (encodedDisclosures.length === 0) {
-    // if input is just jwt, then return here.
-    // This is for compatibility with jwt
-    return {
-      jwt,
-      disclosures: [],
-    };
+    throw new SDJWTException('Invalid SD-JWT: missing SD-JWT separator');
   }
 
   const encodedKeyBindingJwt = encodedDisclosures.pop();
@@ -101,12 +94,7 @@ export const decodeSdJwtSync = (
   const jwt = decodeJwt(encodedJwt);
 
   if (encodedDisclosures.length === 0) {
-    // if input is just jwt, then return here.
-    // This is for compatibility with jwt
-    return {
-      jwt,
-      disclosures: [],
-    };
+    throw new SDJWTException('Invalid SD-JWT: missing SD-JWT separator');
   }
 
   const encodedKeyBindingJwt = encodedDisclosures.pop();
@@ -163,7 +151,10 @@ const unpackArray = (
   arr.forEach((item, idx) => {
     if (isRecord(item)) {
       const hash = item[SD_LIST_KEY];
-      if (typeof hash === 'string') {
+      if (SD_LIST_KEY in item) {
+        if (Object.keys(item).length !== 1 || typeof hash !== 'string') {
+          throw new SDJWTException('Invalid array disclosure placeholder');
+        }
         // RFC 9901 Section 7.1 step 4: reject duplicate digests
         if (seenDigests) {
           if (seenDigests.has(hash)) {
@@ -175,6 +166,11 @@ const unpackArray = (
         }
         const disclosed = map[hash];
         if (disclosed) {
+          if (typeof disclosed.key === 'string') {
+            throw new SDJWTException(
+              'Object-property disclosure cannot be used as an array element',
+            );
+          }
           const presentKey = prefix ? `${prefix}.${idx}` : `${idx}`;
           keys[presentKey] = hash;
 
@@ -232,12 +228,16 @@ const unpackObjInternal = (
 
     const record = obj as Record<string, unknown>;
     for (const key in record) {
+      if (prefix && key === '_sd_alg') {
+        throw new SDJWTException('Nested _sd_alg is not allowed');
+      }
       if (
         key !== SD_DIGEST &&
         key !== SD_LIST_KEY &&
         typeof record[key] === 'object'
       ) {
-        const newKey = prefix ? `${prefix}.${key}` : key;
+        const escapedKey = encodePathSegment(key);
+        const newKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
         const { unpackedObj, disclosureKeymap: disclosureKeys } =
           unpackObjInternal(record[key], map, newKey, seenDigests);
         record[key] = unpackedObj;
@@ -249,7 +249,15 @@ const unpackObjInternal = (
       _sd?: Array<string>;
     };
     const claims: Record<string, unknown> = {};
-    if (_sd) {
+    if (_sd !== undefined) {
+      if (
+        !Array.isArray(_sd) ||
+        !_sd.every((hash) => typeof hash === 'string')
+      ) {
+        throw new SDJWTException(
+          'Invalid _sd claim: expected array of strings',
+        );
+      }
       for (const hash of _sd) {
         // RFC 9901 Section 7.1 step 4: reject duplicate digests
         if (seenDigests) {
@@ -261,17 +269,26 @@ const unpackObjInternal = (
           seenDigests.add(hash);
         }
         const disclosed = map[hash];
-        if (disclosed?.key) {
+        if (disclosed) {
+          if (typeof disclosed.key !== 'string') {
+            throw new SDJWTException(
+              'Array disclosure cannot be used as an object property',
+            );
+          }
           // RFC 9901 Section 7.1 step 3c.ii.3: reject if claim name already exists
           if (disclosed.key in payload) {
             throw new SDJWTException(
               `Disclosed claim name "${disclosed.key}" conflicts with existing payload key`,
             );
           }
+          if (disclosed.key in claims) {
+            throw new SDJWTException(
+              `Disclosed claim name "${disclosed.key}" conflicts with another disclosure`,
+            );
+          }
 
-          const presentKey = prefix
-            ? `${prefix}.${disclosed.key}`
-            : disclosed.key;
+          const escapedKey = encodePathSegment(disclosed.key);
+          const presentKey = prefix ? `${prefix}.${escapedKey}` : escapedKey;
           keys[presentKey] = hash;
 
           const { unpackedObj, disclosureKeymap: disclosureKeys } =
@@ -297,6 +314,9 @@ export const createHashMapping = async (
   for (let i = 0; i < disclosures.length; i++) {
     const disclosure = disclosures[i];
     const digest = await disclosure.digest(hash);
+    if (digest in map) {
+      throw new SDJWTException('Duplicate disclosure digest detected');
+    }
     map[digest] = disclosure;
   }
   return map;
@@ -310,17 +330,25 @@ export const createHashMappingSync = (
   for (let i = 0; i < disclosures.length; i++) {
     const disclosure = disclosures[i];
     const digest = disclosure.digestSync(hash);
+    if (digest in map) {
+      throw new SDJWTException('Duplicate disclosure digest detected');
+    }
     map[digest] = disclosure;
   }
   return map;
 };
 
 // Extract _sd_alg. If it is not present, it is assumed to be sha-256
-export const getSDAlgAndPayload = (SdJwtPayload: Record<string, unknown>) => {
+export const getSDAlgAndPayload = (
+  SdJwtPayload: Record<string, unknown>,
+  allowedAlgorithms: ReadonlyArray<HashAlgorithm> = DEFAULT_SECURE_HASH_ALGORITHMS,
+) => {
   const { _sd_alg, ...payload } = SdJwtPayload;
-  if (typeof _sd_alg !== 'string') {
-    // This is for compatibility
+  if (_sd_alg === undefined) {
     return { _sd_alg: 'sha-256', payload };
+  }
+  if (typeof _sd_alg !== 'string') {
+    throw new SDJWTException('Invalid _sd_alg: expected string');
   }
   if (
     !IANA_HASH_ALGORITHMS.includes(
@@ -328,6 +356,9 @@ export const getSDAlgAndPayload = (SdJwtPayload: Record<string, unknown>) => {
     )
   ) {
     throw new SDJWTException(`Invalid _sd_alg: ${_sd_alg}`);
+  }
+  if (!allowedAlgorithms.includes(_sd_alg as HashAlgorithm)) {
+    throw new SDJWTException(`Disallowed _sd_alg: ${_sd_alg}`);
   }
   return { _sd_alg, payload };
 };

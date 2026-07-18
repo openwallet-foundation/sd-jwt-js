@@ -10,7 +10,12 @@ import {
   unpackSync,
 } from '../decode';
 import type { Extensible, HasherSync } from '../types';
-import { type Hasher, type PresentationFrame, SD_SEPARATOR } from '../types';
+import {
+  encodePath,
+  type Hasher,
+  type PresentationFrame,
+  SD_SEPARATOR,
+} from '../types';
 import { Disclosure, SDJWTException } from '../utils';
 
 // Presentable keys
@@ -117,18 +122,19 @@ export const presentSync = <T extends Record<string, unknown>>(
  */
 export const transformPresentationFrame = (
   obj: PresentationFrame<Extensible>,
-  prefix = '',
+  prefix: string[] = [],
 ): string[] => {
   return Object.entries(obj).reduce<string[]>((acc, [key, value]) => {
-    const newPrefix = prefix ? `${prefix}.${key}` : key;
+    const newPrefix = [...prefix, key];
+    const encodedPrefix = encodePath(newPrefix);
     if (typeof value === 'boolean') {
       // only add it, when it's true
       if (value) {
-        acc.push(newPrefix);
+        acc.push(encodedPrefix);
       }
     } else if (typeof value === 'object' && value !== null) {
       acc.push(
-        newPrefix,
+        encodedPrefix,
         ...transformPresentationFrame(
           value as PresentationFrame<Extensible>,
           newPrefix,
