@@ -14,6 +14,7 @@ import {
   type SafeVerifyResult,
   SD_DECOY,
   SD_DIGEST,
+  SD_LIST_KEY,
   type SDJWTCompact,
   type SDJWTConfig,
   type Signer,
@@ -44,14 +45,11 @@ export type SdJwtPayload = Record<string, unknown>;
 
 /**
  * Internal utility function to validate that a payload does not contain reserved field names.
- * Recursively checks all nested objects for reserved field names: _sd, _sd_alg, _sd_decoy
- * @param payload - The payload to validate
- * @throws SDJWTException if any reserved field names are found
  */
 function validateReservedFieldsInternal(
   payload: Record<string, unknown>,
 ): void {
-  const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY]);
+  const reservedFields = new Set([SD_DIGEST, '_sd_alg', SD_DECOY, SD_LIST_KEY]);
 
   const visit = (node: unknown) => {
     if (!node || typeof node !== 'object') {
