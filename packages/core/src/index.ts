@@ -245,7 +245,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     const hasher = this.userConfig.hasher;
 
     const sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
-    if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+    if (!sdjwt.jwt?.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
     const { payload, header } = await this.validate(encodedSDJwt, options);
@@ -381,7 +381,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
 
     try {
       sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
-      if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+      if (!sdjwt.jwt?.payload) {
         addError('INVALID_SD_JWT', 'Invalid SD JWT: missing JWT or payload');
       }
     } catch (e) {
@@ -513,7 +513,7 @@ export class SDJwtInstance<ExtendedPayload extends SdJwtPayload, T = unknown> {
     sdjwt: SDJwt,
     hasher: Hasher,
   ) {
-    if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+    if (!sdjwt.jwt?.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
     const { _sd_alg } = getSDAlgAndPayload(sdjwt.jwt.payload);
@@ -787,7 +787,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
 
     const encodedSDJwt = generalJSON.toEncoded(0);
     const sdjwt = await SDJwt.fromEncode(encodedSDJwt, hasher);
-    if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+    if (!sdjwt.jwt?.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
 
@@ -847,7 +847,7 @@ export class SDJwtGeneralJSONInstance<ExtendedPayload extends SdJwtPayload> {
     sdjwt: SDJwt,
     hasher: Hasher,
   ) {
-    if (!sdjwt.jwt || !sdjwt.jwt.payload) {
+    if (!sdjwt.jwt?.payload) {
       throw new SDJWTException('Invalid SD JWT');
     }
     const { _sd_alg } = getSDAlgAndPayload(sdjwt.jwt.payload);

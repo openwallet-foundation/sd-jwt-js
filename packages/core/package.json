@@ -37,10 +37,10 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@owf/crypto": "^0.1.0-alpha-20260312123226"
+    "@owf/crypto": "^0.3.1"
   },
   "dependencies": {
-    "@owf/identity-common": "^0.1.0-alpha-20260312123226"
+    "@owf/identity-common": "^0.3.1"
   },
   "publishConfig": {
     "access": "public"
