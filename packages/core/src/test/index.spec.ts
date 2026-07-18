@@ -127,51 +127,49 @@ describe('index', () => {
     ).rejects.toThrow('Reserved field name "_sd" is not allowed');
   });
 
-  test.each(['_sd', '...'])(
-    'validate rejects disclosure resolving to reserved claim name %s',
-    async (reservedClaimName) => {
-      const { signer, verifier } = createSignerVerifier();
-      const sdjwt = new SDJwtInstance<SdJwtPayload>({
-        signer,
-        signAlg: 'EdDSA',
-        verifier,
-        hasher: digest,
-        saltGenerator: generateSalt,
-      });
+  test.each([
+    '_sd',
+    '...',
+  ])('validate rejects disclosure resolving to reserved claim name %s', async (reservedClaimName) => {
+    const { signer, verifier } = createSignerVerifier();
+    const sdjwt = new SDJwtInstance<SdJwtPayload>({
+      signer,
+      signAlg: 'EdDSA',
+      verifier,
+      hasher: digest,
+      saltGenerator: generateSalt,
+    });
 
-      const disclosure = new Disclosure([
-        await generateSalt(16),
-        reservedClaimName,
-        'reserved',
-      ]);
-      const disclosureDigest = await disclosure.digest({
-        hasher: digest,
-        alg: 'sha-256',
-      });
-      const header = Buffer.from(JSON.stringify({ alg: 'EdDSA' })).toString(
-        'base64url',
-      );
-      const payload = Buffer.from(
-        JSON.stringify({
-          _sd: [disclosureDigest],
-          iss: 'Issuer',
-          iat: Math.floor(Date.now() / 1000),
-          vct: '',
-          _sd_alg: 'sha-256',
-        }),
-      ).toString('base64url');
-      const unsignedJwt = `${header}.${payload}`;
-      const signature = await signer(unsignedJwt);
+    const disclosure = new Disclosure([
+      await generateSalt(16),
+      reservedClaimName,
+      'reserved',
+    ]);
+    const disclosureDigest = await disclosure.digest({
+      hasher: digest,
+      alg: 'sha-256',
+    });
+    const header = Buffer.from(JSON.stringify({ alg: 'EdDSA' })).toString(
+      'base64url',
+    );
+    const payload = Buffer.from(
+      JSON.stringify({
+        _sd: [disclosureDigest],
+        iss: 'Issuer',
+        iat: Math.floor(Date.now() / 1000),
+        vct: '',
+        _sd_alg: 'sha-256',
+      }),
+    ).toString('base64url');
+    const unsignedJwt = `${header}.${payload}`;
+    const signature = await signer(unsignedJwt);
 
-      await expect(
-        sdjwt.validate(
-          `${unsignedJwt}.${signature}~${disclosure.encode()}~`,
-        ),
-      ).rejects.toThrow(
-        `Reserved field name "${reservedClaimName}" is not allowed`,
-      );
-    },
-  );
+    await expect(
+      sdjwt.validate(`${unsignedJwt}.${signature}~${disclosure.encode()}~`),
+    ).rejects.toThrow(
+      `Reserved field name "${reservedClaimName}" is not allowed`,
+    );
+  });
 
   test('verify failed', async () => {
     const { signer } = createSignerVerifier();
