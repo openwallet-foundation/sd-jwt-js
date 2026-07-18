@@ -10,8 +10,8 @@ A framework-agnostic, production-ready implementation of [Selective Disclosure f
 
 > **Note:** This repository has been restructured to focus exclusively on SD-JWT and SD-JWT-VC.
 > - `@sd-jwt/types`, `@sd-jwt/utils`, `@sd-jwt/decode`, `@sd-jwt/present` have been consolidated into `@sd-jwt/core`
-> - `@sd-jwt/hash`, `@sd-jwt/crypto-nodejs`, `@sd-jwt/crypto-browser` have been consolidated into `@owf/crypto` in the [identity-common-ts](https://github.com/openwallet-foundation/identity-common-ts) project
-> - `@sd-jwt/jwt-status-list`) has been moved to the [identity-common-ts](https://github.com/openwallet-foundation/identity-common-ts) project as `@owf/token-status-list`.
+> - `@sd-jwt/hash`, `@sd-jwt/crypto-nodejs`, `@sd-jwt/crypto-browser` have been consolidated into `@owf/crypto` in the [identity-common-ts](https://github.com/openwallet-foundation-labs/identity-common-ts) project
+> - `@sd-jwt/jwt-status-list`) has been moved to the [identity-common-ts](https://github.com/openwallet-foundation-labs/identity-common-ts) project as `@owf/token-status-list`.
 
 Compliant with:
 
