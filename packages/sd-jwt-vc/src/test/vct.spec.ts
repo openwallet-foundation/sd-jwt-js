@@ -341,6 +341,21 @@ describe('App', () => {
     );
   });
 
+  test('VCT Metadata retrieval fails when fetched type metadata is invalid', async () => {
+    const expectedPayload: SdJwtVcPayload = {
+      iat,
+      iss,
+      vct: 'http://example.com/invalid',
+      ...claims,
+    };
+    const encodedSdjwt = await sdjwt.issue(
+      expectedPayload,
+      disclosureFrame as unknown as DisclosureFrame<SdJwtVcPayload>,
+    );
+
+    await expect(sdjwt.getVct(encodedSdjwt)).rejects.toThrowError();
+  });
+
   test('VCT with extends - simple chain', async () => {
     const expectedPayload: SdJwtVcPayload = {
       iat,
