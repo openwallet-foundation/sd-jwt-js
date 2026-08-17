@@ -4,7 +4,7 @@
 ![Release](https://img.shields.io/github/v/release/openwallet-foundation/sd-jwt-js)
 ![Stars](https://img.shields.io/github/stars/openwallet-foundation/sd-jwt-js)
 
-# SD-JWT Implementation in JavaScript (TypeScript)
+# SD-JWT JavaScript Reference Implementation (TypeScript)
 
 A framework-agnostic, production-ready implementation of [Selective Disclosure for JWTs (SD-JWT)](https://www.rfc-editor.org/rfc/rfc9901.html) in TypeScript. Works with Node.js, React, React Native, and browser environments. Optimised for compact QR code payloads.
 
