@@ -1,3 +1,8 @@
+# ⚠️ MOVED
+The sd-jwt libraries have **moved** to the [Identity Common](https://github.com/openwallet-foundation-labs/identity-common-ts/tree/main/packages/sd-jwt-core) repository. This repository will not see updates anymore. The package is still published under [@sd-jwt/core](https://www.npmjs.com/package/@sd-jwt/sd-jwt-vc) and [@sd-jwt/core](https://www.npmjs.com/package/@sd-jwt/sd-jwt-vc).
+
+---
+
 ![Coverage](https://img.shields.io/codecov/c/github/openwallet-foundation/sd-jwt-js)
 ![License](https://img.shields.io/github/license/openwallet-foundation/sd-jwt-js.svg)
 ![NPM](https://img.shields.io/npm/v/%40sd-jwt%2Fcore)
