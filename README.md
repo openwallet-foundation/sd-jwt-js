@@ -1,5 +1,9 @@
-# ⚠️ MOVED
-The sd-jwt libraries have **moved** to the [Identity Common](https://github.com/openwallet-foundation-labs/identity-common-ts/tree/main/packages/sd-jwt-core) repository. This repository will not see updates anymore. The package is still published under [@sd-jwt/core](https://www.npmjs.com/package/@sd-jwt/sd-jwt-vc) and [@sd-jwt/core](https://www.npmjs.com/package/@sd-jwt/sd-jwt-vc).
+#  ⚠️ IMPORTANT: PROJECT ARCHIVED
+Feature development in SD JWT JS ended in September 2026 when the maintainers decided to merge with Identity Common - TS and then migrated from OpenWallet Foundation to LF Decentralized Trust. 
+
+To follow the progress, use the code, or contribute to it, visit the Identity Common-TS Repository: [https://github.com/openwallet-foundation-labs/identity-common-ts](https://github.com/openwallet-foundation-labs/identity-common-ts) 
+
+For any questions or issues, check with the maintainers on the [LFDT Discord](https://discord.lfdecentralizedtrust.org/) or email support@lfdecentralizedtrust.org.
 
 ---
 
